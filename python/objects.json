@@ -1,0 +1,19 @@
+{
+	"objects": {
+		"robot_GR": {
+			"physics": {
+				"shape": {
+					"type": "polygon",
+					"data": [0, 0, 50, 0, 50, 45, 45, 50, 5, 50, 0, 45]              , "__comment__":"x1, y1, x2, y2..."
+				},
+				"collisions": {
+					"brim": 200                                                      , "__comment__":"stay at least this distance away for security"
+				},
+				"properties": {
+					"type": "dynamic",
+					"multiple": "false"
+				}
+			}
+		}
+	}
+}
