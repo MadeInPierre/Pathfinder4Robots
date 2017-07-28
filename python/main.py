@@ -1,5 +1,5 @@
-
-
+import math, pyclipper
+# polygon offset : https://pypi.python.org/pypi/pyclipper
 
 class Pathfinder():
 	def __init__(self):
@@ -16,27 +16,3 @@ class Pathfinder():
 	def GetPath_Curve(self):
 		pass
 
-
-class Map():
-	def __init__(self):
-		self.MAP_SIZE = (3000, 2000) # real map size in mm
-
-		pass
-
-class PathVisualizer():
-	def __init__(self):
-		self.DRAW_CONFIG = {
-			"terrain": "",
-			"robots": "",
-			"": ""
-		}
-
-
-
-class Entity():
-	pass
-
-class Robot(Entity):
-	pass
-
-class Module()
