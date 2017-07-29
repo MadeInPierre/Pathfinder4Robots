@@ -1,9 +1,11 @@
-main : 
+# Work in Progress
 
-objects.json : description of what objects will be present in the map
+`main.py` : 
 
-map.py : holds all objects instances and properties.
+`objects.json` : description of what objects will be present in the map
 
-objects.py : helper classes for basic geometry classes
+`map.py` : holds all objects instances and properties.
 
-visualizer.py : simple GUI for viewing the map
+`objects.py` : helper classes for basic geometry classes
+
+`visualizer.py` : simple GUI for viewing the map
