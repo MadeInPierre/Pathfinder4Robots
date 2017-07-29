@@ -1,7 +1,7 @@
 {
 	"terrain": {
 		"fixed_map": {
-			"path": "img/terrain_map.png"
+			"img_path": "img/terrain_map.png"
 		}
 	},
 

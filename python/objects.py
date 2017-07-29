@@ -1,3 +1,5 @@
+import math, pyclipper
+
 class Object():
 	def __init__(self):
 		self.Pos = [0, 0, 0] # x, y, theta
