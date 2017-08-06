@@ -106,7 +106,7 @@ def parse_grid(grid_str, width, height):
     lines = ([''] * top + lines + [''] * bottom)[:height]
 
     # Pad the left and right sides.
-    max_len = max(len(line) for line in lines)
+    max_len = max(len(line) for line in lines) 
     left = (width - max_len) // 2
     lines = [' ' * left + line.ljust(width - left)[:width - left]
              for line in lines]
