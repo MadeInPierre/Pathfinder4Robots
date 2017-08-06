@@ -6,19 +6,19 @@
 		},
 		"walls": {
 			"img_path": "map_walls.bmp",
-			"data": null
+			"img": null
 		},
 		"zones": {
-			"goal": {
+			"side_modules": {
 				"position": {
-					"x": 20,
-					"y": 120,
+					"x": 0,
+					"y": 700,
 					"type": "fixed"
 				},
 				"shape": {
 					"type": "rect",
-					"width": 200,
-					"height": 600
+					"width": 80,
+					"height": 450
 				},
 				"properties": {
 					"walkable": true
@@ -28,8 +28,8 @@
 		"waypoints": {
 			"fire": {
 				"position": {
-					"x": 300,
-					"y": 460,
+					"x": 180,
+					"y": 180,
 					"type": "fixed"
 				}
 			}

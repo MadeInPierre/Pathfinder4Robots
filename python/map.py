@@ -1,4 +1,7 @@
 import json
+import numpy as np
+import cv2
+from visualizer import *
 
 '''
 The Map class keeps a Dict containing everything in the environment.
@@ -42,6 +45,8 @@ class MapManager():
 			waypoints = MapDict["terrain"]["waypoints"]
 			for waypoint in waypoints:
 				waypoints[waypoint] = Waypoint(waypoint, waypoints[waypoint])
+
+			MapDict["terrain"]["walls"]["img"] = cv2.imread(MapDict["terrain"]["walls"]["img_path"])
 
 			# -------- Entities
 			entities = MapDict["entities"]
@@ -147,71 +152,6 @@ class Trajectory():
 		pass
 
 
-
-
-
-
-'''
-class JSON_decoder():
-	def GetInitMapDict(self, filename):
-		MapDict = { # Will be filled with the JSON file.
-			"terrain":    {},  # PNG. black pixel is wall, white is free space,
-			"lidar":      {},  # latest lidar scan. can be added to the pathfinding map for live object avoidance.
-			"entities":   {},  # robots : position, shape for collision planning...,
-			"objects":    {},  # game objects (collectable and moving things)
-			"unknown":    {},  # things the lidar detects that are not recognised but considered as obstacles.
-
-			"trajectory": {}   # Keeps records of the moves the robot made.
-		}
-		with open(filename) as f:
-			data = json.load(f)
-
-			# Load terrain
-			terrain_path = data["terrain"]["fixed_map"]["img_path"]
-			MapDict.terrain["img_path"] = terrain_path
-			matrix = numpy.asarray(cv.LoadImageM(terrain_path, 1)).tolist()
-
-
-		return MapDict # returns a python dict ready to be given to the Map
-'''
-
-
-
-
-map_dict = {
-	"terrain": {
-		"map_weigth": 3000,
-		"map_height": 2000,
-		"walls_img": {
-			"path": "",
-			"data": 0
-		},
-		"zones": {
-			"goal": {
-				"shape": {
-					"type": "rect",
-					"data": "0,0,3,3"
-				}
-			}
-		},
-		"points": {
-
-		}
-	},
-	"entities": {
-		"robot_GR": {
-			"position": (0, 0, 0),
-			"shape": 0 
-		}
-	},
-	"objects": {
-		"fixed": {
-
-		},
-		"dynamic": {
-
-		}
-	}
-}
-
 map = MapManager("map_init.json")
+viz = MapVisualizer()
+viz.Draw(map)
