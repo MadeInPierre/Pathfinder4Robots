@@ -1,5 +1,6 @@
 class Pathfinder():
 	def __init__(self):
+		# Uses a map object
 		pass
 
 	def SetGoal(self):

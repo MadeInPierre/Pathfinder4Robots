@@ -1,0 +1,123 @@
+{
+	"terrain": {
+		"map_size": {
+			"width": 3000,
+			"height": 2000
+		},
+		"walls": {
+			"img_path": "map_walls.bmp",
+			"data": null
+		},
+		"zones": {
+			"goal": {
+				"position": {
+					"x": 20,
+					"y": 120,
+					"type": "fixed"
+				},
+				"shape": {
+					"type": "rect",
+					"width": 200,
+					"height": 600
+				},
+				"properties": {
+					"walkable": true
+				}
+			}
+		},
+		"waypoints": {
+			"fire": {
+				"position": {
+					"x": 300,
+					"y": 460,
+					"type": "fixed"
+				}
+			}
+		}
+	},
+	"entities": {
+		"ROBOT": {
+			"position": {
+				"x": 200,
+				"y": 1000,
+				"a": 3.1415,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "polygon",
+				"points": [[200, 200], [300, 300], [600, 600]]
+			},
+			"chest": {
+
+			},
+			"trajectory": {
+
+			}
+		},
+		"Enemy": {
+			"position": {
+				"x": 2000,
+				"y": 1200,
+				"a": 3.1415,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "polygon",
+				"points": [[200, 200], [300, 300], [600, 600]]
+			},
+			"chest": {
+
+			},
+			"trajectory": {
+
+			}
+		}
+	},
+	"objects": {
+		"tower_1": {
+			"position": {
+				"x": 600,
+				"y": 600,
+				"type": "fixed"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 60
+			},
+			"chest": {
+				"module_1": {
+					"position": {
+						"x": 600,
+						"y": 600,
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 60
+					},
+					"userdata": {
+						"color": "blue"
+					}
+				}
+			},
+			"userdata": {}
+		},
+		"module_1": {
+			"position": {
+				"x": 400,
+				"y": 900,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 60
+			},
+			"userdata": {
+				"color": "blue"
+			}
+		}
+	},
+	"lidar": {
+		
+	}
+}

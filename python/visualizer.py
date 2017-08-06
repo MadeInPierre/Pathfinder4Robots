@@ -1,7 +1,10 @@
-class PathVisualizer():
+
+
+class MapVisualizer():
 	def __init__(self):
-		self.DRAW_CONFIG = {
-			"terrain": "",
-			"robots": "",
-			"": ""
+		self.CONFIG = {
+
 		}
+
+	def Draw():
+		pass
