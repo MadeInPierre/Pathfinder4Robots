@@ -1,3 +1,118 @@
+import math
+
+'''
+HIGH LEVEL DEFINITION CLASSES
+'''
+
+'''TODO
+class obj():
+	def __init(self, initdict):
+		self.Name = name
+		self.Position = Position(initdict["position"])
+'''
+class Object():
+	def __init__(self, name, initdict):
+		self.Name = name
+		self.Position = Position(initdict["position"])
+		self.Shape = Shape(initdict["shape"])
+		
+		self.Chest = True if "chest" in initdict else None # TODO
+		self.UserData = initdict["userdata"]
+
+class Entity():
+	def __init__(self, name, initdict):
+		self.Name = name
+		self.Position = Position(initdict["position"])
+		self.Shape = Shape(initdict["shape"])
+
+		self.Chest = True if "chest" in initdict else None # TODO
+		self.Trajectory = Trajectory(initdict["trajectory"])
+
+class Zone():
+	def __init__(self, name, initdict):
+		self.Name = name
+		self.Position = Position(initdict["position"])
+		self.Shape = Shape(initdict["shape"])
+
+		self.Properties = {
+			"walkable": None,
+			"TODO_define_more": None
+		}
+		for key in self.Properties:
+			try:
+				self.Properties[key] = initdict["properties"][key]
+			except KeyError:
+				pass
+
+class Waypoint():
+	def __init__(self, name, initdict):
+		self.Name = name
+		self.Position = Position(initdict["position"])
+
+
+
+
+'''
+LOW LEVEL DEFINITION CLASSES
+'''
+class Position():
+	def __init__(self, initdict):
+		self.x = int(initdict["x"])
+		self.y = int(initdict["y"])
+
+		try:
+			self.a = float(initdict["a"])
+			self.has_angle = True
+		except KeyError:
+			self.has_angle = False
+
+		self.CollisionType = initdict["type"]
+
+	def angle(self):
+		return self.a if self.has_angle else 0.0
+
+class Shape():
+	def __init__(self, initdict):
+		self.Type = initdict["type"]
+
+		if self.Type == "rect":
+			self.width  = initdict["width"]
+			self.height = initdict["height"]
+			self.points = [(0,0), (self.width, 0), (self.width, self.height), (0, self.height)]
+			'''
+			self.points =  [(- self.width / 2.0, - self.height / 2.0), 
+							(  self.width / 2.0, - self.height / 2.0), 
+							(  self.width / 2.0,   self.height / 2.0), 
+							(- self.width / 2.0,   self.height / 2.0)] # corners centered around the middle
+			'''
+		elif self.Type == "circle":
+			self.radius = initdict["radius"]
+		elif self.Type == "polygon":
+			self.points = initdict["points"]
+
+	def rotated(self, theta):
+		"""Rotates the given polygon which consists of corners represented as (x,y),
+		around the ORIGIN, clock-wise, theta degrees"""
+		if self.Type not in ["rect", "polygon"]:
+			raise TypeError("This shape ({0}) cannot be rotated.".format(self.Type))
+		if theta == 0:
+			return self.points
+	
+		rotatedPolygon = []
+		for corner in self.points:
+			rotatedPolygon.append((corner[0]*math.cos(theta)-corner[1]*math.sin(theta) , corner[0]*math.sin(theta)+corner[1]*math.cos(theta)) )
+		return rotatedPolygon
+
+
+
+class Trajectory():
+	def __init__(self, initdict):
+		pass
+
+
+
+
+'''
 import math, pyclipper
 
 class Object():
@@ -35,3 +150,4 @@ class Shape():
 			polygon.append((pos[0] + radius * math.cos(a), pos[1] + radius * math.sin(a)))
 			a += a_step
 		return polygon
+'''

@@ -2,6 +2,7 @@ import json
 import numpy as np
 import cv2
 from visualizer import *
+from objects import *
 
 '''
 The Map class keeps a Dict containing everything in the environment.
@@ -67,89 +68,6 @@ class MapManager():
 
 
 
-
-
-'''
-HIGH LEVEL DEFINITION CLASSES
-'''
-
-'''TODO
-class obj():
-	def __init(self, initdict):
-		self.Name = name
-		self.Position = Position(initdict["position"])
-'''
-class Object():
-	def __init__(self, name, initdict):
-		self.Name = name
-		self.Position = Position(initdict["position"])
-		self.Shape = Shape(initdict["shape"])
-		
-		self.Chest = True if "chest" in initdict else None # TODO
-		self.UserData = initdict["userdata"]
-
-class Entity():
-	def __init__(self, name, initdict):
-		self.Name = name
-		self.Position = Position(initdict["position"])
-		self.Shape = Shape(initdict["shape"])
-
-		self.Chest = True if "chest" in initdict else None # TODO
-		self.Trajectory = Trajectory(initdict["trajectory"])
-
-class Zone():
-	def __init__(self, name, initdict):
-		self.Name = name
-		self.Position = Position(initdict["position"])
-		self.Shape = Shape(initdict["shape"])
-
-		self.Properties = {
-			"walkable": None,
-			"TODO_define_more": None
-		}
-		for key in self.Properties:
-			try:
-				self.Properties[key] = initdict["properties"][key]
-			except KeyError:
-				pass
-
-class Waypoint():
-	def __init__(self, name, initdict):
-		self.Name = name
-		self.Position = Position(initdict["position"])
-
-'''
-LOW LEVEL DEFINITION CLASSES
-'''
-class Position():
-	def __init__(self, initdict):
-		self.x = int(initdict["x"])
-		self.y = int(initdict["y"])
-
-		try:
-			self.a = float(initdict["a"])
-			self.has_angle = True
-		except KeyError:
-			self.has_angle = False
-
-		self.CollisionType = initdict["type"]
-
-class Shape():
-	def __init__(self, initdict):
-		type = initdict["type"]
-
-		self.Type = type
-		if type == "rect":
-			self.width  = initdict["width"]
-			self.height = initdict["height"]
-		elif type == "circle":
-			self.radius = initdict["radius"]
-		elif type == "polygon":
-			self.points = initdict["points"]
-
-class Trajectory():
-	def __init__(self, initdict):
-		pass
 
 
 map = MapManager("map_init.json")

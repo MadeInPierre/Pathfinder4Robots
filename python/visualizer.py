@@ -1,6 +1,12 @@
+from objects import *
+
 import numpy as np
 import cv2
+
 from matplotlib import pyplot as plt
+import matplotlib
+from matplotlib.patches import Polygon
+from matplotlib.collections import PatchCollection
 
 class MapVisualizer():
 	def __init__(self):
@@ -9,11 +15,17 @@ class MapVisualizer():
 			"colors": {
 				"free": (255, 255, 255),
 				"walls": (0, 0, 0),
+
 				"zones": (120, 120, 255),
-				"waypoints": (255, 140, 20),
+				"waypoints": (255, 100, 20),
+
+				"entities": (50, 120, 50),
+
 				"fixed_objects": (50, 50, 255),
-				"dynamic_objects": (50, 255, 50),
-				"entities": (50, 120, 50)
+				"dynamic_objects": (50, 255, 50)
+			},
+			"scale": {
+				"waypoints_size": 30
 			},
 			"filters": {
 				"show_objects": True,
@@ -24,18 +36,53 @@ class MapVisualizer():
 
 
 	def Draw(self, map):
-		img = map.MapDict["terrain"]["walls"]["img"]
+		walls_img = map.MapDict["terrain"]["walls"]["img"]
 
 		# Zones
 		for zone in map.MapDict["terrain"]["zones"]:
 			z = map.MapDict["terrain"]["zones"][zone]
-			cv2.rectangle(img, (z.Position.x, z.Position.y),  \
-							   (z.Position.x + z.Shape.width, z.Position.y + z.Shape.height), self.CONFIG["colors"]["zones"], -1)
+			self.draw_shape(walls_img, z.Position, z.Shape, color = self.CONFIG["colors"]["zones"])
 
 		# Waypoints
 		for waypoint in map.MapDict["terrain"]["waypoints"]:
 			w = map.MapDict["terrain"]["waypoints"][waypoint]
-			cv2.rectangle(img, (w.Position.x - 25, w.Position.y - 25),  \
-							   (w.Position.x + 50, w.Position.y + 50), self.CONFIG["colors"]["waypoints"], -1)
-		plt.imshow(img)
+			shape = Shape( {"type": "circle", "radius": self.CONFIG["scale"]["waypoints_size"]})
+			self.draw_shape(walls_img, w.Position, shape, color = self.CONFIG["colors"]["waypoints"])
+
+		# Entities
+		for entity in map.MapDict["entities"]:
+			e = map.MapDict["entities"][entity]
+			self.draw_shape(walls_img, e.Position, e.Shape, color = self.CONFIG["colors"]["entities"])
+
+		s = Shape({"type": "polygon", "points": [[0,0], [100, 40], [50, 100]]})
+		self.draw_shape(walls_img, e.Position, e.Shape, color = self.CONFIG["colors"]["entities"])
+
+		plt.imshow(walls_img)
 		plt.show()
+
+
+	def draw_shape(self, img, position, shape, color = (255, 0, 0), width = -1): # width = -1 -> fill shape.
+		if   shape.Type == "rect":
+			if position.angle() == 0:
+				self.draw_rect(img, position.x, position.y, shape.width, shape.height, color, width)
+			else:
+				self.draw_poly(img, position.x, position.y, shape.rotated(position.angle()), color, width)
+		elif shape.Type == "circle":
+			self.draw_circle(img, position.x, position.y, shape.radius, color, width)
+		elif shape.Type == "polygon":
+			self.draw_poly(img, position.x, position.y, shape.rotated(position.angle()), color, width)
+
+	def draw_rect(self, img, x, y, w, h, color = (255, 0, 0), width = -1):
+		cv2.rectangle(img, (x, y), (x+w, y+h), color, width)
+	def draw_circle(self, img, x, y, rad, color = (255, 0, 0), width = -1):
+		cv2.circle(img, (x, y), rad, color, width)
+	def draw_poly(self, img, x, y, points, color = (255, 0, 0), width = -1):
+		pts = [(p[0] + x, p[1] + y) for p in points]
+		pts = np.array(pts, np.int32)
+		pts = pts.reshape((-1,1,2))
+
+		if width == -1:
+			cv2.fillPoly(img, [pts], color)
+		else:
+			cv2.polylines(img, [pts], True, color)
+		pass
