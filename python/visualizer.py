@@ -16,7 +16,7 @@ class MapVisualizer():
 				"free": (255, 255, 255),
 				"walls": (0, 0, 0),
 
-				"zones": (120, 120, 255),
+				"zones": (145, 255, 172),
 				"waypoints": (255, 100, 20),
 
 				"entities": (255, 50, 50),
@@ -57,10 +57,10 @@ class MapVisualizer():
 		# Objects
 		for obj in map.MapDict["objects"]:
 			o = map.MapDict["objects"][obj]
-			self.draw_shape(walls_img, o.Position, o.Shape, color = self.CONFIG["colors"]["fixed_objects"])	
+			self.draw_shape(walls_img, o.Position, o.Shape, color = o.Shape.viz_color.RGB)	
 
 			if o.Type == "container":
-				cv2.putText(walls_img, str(len(o.Chest)), o.Position.tuple2(translation = (-25, 25)), cv2.FONT_HERSHEY_SIMPLEX, 2.5, (255, 255, 255), thickness = 5)		
+				cv2.putText(walls_img, str(len(o.Chest)), o.Position.tuple2(translation = (-15, 15)), cv2.FONT_HERSHEY_SIMPLEX, 1.5, o.Shape.viz_color.textColor(), thickness = 5)		
 
 
 		plt.imshow(walls_img)

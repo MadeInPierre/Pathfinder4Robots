@@ -80,4 +80,3 @@ class MapManager():
 map = MapManager("map_init.json")
 viz = MapVisualizer()
 viz.Draw(map)
-

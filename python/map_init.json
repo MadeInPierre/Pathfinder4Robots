@@ -38,9 +38,9 @@
 	"entities": {
 		"ROBOT": {
 			"position": {
-				"x": 1080,
-				"y": 180,
-				"a": 1.5707,
+				"x": 1400,
+				"y": 400,
+				"a": 2.3,
 				"type": "dynamic"
 			},
 			"shape": {
@@ -50,7 +50,8 @@
 							[ 85,  140],
 							[-85,  140], 
 							[-85, -84 ], 
-							[-29, -140]]
+							[-29, -140]],
+				"viz_color": [0, 200, 0]
 			},
 			"chest": {
 
@@ -68,7 +69,8 @@
 			},
 			"shape": {
 				"type": "polygon",
-				"points": [[200, 200], [300, 300], [600, 600]]
+				"points": [[200, 200], [300, 300], [600, 600]],
+				"viz_color": [200, 200, 0]
 			},
 			"chest": {
 
@@ -82,25 +84,267 @@
 		"tower_1": {
 			"type": "container",
 			"position": {
-				"x": 600,
-				"y": 600,
+				"x": 1150,
+				"y": 40,
 				"type": "fixed"
 			},
 			"shape": {
 				"type": "circle",
-				"radius": 60
+				"radius": 35,
+				"viz_color": "blue"
 			},
 			"chest": {
 				"module_1": {
 					"type": "object",
 					"position": {
-						"x": 600,
-						"y": 600,
 						"type": "dynamic"
 					},
 					"shape": {
 						"type": "circle",
-						"radius": 62
+						"radius": 31
+					},
+					"userdata": {
+						"color": "blue"
+					}
+				},
+				"module_2": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "blue"
+					}
+				},
+				"module_3": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "blue"
+					}
+				},
+				"module_4": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "blue"
+					}
+				}
+			},
+			"userdata": {}
+		},
+		"tower_2": {
+			"type": "container",
+			"position": {
+				"x": 1850,
+				"y": 40,
+				"type": "fixed"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 35,
+				"viz_color": "yellow"
+			},
+			"chest": {
+				"module_1": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "yellow"
+					}
+				},
+				"module_2": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "yellow"
+					}
+				},
+				"module_3": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "yellow"
+					}
+				},
+				"module_4": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "yellow"
+					}
+				}
+			},
+			"userdata": {}
+		},
+		"tower_3": {
+			"type": "container",
+			"position": {
+				"x": 40,
+				"y": 1350,
+				"type": "fixed"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 35,
+				"viz_color": "gray"
+			},
+			"chest": {
+				"module_1": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "mixed"
+					}
+				},
+				"module_2": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "mixed"
+					}
+				},
+				"module_3": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "mixed"
+					}
+				},
+				"module_4": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "mixed"
+					}
+				}
+			},
+			"userdata": {}
+		},
+		"tower_4": {
+			"type": "container",
+			"position": {
+				"x": 2960,
+				"y": 1350,
+				"type": "fixed"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 35,
+				"viz_color": "gray"
+			},
+			"chest": {
+				"module_1": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "mixed"
+					}
+				},
+				"module_2": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "mixed"
+					}
+				},
+				"module_3": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "mixed"
+					}
+				},
+				"module_4": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
 					},
 					"userdata": {
 						"color": "mixed"
@@ -112,16 +356,81 @@
 		"module_1": {
 			"type": "object",
 			"position": {
-				"x": 400,
-				"y": 900,
+				"x": 200,
+				"y": 600,
 				"type": "dynamic"
 			},
 			"shape": {
 				"type": "circle",
-				"radius": 62
+				"radius": 31,
+				"viz_color": "blue"
 			},
 			"userdata": {
 				"color": "blue"
+			}
+		},
+		"module_2": {
+			"type": "object",
+			"position": {
+				"x": 800,
+				"y": 1850,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 31,
+				"viz_color": "blue"
+			},
+			"userdata": {
+				"color": "blue"
+			}
+		},
+		"module_3": {
+			"type": "object",
+			"position": {
+				"x": 1000,
+				"y": 600,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 31,
+				"viz_color": "gray"
+			},
+			"userdata": {
+				"color": "mixed"
+			}
+		},
+		"module_4": {
+			"type": "object",
+			"position": {
+				"x": 500,
+				"y": 1100,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 31,
+				"viz_color": "gray"
+			},
+			"userdata": {
+				"color": "mixed"
+			}
+		},
+		"module_5": {
+			"type": "object",
+			"position": {
+				"x": 900,
+				"y": 1400,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 31,
+				"viz_color": "gray"
+			},
+			"userdata": {
+				"color": "mixed"
 			}
 		}
 	},

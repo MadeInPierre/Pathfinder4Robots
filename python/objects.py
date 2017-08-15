@@ -79,6 +79,8 @@ class Position():
 class Shape():
 	def __init__(self, initdict):
 		self.Type = initdict["type"]
+		if "viz_color" in initdict:
+			self.viz_color = Color(initdict["viz_color"])
 
 		if self.Type == "rect":
 			self.width  = initdict["width"]
@@ -108,11 +110,34 @@ class Shape():
 			rotatedPolygon.append((corner[0]*math.cos(theta)-corner[1]*math.sin(theta) , corner[0]*math.sin(theta)+corner[1]*math.cos(theta)) )
 		return rotatedPolygon
 
+	def inflated(self, offset):
+		#returns a new shape bigger/smaller to the original one, given the offset amount. (useful for setting )
+		pass
+
 
 
 class Trajectory():
 	def __init__(self, initdict):
 		pass
+
+class Color():
+	def __init__(self, color):
+		self.RGB = tuple(color)
+	
+		if color == "blue":
+			self.RGB = (50, 50, 255)
+		if color == "yellow":
+			self.RGB = (255, 246, 0)
+		if color == "gray":
+			self.RGB = (175, 175, 175)
+		
+		self.R = self.RGB[0]
+		self.G = self.RGB[1]
+		self.B = self.RGB[2]
+
+	def textColor(self):
+		lum = 1 - ( 0.299 * self.R + 0.587 * self.G + 0.114 * self.B)/255 #https://stackoverflow.com/questions/1855884/determine-font-color-based-on-background-color
+		return (255, 255, 255) if lum > 0.5 else (0, 0, 0)
 
 
 
