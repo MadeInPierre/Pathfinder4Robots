@@ -19,7 +19,7 @@ class MapVisualizer():
 				"zones": (120, 120, 255),
 				"waypoints": (255, 100, 20),
 
-				"entities": (50, 120, 50),
+				"entities": (255, 50, 50),
 
 				"fixed_objects": (50, 50, 255),
 				"dynamic_objects": (50, 255, 50)
@@ -36,7 +36,7 @@ class MapVisualizer():
 
 
 	def Draw(self, map):
-		walls_img = map.MapDict["terrain"]["walls"]["img"]
+		walls_img = map.MapDict["terrain"]["walls"]["viz_img"]
 
 		# Zones
 		for zone in map.MapDict["terrain"]["zones"]:
@@ -54,8 +54,14 @@ class MapVisualizer():
 			e = map.MapDict["entities"][entity]
 			self.draw_shape(walls_img, e.Position, e.Shape, color = self.CONFIG["colors"]["entities"])
 
-		s = Shape({"type": "polygon", "points": [[0,0], [100, 40], [50, 100]]})
-		self.draw_shape(walls_img, e.Position, e.Shape, color = self.CONFIG["colors"]["entities"])
+		# Objects
+		for obj in map.MapDict["objects"]:
+			o = map.MapDict["objects"][obj]
+			self.draw_shape(walls_img, o.Position, o.Shape, color = self.CONFIG["colors"]["fixed_objects"])	
+
+			if o.Type == "container":
+				cv2.putText(walls_img, str(len(o.Chest)), o.Position.tuple2(translation = (-25, 25)), cv2.FONT_HERSHEY_SIMPLEX, 2.5, (255, 255, 255), thickness = 5)		
+
 
 		plt.imshow(walls_img)
 		plt.show()

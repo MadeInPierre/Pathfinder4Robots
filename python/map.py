@@ -18,13 +18,13 @@ JSON FILE map_init.json COMMENTS :
 
 Positions :
 	- Type : fixed (no pos update, can't move), TODO movable AND/or dynamic ?
+		If the movement is dynamic, keep track of position modifications.
 '''
 
 
 class MapManager():
 	def __init__(self, initfile_path):
 		self.MapDict = self.load_initfile(initfile_path)
-
 		self.Dirty = False # Each time an object is modified, this flag is set to True
 
 	def load_initfile(self, filename):
@@ -48,6 +48,7 @@ class MapManager():
 				waypoints[waypoint] = Waypoint(waypoint, waypoints[waypoint])
 
 			MapDict["terrain"]["walls"]["img"] = cv2.imread(MapDict["terrain"]["walls"]["img_path"])
+			MapDict["terrain"]["walls"]["viz_img"] = cv2.resize(MapDict["terrain"]["walls"]["img"], (3000, 2000), interpolation = cv2.INTER_NEAREST)
 
 			# -------- Entities
 			entities = MapDict["entities"]
@@ -59,13 +60,19 @@ class MapManager():
 			for obj in objects:
 				objects[obj] = Object(obj, objects[obj])
 
-
+		self.Dirty = True
 		return MapDict
 
 
 	def getObject(self, objectname):
 		pass
 
+	def containerTransfer(self, container1, container2, objectname):
+		'''
+		A container (e.g. a tower of modules, the robot's balls container...) has a list of objects.
+			The transfer function moves an object from a container to another.
+		'''
+		pass
 
 
 
@@ -73,3 +80,4 @@ class MapManager():
 map = MapManager("map_init.json")
 viz = MapVisualizer()
 viz.Draw(map)
+

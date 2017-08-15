@@ -5,7 +5,7 @@
 			"height": 2000
 		},
 		"walls": {
-			"img_path": "map_walls.bmp",
+			"img_path": "map.bmp",
 			"img": null
 		},
 		"zones": {
@@ -80,6 +80,7 @@
 	},
 	"objects": {
 		"tower_1": {
+			"type": "container",
 			"position": {
 				"x": 600,
 				"y": 600,
@@ -91,6 +92,7 @@
 			},
 			"chest": {
 				"module_1": {
+					"type": "object",
 					"position": {
 						"x": 600,
 						"y": 600,
@@ -98,16 +100,17 @@
 					},
 					"shape": {
 						"type": "circle",
-						"radius": 60
+						"radius": 62
 					},
 					"userdata": {
-						"color": "blue"
+						"color": "mixed"
 					}
 				}
 			},
 			"userdata": {}
 		},
 		"module_1": {
+			"type": "object",
 			"position": {
 				"x": 400,
 				"y": 900,
@@ -115,7 +118,7 @@
 			},
 			"shape": {
 				"type": "circle",
-				"radius": 60
+				"radius": 62
 			},
 			"userdata": {
 				"color": "blue"

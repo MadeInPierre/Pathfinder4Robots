@@ -15,8 +15,9 @@ class Object():
 		self.Name = name
 		self.Position = Position(initdict["position"])
 		self.Shape = Shape(initdict["shape"])
+		self.Type = initdict["type"]
 		
-		self.Chest = True if "chest" in initdict else None # TODO
+		self.Chest = initdict["chest"] if "chest" in initdict else None # TODO
 		self.UserData = initdict["userdata"]
 
 class Entity():
@@ -70,6 +71,10 @@ class Position():
 
 	def angle(self):
 		return self.a if self.has_angle else 0.0
+	def tuple2(self, translation = (0, 0)):
+		return (self.x + translation[0], self.y + translation[1])
+	def tuple3(self, translation = (0, 0, 0)):
+		return (self.x + translation[0], self.y + translation[1], self.a + translation[2]) if self.has_angle else None
 
 class Shape():
 	def __init__(self, initdict):
