@@ -109,14 +109,17 @@ class Shape():
 			self.radius = initdict["radius"]
 		elif self.Type == "polygon":
 			self.points = initdict["points"]
+		elif self.Type == "line":
+			self.start = initdict["start"]
+			self.end = initdict["end"]
 
 	def rotated(self, theta):
 		"""Rotates the given polygon which consists of corners represented as (x,y),
 		around the ORIGIN, clock-wise, theta degrees"""
-		if self.Type not in ["rect", "polygon"]:
-			raise TypeError("This shape ({0}) cannot be rotated.".format(self.Type))
 		if theta == 0:
 			return self.points
+		if self.Type not in ["rect", "polygon", "polyline"]:
+			raise TypeError("This shape ({0}) cannot be rotated.".format(self.Type))
 	
 		rotatedPolygon = []
 		for corner in self.points:
@@ -137,6 +140,8 @@ class Shape():
 			clipper.AddPath(self.points, pyclipper.JT_MITER, pyclipper.ET_CLOSEDPOLYGON)
 			solution = clipper.Execute(offset)[0]
 			return Shape({"type": "polygon", "points": solution})
+		else:
+			raise TypeError, "Can't inflate this shape type."
 
 
 

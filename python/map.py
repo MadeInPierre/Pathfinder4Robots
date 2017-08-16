@@ -1,6 +1,5 @@
-import json
+import json, copy, cv2
 import numpy as np
-import cv2
 from visualizer import *
 from objects import *
 from pathfinder import Pathfinder
@@ -49,7 +48,7 @@ class MapManager():
 				waypoints[waypoint] = Waypoint(waypoint, waypoints[waypoint])
 
 			MapDict["terrain"]["walls"]["img"] = cv2.imread(MapDict["terrain"]["walls"]["img_path"])
-			MapDict["terrain"]["walls"]["viz_img"] = self.renderer.resizeImage(MapDict["terrain"]["walls"]["img"], (3000, 2000))
+			MapDict["terrain"]["walls"]["img"] = self.renderer.resizeImage(MapDict["terrain"]["walls"]["img"], (3000, 2000))
 
 			# -------- Entities
 			entities = MapDict["entities"]
@@ -73,6 +72,8 @@ class MapManager():
 	#=            Getters and Setters            =
 	#===========================================*/
 
+	def getTerrainImg(self):
+		return self.MapDict["terrain"]["walls"]["img"]
 	def getVizImg(self):
 		return self.MapDict["terrain"]["walls"]["viz_img"]
 	def setVizImg(self, img):
@@ -124,9 +125,9 @@ class MapManager():
 	#===================================*/
 	
 	def updateVizImg(self):
-		self.setVizImg(self.renderer.generateDebugImg())
+		self.setVizImg(self.renderer.generateDebugImg(self))
 	def updateCollisionImg(self, offset):
-		self.setCollisionImg(self.renderer.generateCollisionImg(offset))
+		self.setCollisionImg(self.renderer.generateCollisionImg(self, offset))
 
 	
 	#/*=====  End of Generators  ======*/
@@ -169,8 +170,8 @@ class Renderer():
 			}
 		}
 
-	def generateCollisionImg(self, offset):
-		config = self.CONFIG
+	def generateCollisionImg(self, mapmanager, offset):
+		config = copy.deepcopy(self.CONFIG)
 		config["finalRes"] = (150, 100)
 		config["BW"] = True
 		config["show_walkable"] = False
@@ -182,37 +183,36 @@ class Renderer():
 		config["waypoints"]["show"]    = False
 		config["entities"]["showCurrentPath"] = False # TODO generate it so that the robot avoids intercepting a moving robot if we know its path ?
 		config["entities"]["blacklist"].append("ROBOT") # Don't draw the robot itself.
-		return self.draw(config)
+		return self.draw(mapmanager, config)
 
-	def generateDebugImg(self):
-		return self.draw(self.CONFIG)
+	def generateDebugImg(self, mapmanager):
+		return self.draw(mapmanager, self.CONFIG)
 
 
 
-	def draw(self, CONFIG):
-		img = map.getVizImg()
-
+	def draw(self, mapmanager, CONFIG):
+		img = copy.deepcopy(mapmanager.getTerrainImg())
 		# Zones
 		if CONFIG["zones"]["show"]:
-			for zonename in map.getZones(): 
-				z = map.getZone(zonename)
+			for zonename in mapmanager.getZones(): 
+				z = mapmanager.getZone(zonename)
 				if (CONFIG["show_walkable"] and z.Walkable) or not CONFIG["show_walkable"]:
 					self.draw_shape(img, z.Position, z.Shape.inflate(CONFIG["offset"] if not z.Walkable else 0), 
 									color = self.adjust_color(CONFIG["zones"]["color"], CONFIG))
 
 		# Waypoints
 		if CONFIG["waypoints"]["show"]:
-			for waypointname in map.getWaypoints():
-				w = map.getWaypoint(waypointname)
+			for waypointname in mapmanager.getWaypoints():
+				w = mapmanager.getWaypoint(waypointname)
 				shape = Shape( {"type": "circle", "radius": CONFIG["waypoints"]["size"]})
 				self.draw_shape(img, w.Position, shape.inflate(CONFIG["offset"]), 
 					color = self.adjust_color(CONFIG["waypoints"]["color"], CONFIG))
 
 		# Entities
 		if CONFIG["entities"]["show"]:
-			for entityname in map.getEntities():
+			for entityname in mapmanager.getEntities():
 				if entityname not in CONFIG["entities"]["blacklist"]: # Don't draw blacklisted entities
-					e = map.getEntity(entityname)
+					e = mapmanager.getEntity(entityname)
 					self.draw_shape(img, e.Position, e.Shape.inflate(CONFIG["offset"]), 
 									color = self.adjust_color(e.Shape.viz_color.RGB, CONFIG))
 					if CONFIG["show_HUD"] and e.Chest:
@@ -221,20 +221,23 @@ class Renderer():
 						cv2.putText(img, str(len(e.Chest)), e.Position.transform(0, 0).tuple2(), cv2.FONT_HERSHEY_SIMPLEX, 1.5, e.Shape.viz_color.textColor(), thickness = 5)						
 
 					if CONFIG["entities"]["showCurrentPath"]:
-						pass
-
+						for i in xrange(len(e.CurrentPath) - 1):
+							self.draw_shape(img, Position({"x": 0, "y": 0, "type": "ghost"}),
+												 Shape({"type": "line", "start": e.CurrentPath[i], "end": e.CurrentPath[i+1]}),
+												 color = (0, 255, 0), width = 3)
 
 		# Objects
 		if CONFIG["objects"]["show"]:
-			for obj in map.getObjects():
-				o = map.getObject(obj)
+			for obj in mapmanager.getObjects():
+				o = mapmanager.getObject(obj)
 				self.draw_shape(img, o.Position, o.Shape.inflate(CONFIG["offset"]), 
 								color = self.adjust_color(o.Shape.viz_color.RGB, CONFIG))
 
 				if CONFIG["show_HUD"] and o.Type == "container":
 					cv2.putText(img, str(len(o.Chest)), o.Position.transform(-15, 15).tuple2(), cv2.FONT_HERSHEY_SIMPLEX, 1.5, o.Shape.viz_color.textColor(), thickness = 5)		
 
-		if CONFIG["finalRes"] != CONFIG["res"]: #TODO badly done
+		if CONFIG["finalRes"] != (len(img[0]), len(img)): #TODO badly done
+			print "resizing image"
 			img =  self.resizeImage(img, CONFIG["finalRes"])
 		if CONFIG["save_binary"]:
 			img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)[1] #https://stackoverflow.com/questions/7624765/converting-an-opencv-image-to-black-and-white
@@ -257,16 +260,21 @@ class Renderer():
 			self.draw_circle(img, position.x, position.y, shape.radius, color, width)
 		elif shape.Type == "polygon":
 			self.draw_poly(img, position.x, position.y, shape.rotated(position.angle()), color, width)
+		elif shape.Type == "line":
+			self.draw_line(img, position.x, position.y, shape.start, shape.end, color, width)
 
 	def draw_rect(self, img, x, y, w, h, color = (255, 0, 0), width = -1):
 		cv2.rectangle(img, (x, y), (x+w, y+h), color, width)
 	def draw_circle(self, img, x, y, rad, color = (255, 0, 0), width = -1):
 		cv2.circle(img, (x, y), rad, color, width)
 	def draw_poly(self, img, x, y, points, color = (255, 0, 0), width = -1):
-		print points
 		pts = [(p[0] + x, p[1] + y) for p in points]
 		pts = np.array(pts, np.int32).reshape((-1,1,2))
-		cv2.fillPoly(img, [pts], color) if width == -1 else cv2.polylines(img, [pts], True, color)
+		cv2.fillPoly(img, [pts], color) if width == -1 else cv2.polylines(img, pts, True, color, width = width)
+	def draw_line(self, img, x, y, start, end, color = (255, 0, 0), width = 1):
+		startpos = (start[0] + x, start[1] + y)
+		endpos   = (end[0]   + x, end[1]   + y)
+		cv2.line(img, startpos, endpos, color, thickness = width)
 	#/*=====  End of Drawing helpers  ======*/
 
 
@@ -283,13 +291,20 @@ class Renderer():
 
 
 
-map = MapManager("map_init.json")
+
+
+mapman = MapManager("map_init.json")
 #map.containerTransfer(map.getObject("tower_1").Chest, map.getEntity("ROBOT").Chest, "module_1")
 
+#Pathfinder
 pfinder = Pathfinder()
-map.updateCollisionImg(200)
-map.getEntity("ROBOT").setCurrentPath(pfinder.Execute(map.getCollisionImg(), (30, 40), (80, 100)))
+mapman.updateCollisionImg(offset = 200)
+mapman.getEntity("ROBOT").setCurrentPath(pfinder.Execute(mapman.getCollisionImg(), (30, 40), (80, 100)))
+
+
+mapman.updateVizImg()
+
 
 viz = MapVisualizer()
-map.updateVizImg()
-viz.Draw(map.getVizImg())
+viz.Draw(mapman.getVizImg(), mapman.getCollisionImg())
+
