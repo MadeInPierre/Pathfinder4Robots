@@ -1,5 +1,5 @@
 import math
-
+import pyclipper
 '''
 HIGH LEVEL DEFINITION CLASSES
 '''
@@ -17,7 +17,7 @@ class Object():
 		self.Shape = Shape(initdict["shape"])
 		self.Type = initdict["type"]
 		
-		self.Chest = initdict["chest"] if "chest" in initdict else None # TODO
+		self.Chest = initdict["chest"] if "chest" in initdict else False # TODO
 		self.UserData = initdict["userdata"]
 
 class Entity():
@@ -26,8 +26,12 @@ class Entity():
 		self.Position = Position(initdict["position"])
 		self.Shape = Shape(initdict["shape"])
 
-		self.Chest = True if "chest" in initdict else None # TODO
+		self.Chest = initdict["chest"] if "chest" in initdict else False # TODO
 		self.Trajectory = Trajectory(initdict["trajectory"])
+		self.CurrentPath = []
+
+	def setCurrentPath(self, path):
+		self.CurrentPath = path
 
 class Zone():
 	def __init__(self, name, initdict):
@@ -35,6 +39,8 @@ class Zone():
 		self.Position = Position(initdict["position"])
 		self.Shape = Shape(initdict["shape"])
 
+		self.Walkable = initdict["properties"]["walkable"]
+		'''
 		self.Properties = {
 			"walkable": None,
 			"TODO_define_more": None
@@ -44,6 +50,7 @@ class Zone():
 				self.Properties[key] = initdict["properties"][key]
 			except KeyError:
 				pass
+		'''
 
 class Waypoint():
 	def __init__(self, name, initdict):
@@ -69,12 +76,18 @@ class Position():
 
 		self.CollisionType = initdict["type"]
 
+	def transform(self, add_x, add_y):
+		p = Position({"x": self.x + add_x, "y": self.y + add_y, "type": self.CollisionType})
+		if self.has_angle:
+			p.a = self.a
+			self.has_angle = True
+		return p
 	def angle(self):
 		return self.a if self.has_angle else 0.0
-	def tuple2(self, translation = (0, 0)):
-		return (self.x + translation[0], self.y + translation[1])
-	def tuple3(self, translation = (0, 0, 0)):
-		return (self.x + translation[0], self.y + translation[1], self.a + translation[2]) if self.has_angle else None
+	def tuple2(self):
+		return (self.x, self.y)
+	def tuple3(self):
+		return (self.x, self.y, self.a) if self.has_angle else None
 
 class Shape():
 	def __init__(self, initdict):
@@ -110,9 +123,20 @@ class Shape():
 			rotatedPolygon.append((corner[0]*math.cos(theta)-corner[1]*math.sin(theta) , corner[0]*math.sin(theta)+corner[1]*math.cos(theta)) )
 		return rotatedPolygon
 
-	def inflated(self, offset):
-		#returns a new shape bigger/smaller to the original one, given the offset amount. (useful for setting )
-		pass
+	def inflate(self, offset):
+		#returns a new shape bigger/smaller to the original one, given the offset amount.
+		if offset == 0:
+			return self
+
+		if self.Type == "circle":
+			return Shape({"type": "circle", "radius": self.radius + offset})
+		elif self.Type == "rect":
+			return Shape({"type": "rect", "width": self.width + offset, "height": self.height + offset})
+		elif self.Type == "polygon":
+			clipper = pyclipper.PyclipperOffset()
+			clipper.AddPath(self.points, pyclipper.JT_MITER, pyclipper.ET_CLOSEDPOLYGON)
+			solution = clipper.Execute(offset)[0]
+			return Shape({"type": "polygon", "points": solution})
 
 
 
