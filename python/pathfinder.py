@@ -1,4 +1,5 @@
 import random, time
+from DouglasPeucker import DouglasPeucker
 
 class Pathfinder():
 	def __init__(self):
@@ -18,16 +19,25 @@ class Pathfinder():
 		path, t = engine.update_path((start[1], start[0]), (goal[1], goal[0])) # the engine wants y then x. Path is returned that way too.
 
 		# Debug
-		print "pathfinding time taken : {0}ms".format(str(t))
-		print "Map size : {0}, grid size : {1}".format(map_size, (grid.width, grid.height))
+		#print "pathfinding time taken : {0}ms".format(str(t))
+		#print "Map size : {0}, grid size : {1}".format(map_size, (grid.width, grid.height))
 
 
 		# Convert path to the original map resolution && y, x -> x, y
 		grid_res = (grid.width, grid.height)
 		for i in xrange(len(path)):
 			path[i] = self.pathfinding_to_mm_pos_coords((path[i][1], path[i][0]), grid.getSizexy(), map_size) #(path[i][1] * map_size[1] / grid.height, path[i][0] * map_size[0] / grid.width)
-		print "resized path : " + str(path)
+		#print "resized path : " + str(path)
+
+		path = self.simplify_path(path) # remove points that are aligned with an existing line
 		return path
+
+
+	def simplify_path(self, path):
+		simplified_path = DouglasPeucker(path, tolerance = 1) # no tolerance, just remove aligned points
+		#print "simplified path : {0}".format(simplified_path)
+		return simplified_path
+
 
 	def map_to_grid(self, map_img):
 		cells = [[Cell(min(pixel[0], 1)) for pixel in line] for line in map_img]

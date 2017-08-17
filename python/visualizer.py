@@ -14,6 +14,6 @@ class MapVisualizer():
 
 	def Draw(self, debugView, collisionView):
 		plt.imshow(debugView,     interpolation = 'none')
-		plt.figure()
-		plt.imshow(collisionView, interpolation = 'none')
+		#plt.figure()
+		#plt.imshow(collisionView, interpolation = 'none')
 		plt.show()

@@ -174,7 +174,7 @@ class Renderer():
 
 	def generateCollisionImg(self, mapmanager, offset):
 		config = copy.deepcopy(self.CONFIG)
-		config["finalRes"] = (75, 50)
+		config["finalRes"] = (150, 100)
 		config["BW"] = True
 		config["show_walkable"] = False
 		config["show_HUD"] = False
@@ -195,6 +195,10 @@ class Renderer():
 
 	def draw(self, mapmanager, CONFIG):
 		img = copy.deepcopy(mapmanager.getCollisionImg() if CONFIG["collisionmap"]["show"] else mapmanager.getTerrainImg())
+
+		if CONFIG["res"] != (len(img[0]), len(img)): #TODO badly done
+			img =  self.resizeImage(img, CONFIG["finalRes"])
+
 		# Zones
 		if CONFIG["zones"]["show"]:
 			for zonename in mapmanager.getZones(): 
@@ -224,6 +228,7 @@ class Renderer():
 						cv2.putText(img, str(len(e.Chest)), e.Position.transform(0, 0).tuple2(), cv2.FONT_HERSHEY_SIMPLEX, 1.5, e.Shape.viz_color.textColor(), thickness = 5)						
 
 					if CONFIG["entities"]["showCurrentPath"]:
+						print "{0} path : {1}".format(entityname, e.CurrentPath)
 						for i in xrange(len(e.CurrentPath) - 1):
 							self.draw_shape(img, Position({"x": 0, "y": 0, "type": "ghost"}),
 												 Shape({"type": "line", "start": e.CurrentPath[i], "end": e.CurrentPath[i+1]}),
@@ -240,7 +245,6 @@ class Renderer():
 					cv2.putText(img, str(len(o.Chest)), o.Position.transform(-15, 15).tuple2(), cv2.FONT_HERSHEY_SIMPLEX, 1.5, o.Shape.viz_color.textColor(), thickness = 5)		
 
 		if CONFIG["finalRes"] != (len(img[0]), len(img)): #TODO badly done
-			print "resizing image"
 			img =  self.resizeImage(img, CONFIG["finalRes"])
 		if CONFIG["save_binary"]:
 			img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)[1] #https://stackoverflow.com/questions/7624765/converting-an-opencv-image-to-black-and-white
@@ -303,11 +307,11 @@ mapman = MapManager("map_init.json")
 #Pathfinder
 pfinder = Pathfinder()
 mapman.updateCollisionImg(offset = 180)
-mapman.getEntity("ROBOT").setCurrentPath(pfinder.Execute(mapman.getCollisionImg(), mapman.getEntity("ROBOT").Position.tuple2(), (200, 1800), mapman.getMapSize()))
-
-mapman.updateVizImg()
+mapman.getEntity("ROBOT").setCurrentPath(pfinder.Execute(mapman.getCollisionImg(), mapman.getEntity("ROBOT").Position.tuple2(), (2700, 1800), mapman.getMapSize()))
 
 print "PATHFINDER CALC TOTAL TIME : {0}ms".format(time.time() * 1000 - t)
+mapman.updateVizImg()
+
 
 viz = MapVisualizer()
 viz.Draw(mapman.getVizImg(), mapman.getCollisionImg())
