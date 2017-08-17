@@ -1,4 +1,4 @@
-import json, copy, cv2
+import json, copy, cv2, time
 import numpy as np
 from visualizer import *
 from objects import *
@@ -48,7 +48,7 @@ class MapManager():
 				waypoints[waypoint] = Waypoint(waypoint, waypoints[waypoint])
 
 			MapDict["terrain"]["walls"]["img"] = cv2.imread(MapDict["terrain"]["walls"]["img_path"])
-			MapDict["terrain"]["walls"]["img"] = self.renderer.resizeImage(MapDict["terrain"]["walls"]["img"], (3000, 2000))
+			MapDict["terrain"]["walls"]["img"] = self.renderer.resizeImage(MapDict["terrain"]["walls"]["img"], (3000, 2000)) # TODO automate size
 
 			# -------- Entities
 			entities = MapDict["entities"]
@@ -71,6 +71,9 @@ class MapManager():
 	#/*===========================================
 	#=            Getters and Setters            =
 	#===========================================*/
+
+	def getMapSize(self):
+		return (self.MapDict["terrain"]["map_size"]["width"], self.MapDict["terrain"]["map_size"]["height"])
 
 	def getTerrainImg(self):
 		return self.MapDict["terrain"]["walls"]["img"]
@@ -148,8 +151,7 @@ class Renderer():
 				"showWalls": True,
 			},
 			"collisionmap": {
-				"show": True,
-				"opacity": 80
+				"show": True
 			},
 			"zones": {
 				"show": True,
@@ -172,7 +174,7 @@ class Renderer():
 
 	def generateCollisionImg(self, mapmanager, offset):
 		config = copy.deepcopy(self.CONFIG)
-		config["finalRes"] = (150, 100)
+		config["finalRes"] = (75, 50)
 		config["BW"] = True
 		config["show_walkable"] = False
 		config["show_HUD"] = False
@@ -183,6 +185,7 @@ class Renderer():
 		config["waypoints"]["show"]    = False
 		config["entities"]["showCurrentPath"] = False # TODO generate it so that the robot avoids intercepting a moving robot if we know its path ?
 		config["entities"]["blacklist"].append("ROBOT") # Don't draw the robot itself.
+
 		return self.draw(mapmanager, config)
 
 	def generateDebugImg(self, mapmanager):
@@ -191,7 +194,7 @@ class Renderer():
 
 
 	def draw(self, mapmanager, CONFIG):
-		img = copy.deepcopy(mapmanager.getTerrainImg())
+		img = copy.deepcopy(mapmanager.getCollisionImg() if CONFIG["collisionmap"]["show"] else mapmanager.getTerrainImg())
 		# Zones
 		if CONFIG["zones"]["show"]:
 			for zonename in mapmanager.getZones(): 
@@ -224,7 +227,7 @@ class Renderer():
 						for i in xrange(len(e.CurrentPath) - 1):
 							self.draw_shape(img, Position({"x": 0, "y": 0, "type": "ghost"}),
 												 Shape({"type": "line", "start": e.CurrentPath[i], "end": e.CurrentPath[i+1]}),
-												 color = (0, 255, 0), width = 3)
+												 color = (0, 255, 0), width = 8)
 
 		# Objects
 		if CONFIG["objects"]["show"]:
@@ -292,18 +295,19 @@ class Renderer():
 
 
 
+t = time.time() * 1000
 
 mapman = MapManager("map_init.json")
 #map.containerTransfer(map.getObject("tower_1").Chest, map.getEntity("ROBOT").Chest, "module_1")
 
 #Pathfinder
 pfinder = Pathfinder()
-mapman.updateCollisionImg(offset = 200)
-mapman.getEntity("ROBOT").setCurrentPath(pfinder.Execute(mapman.getCollisionImg(), (30, 40), (80, 100)))
-
+mapman.updateCollisionImg(offset = 180)
+mapman.getEntity("ROBOT").setCurrentPath(pfinder.Execute(mapman.getCollisionImg(), mapman.getEntity("ROBOT").Position.tuple2(), (200, 1800), mapman.getMapSize()))
 
 mapman.updateVizImg()
 
+print "PATHFINDER CALC TOTAL TIME : {0}ms".format(time.time() * 1000 - t)
 
 viz = MapVisualizer()
 viz.Draw(mapman.getVizImg(), mapman.getCollisionImg())
