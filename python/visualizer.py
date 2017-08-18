@@ -15,5 +15,6 @@ class MapVisualizer():
 	def Draw(self, debugView, collisionView):
 		plt.imshow(debugView,     interpolation = 'none')
 		#plt.figure()
+		#cv2.imwrite("map_obstacles.png", collisionView)
 		#plt.imshow(collisionView, interpolation = 'none')
 		plt.show()

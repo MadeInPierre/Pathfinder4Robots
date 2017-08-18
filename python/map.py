@@ -232,7 +232,7 @@ class Renderer():
 						for i in xrange(len(e.CurrentPath) - 1):
 							self.draw_shape(img, Position({"x": 0, "y": 0, "type": "ghost"}),
 												 Shape({"type": "line", "start": e.CurrentPath[i], "end": e.CurrentPath[i+1]}),
-												 color = (0, 255, 0), width = 8)
+												 color = (255, 100, 255), width = 14)
 
 		# Objects
 		if CONFIG["objects"]["show"]:
@@ -299,7 +299,6 @@ class Renderer():
 
 
 
-t = time.time() * 1000
 
 mapman = MapManager("map_init.json")
 #map.containerTransfer(map.getObject("tower_1").Chest, map.getEntity("ROBOT").Chest, "module_1")
@@ -307,9 +306,23 @@ mapman = MapManager("map_init.json")
 #Pathfinder
 pfinder = Pathfinder()
 mapman.updateCollisionImg(offset = 180)
-mapman.getEntity("ROBOT").setCurrentPath(pfinder.Execute(mapman.getCollisionImg(), mapman.getEntity("ROBOT").Position.tuple2(), (2700, 1800), mapman.getMapSize()))
+
+t = time.time() * 1000 # DEBUG Benchmarking start
+start = mapman.getEntity("ROBOT").Position.tuple2()
+goal = (1400, 600)
+goal = (800, 1100)
+goal = (1700, 1500)
+goal = (1800, 1070)
+goal = (200, 1800)
+goal = (2757, 988)
+goal = (295, 1124)
+goal = (600, 750)
+#print cv2.cvtColor(mapman.getCollisionImg(), cv2.COLOR_BGR2GRAY).astype(np.bool)[40, 75]
+mapman.getEntity("ROBOT").setCurrentPath(pfinder.Execute(mapman.getCollisionImg(), start, goal, mapman.getMapSize()))
+
 
 print "PATHFINDER CALC TOTAL TIME : {0}ms".format(time.time() * 1000 - t)
+
 mapman.updateVizImg()
 
 
