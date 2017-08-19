@@ -4,10 +4,10 @@
 #include <chrono>
 
 extern "C" {
-	// weights:        flattened h*w grid of costs
+	// map:        flattened h*w grid of costs
 	// start, goal:    index of start/goal in flattened grid
 	// paths (output): for each node, stores previous node in path
-	bool astar(const float* weights, const int height, const int width,
+	bool astar(const uint8_t* map, const int height, const int width,
 			   const int start, const int goal, const bool do_simplify,
 			   int* paths) 
 	{
@@ -15,13 +15,13 @@ extern "C" {
 
 			AStar::Generator generator;
 			generator.setWorldSize({height, width});
-			generator.setHeuristic(AStar::Heuristic::manhattan);
+			generator.setHeuristic(AStar::Heuristic::euclidean);
 			generator.setDiagonalMovement(true);
 			//bool do_simplify = true;
 			
 			for (int i = 0; i < height * width; ++i)
 			{
-				if(weights[i] == 0) {
+				if(map[i] == 0) { //0 is a wall, 1 is free space
 					generator.addCollision({(int)(i / width), i % width});
 				}
 			}
@@ -34,13 +34,13 @@ extern "C" {
 
 
 		auto current_time = std::chrono::high_resolution_clock::now();
-		std::cout << "C++ pathfinding took " << std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count() << "ms." << std::endl;
+		std::cout << " | C++ pathfinding took " << std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count() << "ms." << std::endl;
 
 			if(path.size() == 0)
 				return false;
 
 			if(do_simplify)
-				path = generator.simplifyPath(path, 0.1);
+				path = generator.simplifyPath(path, 0.3);
 
 			int i = 0;
 			for(auto& coordinate : path) {
@@ -52,7 +52,8 @@ extern "C" {
 
 
 		current_time = std::chrono::high_resolution_clock::now();
-		std::cout << "C++ TOTAL ran for " << std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count() << "ms." << std::endl;
+		std::cout << " | C++ TOTAL ran for " << std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count() << "ms." << std::endl;
+		std::cout << " | RESULT : " << path.size() << " waypoints.\n";
 		return true;
 	}
 }

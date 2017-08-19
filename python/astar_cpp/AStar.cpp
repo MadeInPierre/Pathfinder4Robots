@@ -62,7 +62,7 @@ AStar::CoordinateList AStar::Generator::findPath(Vec2i source_, Vec2i target_) {
     CoordinateList path;
 
     if(detectCollision(source_) || detectCollision(target_)) {
-        std::cout << "Invalid start or target position. Outside the map or in a wall.\n";
+        std::cout << " | ERROR Invalid start or target position. Outside the map or in a wall.\n";
         return path;
     }
 
@@ -165,7 +165,7 @@ AStar::uint AStar::Heuristic::manhattan(Vec2i source_, Vec2i target_) {
 
 AStar::uint AStar::Heuristic::euclidean(Vec2i source_, Vec2i target_) {
     auto delta = std::move(getDelta(source_, target_));
-    return static_cast<uint>(10 * sqrt(pow(delta.x, 2) + pow(delta.y, 2)));
+    return static_cast<uint>(10 * /*sqrt*/(pow(delta.x, 2) + pow(delta.y, 2)));
 }
 
 AStar::uint AStar::Heuristic::octagonal(Vec2i source_, Vec2i target_) {

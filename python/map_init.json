@@ -55,8 +55,8 @@
 	"entities": {
 		"ROBOT": {
 			"position": {
-				"x": 1400,
-				"y": 400,
+				"x": 2725,
+				"y": 900,
 				"a": 0,
 				"type": "dynamic"
 			},

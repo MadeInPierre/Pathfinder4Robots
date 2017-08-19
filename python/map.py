@@ -159,7 +159,7 @@ class Renderer():
 			},
 			"waypoints": {
 				"show": True,
-				"color": (255, 100, 20),
+				"color": (255, 100, 255),
 				"size": 10
 			},
 			"entities": {
@@ -178,6 +178,7 @@ class Renderer():
 		config["BW"] = True
 		config["show_walkable"] = False
 		config["show_HUD"] = False
+		config["save_binary"] = True
 
 		config["offset"] = offset
 
@@ -194,10 +195,9 @@ class Renderer():
 
 
 	def draw(self, mapmanager, CONFIG):
-		img = copy.deepcopy(mapmanager.getCollisionImg() if CONFIG["collisionmap"]["show"] else mapmanager.getTerrainImg())
-
+		img = copy.deepcopy(cv2.cvtColor(mapmanager.getCollisionImg(), cv2.COLOR_GRAY2BGR).astype(np.uint8) if CONFIG["collisionmap"]["show"] else mapmanager.getTerrainImg())
 		if CONFIG["res"] != (len(img[0]), len(img)): #TODO badly done
-			img =  self.resizeImage(img, CONFIG["finalRes"])
+			img =  self.resizeImage(img, CONFIG["res"])
 
 		# Zones
 		if CONFIG["zones"]["show"]:
@@ -228,7 +228,7 @@ class Renderer():
 						cv2.putText(img, str(len(e.Chest)), e.Position.transform(0, 0).tuple2(), cv2.FONT_HERSHEY_SIMPLEX, 1.5, e.Shape.viz_color.textColor(), thickness = 5)						
 
 					if CONFIG["entities"]["showCurrentPath"]:
-						print "{0} path : {1}".format(entityname, e.CurrentPath)
+						#print "{0} path : {1}".format(entityname, e.CurrentPath)
 						for i in xrange(len(e.CurrentPath) - 1):
 							self.draw_shape(img, Position({"x": 0, "y": 0, "type": "ghost"}),
 												 Shape({"type": "line", "start": e.CurrentPath[i], "end": e.CurrentPath[i+1]}),
@@ -247,7 +247,8 @@ class Renderer():
 		if CONFIG["finalRes"] != (len(img[0]), len(img)): #TODO badly done
 			img =  self.resizeImage(img, CONFIG["finalRes"])
 		if CONFIG["save_binary"]:
-			img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)[1] #https://stackoverflow.com/questions/7624765/converting-an-opencv-image-to-black-and-white
+			img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY).astype(np.uint8)
+			#img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)[1] #https://stackoverflow.com/questions/7624765/converting-an-opencv-image-to-black-and-white
 		return img
 
 	def adjust_color(self, color, CONFIG):
@@ -286,7 +287,7 @@ class Renderer():
 
 
 	#/*=============================================
-	#=            Helpers            =
+	#=            Helpers                          =
 	#=============================================*/
 	def resizeImage(self, img, new_size, AA = False):
 		i = cv2.INTER_NEAREST if AA else cv2.INTER_NEAREST #TODO find the name for AntiAlliasing
@@ -304,29 +305,25 @@ mapman = MapManager("map_init.json")
 #map.containerTransfer(map.getObject("tower_1").Chest, map.getEntity("ROBOT").Chest, "module_1")
 
 #Pathfinder
-pfinder = Pathfinder()
-t = time.time() * 1000 # DEBUG Benchmarking start
-mapman.updateCollisionImg(offset = 180)
-
 start = mapman.getEntity("ROBOT").Position.tuple2()
-goal = (800, 1100)
-goal = (1700, 1500)
-goal = (295, 1124)
-goal = (1400, 600)
-goal = (600, 600)
-goal = (2757, 988)
-goal = (1800, 1070)
-goal = (200, 1800)
-goal = (2700, 1800) # impossible path
+goal  = ( 800 , 1100 )
+goal  = ( 1700, 1500 )
+goal  = ( 1400, 600  )
+goal  = ( 2757, 988  )
+goal  = ( 2700, 1800 ) # impossible path
+goal  = ( 1800, 1070 )
+goal  = ( 200 , 1800 )
+goal  = ( 600 , 600  )
+goal  = ( 295 , 1124 )
 #print cv2.cvtColor(mapman.getCollisionImg(), cv2.COLOR_BGR2GRAY).astype(np.bool)[40, 75]
-mapman.getEntity("ROBOT").setCurrentPath(pfinder.Execute(mapman.getCollisionImg(), start, goal, mapman.getMapSize()))
+pfinder = Pathfinder()
+path = pfinder.Execute(mapman, start, goal)
+mapman.getEntity("ROBOT").setCurrentPath(path)
 
 
-print "PATHFINDER CALC TOTAL TIME : {0}ms".format(time.time() * 1000 - t)
 
+# Debug visualize
 mapman.updateVizImg()
-
-
 viz = MapVisualizer()
 viz.Draw(mapman.getVizImg(), mapman.getCollisionImg())
 
