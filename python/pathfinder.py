@@ -1,10 +1,10 @@
 import random, time
 from DouglasPeucker import DouglasPeucker
-from astar_cpp2 import PyAstar
+from astar_cpp import PyAstarCPP
 
 class Pathfinder():
 	def __init__(self):
-		self.PYASTAR = PyAstar()
+		self.PYASTAR = PyAstarCPP()
 
 	def Execute(self, map_img, start_mm, goal_mm, map_size): # stat and end in original map size coordinates (e.g. 3000x2000)
 		gridSize = map_img.shape[1::-1] # y, x
@@ -20,15 +20,17 @@ class Pathfinder():
 		for i in xrange(len(path)):
 			path[i] = self.pathfinding_to_mm_pos_coords(path[i], gridSize, map_size) #(path[i][1] * map_size[1] / grid.height, path[i][0] * map_size[0] / grid.width)
 		return path
+		'''MOVED TO CPP
 		return self.simplify_path(path) if len(path) > 0 else path
 
 
 
 	def simplify_path(self, path):
-		simplified_path = DouglasPeucker(path, tolerance = 1) # no tolerance, just remove aligned points
-		#print "simplified path : {0}".format(simplified_path)
+		print "simplified path : {0}".format(path)
+		simplified_path = DouglasPeucker(path, tolerance = 1)  # no tolerance, just remove aligned points
+																				#TODO The douglaspecker functions forgets the last point!
 		return simplified_path
-	
+	'''
 	def mm_pos_to_pathfinding_coords(self, pos, mm_size, pathfinder_size):
 		return (pos[0] * pathfinder_size[0] / mm_size[0], pos[1] * pathfinder_size[1] / mm_size[1]) # x, y
 	def pathfinding_to_mm_pos_coords(self, pos, pathfinder_size, mm_size):

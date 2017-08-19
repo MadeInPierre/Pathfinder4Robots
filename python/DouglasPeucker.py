@@ -25,7 +25,7 @@ def DouglasPeucker(points, tolerance):
 	else:
 		#result = [(points[0], points[-1], len(points))]
 		result = [points[0]]
-	return result # returns a list of lines in format (p1, p2, num_points)
+	return result
 
 
 

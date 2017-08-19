@@ -1,1 +1,2 @@
-from pyastar import PyAstar
+
+from pyastar import PyAstarCPP

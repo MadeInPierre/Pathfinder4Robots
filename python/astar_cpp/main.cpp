@@ -8,7 +8,7 @@ extern "C" {
 	// start, goal:    index of start/goal in flattened grid
 	// paths (output): for each node, stores previous node in path
 	bool astar(const float* weights, const int height, const int width,
-			   const int start, const int goal,
+			   const int start, const int goal, const bool do_simplify,
 			   int* paths) 
 	{
 		auto start_time = std::chrono::high_resolution_clock::now();
@@ -17,6 +17,7 @@ extern "C" {
 			generator.setWorldSize({height, width});
 			generator.setHeuristic(AStar::Heuristic::manhattan);
 			generator.setDiagonalMovement(true);
+			//bool do_simplify = true;
 			
 			for (int i = 0; i < height * width; ++i)
 			{
@@ -38,12 +39,16 @@ extern "C" {
 			if(path.size() == 0)
 				return false;
 
+			if(do_simplify)
+				path = generator.simplifyPath(path, 0.1);
+
 			int i = 0;
 			for(auto& coordinate : path) {
 				//std::cout << "(" << coordinate.x << "," << coordinate.y << ", " << coordinate.x * width + coordinate.y << ") ";
 				paths[i] = coordinate.x * width + coordinate.y;
 				i++;
 			}
+
 
 
 		current_time = std::chrono::high_resolution_clock::now();

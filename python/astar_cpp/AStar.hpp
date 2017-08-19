@@ -23,6 +23,7 @@ namespace AStar
     using uint = unsigned int;
     using HeuristicFunction = std::function<uint(Vec2i, Vec2i)>;
     using CoordinateList = std::vector<Vec2i>;
+    
 
     struct Node
     {
@@ -36,10 +37,13 @@ namespace AStar
 
     using NodeSet = std::set<Node*>;
 
+
     class Generator
     {
         Node* findNodeOnList(NodeSet& nodes_, Vec2i coordinates_);
         void releaseNodes(NodeSet& nodes_);
+        CoordinateList douglaspeucker(CoordinateList path, float tolerance);
+        float distance_point_to_line(Vec2i point, Vec2i p1, Vec2i p2);
 
     public:
         Generator();
@@ -51,6 +55,7 @@ namespace AStar
         void addCollision(Vec2i coordinates_);
         void removeCollision(Vec2i coordinates_);
         void clearCollisions();
+        CoordinateList simplifyPath(CoordinateList path, float tolerance);
         
     private:
         HeuristicFunction heuristic;

@@ -305,18 +305,19 @@ mapman = MapManager("map_init.json")
 
 #Pathfinder
 pfinder = Pathfinder()
+t = time.time() * 1000 # DEBUG Benchmarking start
 mapman.updateCollisionImg(offset = 180)
 
-t = time.time() * 1000 # DEBUG Benchmarking start
 start = mapman.getEntity("ROBOT").Position.tuple2()
-goal = (1400, 600)
 goal = (800, 1100)
 goal = (1700, 1500)
+goal = (295, 1124)
+goal = (1400, 600)
+goal = (600, 600)
+goal = (2757, 988)
 goal = (1800, 1070)
 goal = (200, 1800)
-goal = (2757, 988)
-goal = (295, 1124)
-goal = (600, 750)
+goal = (2700, 1800) # impossible path
 #print cv2.cvtColor(mapman.getCollisionImg(), cv2.COLOR_BGR2GRAY).astype(np.bool)[40, 75]
 mapman.getEntity("ROBOT").setCurrentPath(pfinder.Execute(mapman.getCollisionImg(), start, goal, mapman.getMapSize()))
 

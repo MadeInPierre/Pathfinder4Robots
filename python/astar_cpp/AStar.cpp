@@ -172,3 +172,48 @@ AStar::uint AStar::Heuristic::octagonal(Vec2i source_, Vec2i target_) {
     auto delta = std::move(getDelta(source_, target_));
     return 10 * (delta.x + delta.y) + (-6) * std::min(delta.x, delta.y);
 }
+
+
+
+
+/*=====================================
+=            Simplify Path            =
+=====================================*/
+
+AStar::CoordinateList AStar::Generator::simplifyPath(CoordinateList path, float tolerance) {
+    AStar::CoordinateList simplified_path = douglaspeucker(path, tolerance);
+    simplified_path.insert(simplified_path.end(), path.end() - 1, path.end());
+    return simplified_path;
+}
+
+AStar::CoordinateList AStar::Generator::douglaspeucker(CoordinateList path, float tolerance) {
+    float dmax = 0;
+    int index = 0;
+
+    for (int i = 1; i < (int)path.size(); ++i){
+        float d = distance_point_to_line(path[i], path[0], path[path.size() - 1]);
+        if(d > dmax) {
+            index = i;
+            dmax = d;
+        }
+    }
+
+    if(dmax > tolerance) {
+        AStar::CoordinateList recResults1 = douglaspeucker((AStar::CoordinateList)std::vector<Vec2i>(path.begin(), path.begin() + index), tolerance); ////////
+        AStar::CoordinateList recResults2 = douglaspeucker((AStar::CoordinateList)std::vector<Vec2i>(path.begin() + index, path.end()), tolerance); ////////
+        recResults1.insert(recResults1.end(), recResults2.begin(), recResults2.end());
+        return recResults1;
+    } else {
+        AStar::CoordinateList result;
+        result.insert(result.end(), path.begin(), path.begin() + 1);
+        return result;
+    }
+}
+
+float AStar::Generator::distance_point_to_line(Vec2i point, Vec2i p1, Vec2i p2) {
+    return  (float)(abs((p2.y - p1.y)*point.x - (p2.x - p1.x)*point.y + p2.x*p1.y - p2.y*p1.x) / 
+            (float)(sqrt( pow(p2.y - p1.y, 2) + pow(p2.x - p1.x, 2) )));
+}
+
+
+/*=====  End of Simplify Path  ======*/
