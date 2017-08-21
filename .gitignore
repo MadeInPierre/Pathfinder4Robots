@@ -105,3 +105,4 @@ ENV/
 nohup.out
 *.swp
 */*.swp
+HMI/node_modules/*

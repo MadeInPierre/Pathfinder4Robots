@@ -1,0 +1,11 @@
+{
+	"goxy": {
+		"type": "message",
+		"dest": "ASSERV",
+		"params": {
+			"{0}": "x",
+			"{1}": "y"	
+		},
+		"data": "{0},{1}"
+	}
+}
