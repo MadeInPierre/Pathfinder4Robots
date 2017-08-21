@@ -1,15 +1,16 @@
 import random, time
-from DouglasPeucker import DouglasPeucker
 from astar_cpp import PyAstarCPP
 
 class Pathfinder():
 	def __init__(self):
 		self.PYASTAR = PyAstarCPP()
 
-
-
-
 	def Execute(self, map_manager, start_mm, goal_mm): # stat and end in original map size coordinates (e.g. 3000x2000)
+		'''
+		The pathfinding function requires an opencv 2D image of floats.
+			Transforming an np array to the correctformat : img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY).astype(np.uint8)
+		The start and goal positions are tuples (x, y) in the original Map Size unit.
+		'''
 		print "\n[PATHFINDING]"
 		t = time.time() * 1000 # DEBUG Benchmarking start
 
