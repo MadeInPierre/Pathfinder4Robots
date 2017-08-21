@@ -1,1 +1,2 @@
-from map import MapManager
+from mapmanager import MapManager
+from visualizer import MapVisualizer

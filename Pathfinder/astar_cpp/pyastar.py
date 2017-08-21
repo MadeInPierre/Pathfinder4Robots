@@ -1,10 +1,11 @@
 import ctypes, cv2
 from time import time
 import numpy as np
+import os
 
 class PyAstarCPP():
 	def __init__(self):
-		lib = ctypes.cdll.LoadLibrary('astar_cpp/main.so') #TODO danger
+		lib = ctypes.cdll.LoadLibrary(os.path.dirname(__file__) + '/main.so') #TODO danger
 		self.ASTAR = lib.astar
 		ndmat_f_type = np.ctypeslib.ndpointer(dtype=np.uint8, ndim=1, flags='C_CONTIGUOUS')
 		ndmat_i_type = np.ctypeslib.ndpointer(dtype=np.int32, ndim=1, flags='C_CONTIGUOUS')
