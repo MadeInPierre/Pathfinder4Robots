@@ -12,9 +12,9 @@ goal  = ( 2757, 988  )
 goal  = ( 2700, 1800 ) # impossible path
 goal  = ( 1800, 1070 )
 goal  = ( 200 , 1800 )
-goal  = ( 600 , 600  )
 goal  = ( 295 , 1124 )
 goal  = ( 1700, 1450 )
+goal  = ( 600 , 600  )
 #print cv2.cvtColor(mapman.getCollisionImg(), cv2.COLOR_BGR2GRAY).astype(np.bool)[40, 75]
 pfinder = PF.Pathfinder()
 path = pfinder.Execute(mapman, start, goal)
