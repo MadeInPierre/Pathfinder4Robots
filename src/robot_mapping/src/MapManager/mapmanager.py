@@ -1,4 +1,4 @@
-import json, copy, cv2, time
+import json, copy, cv2, time, os, rospy
 import numpy as np
 from visualizer import *
 from objects import *
@@ -46,7 +46,7 @@ class MapManager():
 			for waypoint in waypoints:
 				waypoints[waypoint] = Waypoint(waypoint, waypoints[waypoint])
 
-			MapDict["terrain"]["walls"]["img"] = cv2.imread(MapDict["terrain"]["walls"]["img_path"])
+			MapDict["terrain"]["walls"]["img"] = cv2.imread(os.path.dirname(__file__) + "/" + MapDict["terrain"]["walls"]["img_path"])
 			MapDict["terrain"]["walls"]["img"] = self.renderer.resizeImage(MapDict["terrain"]["walls"]["img"], (3000, 2000)) # TODO automate size
 
 			# -------- Entities
