@@ -1,10 +1,43 @@
 {
-	"Modules then Balls": {
+	"Modules then Balls Auto": {
 		"objectives": [
-			
+			{
+				"type": "action",
+				"name": "gotowaypoint",
+				"params": {
+					"name": "waypoint_start"
+				}
+			},{
+				"type": "objective",
+				"name": "auto_modules"
+			},{
+				"type": "objective",
+				"name": "auto_balls"
+			}
 		]
 	},
-	"Balls then Modules": {
-
+	"Balls then Modules Auto": {
+		"objectives": [
+			{"name": "auto_balls"},
+			{"name": "auto_modules"}
+		]
+	},
+	"Strategy 1": {
+		"objectives": [
+			{
+				"name": "load_module",
+				"module_ID": 3
+			},{
+				"name": "load_module",
+				"module_ID": 8
+			},{
+				"name": "load_module",
+				"module_ID": 7
+			},{
+				"name": "unload_module",
+				"quantity": 3,
+				"zone": "zone_modules_1"
+			}
+		]
 	}
 }

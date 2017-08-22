@@ -11,7 +11,7 @@ class MapManager_node():
 		self.mapman = MapManager(os.path.dirname(__file__) + "/" + "map.json")
 
 		self.publisher = pub = rospy.Publisher("mapmanager", String, queue_size = 10)
-		self.node = rospy.init_node('mapmanager', log_level= rospy.INFO)
+		self.node = rospy.init_node('mapping_mapmanager', log_level= rospy.INFO)
 
 
 if __name__ == "__main__":
