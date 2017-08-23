@@ -1,56 +1,51 @@
 <strategies>
-	<group name = "Strategy number 1" type = "linear">
+	
+	<!-- STRATEGY : <description> -->
+	<strategy name="Test1">
+		<game>
+			<time>90</time>
+		</game>
+		<actions name="In-Game Actions">
+			<action ref="wait_for_jack"/>
+			<actionlist name = "Strategy number 1" type = "linear">
+				<order ref="wheels_goto">
+					<position type="xy" x="3" y="2000"/>
+				</order>
 
-		<action value = "gotoxy">
-			<position type="xy" "x" = 3 "y" = 2000/>
-		</action>
+				<actionlist name = "Take Modules" exec="linear" success="last">
 
-		<group name = "Take Modules" exec_sort = "linear" success="last">
+					<action ref = "load_module">
+						<params>
+							<position type="object" ref="map_object_module1" origin="robot_origin_gripper"/>
+						</params>
+					</action>
+					
+					<action ref = "load_module">
+						<ID>7</ID>
+					</action>
 
-			<action value = "load_module">
-				<ID>3</ID>
-			</action>
-			<action value = "load_module">
-				<ID>7</ID>
-			</action>
-			<action value = "load_module">
-				<ID>4</ID>
-			</action>
+					<action ref = "load_module">
+						<ID>4</ID>
+					</action>
 
-			<group name = "Unload on left platform" exec_sort = "linear">
-				<action value = "unload_module">
-					<position type="waypoint" value = "left_unloadzone_p1"/>
-				</action>
-				<action value = "unload_module">
-					<position type="waypoint" value = "left_unloadzone_p2"/>
-				</action>
-				<action value = "unload_module">
-					<position type="waypoint" value = "left_unloadzone_p2"/>
-				</action>
-			</group>
+					<actionlist name = "Unload on left platform" exec="linear" success = "all">
+						<action ref = "unload_module">
+							<position type="waypoint" ref = "left_unloadzone_p1"/>
+						</action>
+						<action ref = "unload_module">
+							<position type="waypoint" ref = "left_unloadzone_p2"/>
+						</action>
+						<action ref = "unload_module">
+							<position type="waypoint" ref = "left_unloadzone_p2"/>
+						</action>
+					</actionlist>
 
-		</group>
-
-		<group>
-			
-		</group>
-
-	</group>
+				</actionlist>
+			</actionlist>
+		</actions>
+		<actions_onfinish name="Actions after game">
+			<action ref="funny_action"/>
+		</actions_onfinish>
+	</strategy>
+	<strategy name="fdg"></strategy>
 </strategies>
-
-
-
-
-<group name="Take Module 1">
-	<actionlist type = "linear">
-
-		<hwaction key="load_module">
-			<moduleID>3</moduleID>
-		</hwaction>
-
-		<hwaction key= "unload_module">
-			<place type="waypoint" name="zone_modules_left_1"/>
-		</hwaction>
-		
-	</actionlist>
-</group>

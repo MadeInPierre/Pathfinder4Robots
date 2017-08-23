@@ -3,25 +3,62 @@ This is where the robot is told what to do.
 
 ## 1. Files
 - `1_Strategies.xml` 
+
+File basic structure :
+
+```xml
+<strategies>
+	<strategy>
+		...
+	</strategy>
+	<strategy>
+		...
+	</strategy>
+</strategies>
+```
+
 - `2_Actions.xml`
 - `3_HardwareActions.xml`
 
+
+
+
+
 ## 2. AI Objects
+
 ### 1. Strategies
 The `1_Strategies.json` file is a JSON dictionary of several Strategy objects. When the whole system is launched, the user selects which strategy the robot has to follow.
 This lets the user create several ways ("strategies") of achieving the final objective, and quickly execute the one he wants at each execution time.
+
+Strategy basic structure:
+
+```xml
+<strategy>
+	<game>
+		<duration>90</duration>
+	</game>
+	<actions>
+		...
+	</actions>
+	<actions_onfinish>
+		...
+	</actions_onfinish>
+</strategy>
+```
+
+
 
 ### 2. Groups
 Group tags are a list or actions. This list can be configured as :
 - `linear` : Sorted (the robot follows the order of actions in the list given in the file)
 - `mostreward` : The AI automatically picks the sequence that will give the most amount of reward points.
 - `fastest`, : The AI automatically picks the sequence that will execute the quickest.
-- Unsorted, fastest actions first.	
+- `simultaneous`, fastest actions first.
 
-When a group is executed, the conditions to consider it is successful or not can be configured.
-- `all` : All actions done correctly.
-- `?` : At least one action done
-- `last` : The last action was executed correctly.
+When a group is executed, the conditions to consider it is successful or not can be configured :
+- `all` : All actions must be done correctly.
+- `one` : At least one action must be done correctly.
+- `last` : The last action must be executed correctly.
 	
 Properties :
 - `reward`: If the whole group execution is considered successful, this is the amount of reward points given.
@@ -30,10 +67,10 @@ Properties :
 An Action object is a group of `HarwareAction` actions (see next section below).
 
 
-### 4. Hardware Actions
+### 4. Orders
 Properties :
 - `time`, obligatory : Approximate time needed to complete an action (seconds).
-- `reward` : If there is any, the action  
+- `reward` : If there are any, the action gives reward points to the AI.
 	
 Supported embedded actions that can be used in actions:
 - The `wheels` group communicates with the ROS `robot_movement_wheels` package. This is how the AI asks for the robot to move from a point to another. Actions defined :

@@ -1,6 +1,11 @@
 {
 	"actuator_toggle": {
-
+		"message": {
+			"dest": "robot_movement_actuators",
+			"params": {
+				
+			}
+		}
 	},
 	"actuator_set": {
 
