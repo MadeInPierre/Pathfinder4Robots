@@ -18,7 +18,7 @@ class Task(object):
 	def getStatus(self):
 		return self.Status
 	def __repr__(self):
-		return "<No Name>"
+		return "<Task with No Name>"
 
 class GameProperties():
 	GAME_DURATION = None
@@ -27,31 +27,45 @@ class GameProperties():
 
 
 class Strategy(Task):
-	def __init__(self, xml):
+	def __init__(self, xml, actions, orders):
 		super(Strategy, self).__init__(xml)
-		self.loadxml(xml)
+		self.Name = xml.attrib["name"]
+		self.loadxml(xml, actions, orders)
 
-	def loadxml(self, xml):
+	def loadxml(self, xml, actions, orders):
 		# Game Properties
 		GameProperties.GAME_DURATION = int(xml.find('game').find("time").text) # Save game duration in seconds
 
 		# Fill actions
-		self.TASKS = ActionsList(xml.find("actions"))
+		self.TASKS = ActionList(xml.find("actions"), actions, orders)
 		print "---"
-		self.TASKS_ONFINISH = ActionsList(xml.find("actions_onfinish"))
+		self.TASKS_ONFINISH = ActionList(xml.find("actions_onfinish"), actions, orders)
+
+	def __repr__(self):
+		return self.Name
 
 class ActionList(Task):
-	def __init__(self, xml, actions, orders):
+	def __init__(self, xml, actions, orders, name = None):
 		super(ActionList, self).__init__(xml)
-		self.Name = xml.attrib["name"]
+		self.Name = name if name else xml.attrib["name"]
 		self.TASKS = None
-		self.loadxml(xml)
+		self.loadxml(xml, actions, orders)
 
 	def loadxml(self, xml, actions, orders):
 		self.TASKS = []
 		for task_xml in xml:
 			if task_xml.tag == "actionlist":
-				self.TASKS.append(ActionList(task_xml))
+				self.TASKS.append(ActionList(task_xml, actions, orders))
+			elif task_xml.tag == "actionref":
+				instances = [action for action in actions if action.Ref == task_xml.attrib["ref"]]
+				if len(instances) != 1:
+					raise KeyError, "{} action instance(s) found with the name '{}'.".format(len(instances), task_xml.attrib["ref"])
+				self.TASKS.append(instances[0])
+			elif task_xml.tag == "orderref":
+				instances = [order for order in orders if order.Ref == task_xml.attrib["ref"]]
+				if len(instances) != 1:
+					raise KeyError, "{} order instance(s) found with the name '{}'.".format(len(instances), task_xml.attrib["ref"])
+				self.TASKS.append(instances[0])
 			elif task_xml.tag == "action":
 				self.TASKS.append(None)
 			elif task_xml.tag == "order":
@@ -63,7 +77,7 @@ class ActionList(Task):
 		return None
 
 	def __repr__(self):
-		return self.Name
+		return "[ActionList] " + self.Name
 
 
 
@@ -75,10 +89,10 @@ class Action(Task):
 		self.loadxml(xml, actions, orders)
 
 	def loadxml(self, xml, actions, orders):
-		self.TASKS = ActionList(xml.find("actions"), actions, orders)
+		self.TASKS = ActionList(xml.find("actions"), actions, orders, name = "Action Tasks")
 
 	def __repr__(self):
-		return self.Rep
+		return "[Action] " + self.Ref
 
 
 
@@ -97,7 +111,7 @@ class Order(Task):
 		self.Status = TaskStatus.INPROGRESS
 
 	def __repr__(self):
-		return self.Ref
+		return "[Order] " + self.Ref
 
 
 

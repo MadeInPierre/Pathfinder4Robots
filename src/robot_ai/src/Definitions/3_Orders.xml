@@ -26,4 +26,63 @@
 	</order>
 
 
+	<order ref="actuator_open">
+		<params>
+			<param id="actuator_id"/>
+		</params>
+		<message dest="robot_movement_actuators">
+			<command>actuator_open</command>
+			<params>
+				<param id="actuator_id"/>
+			</params>
+		</message>
+	</order>
+	<order ref="actuator_close">
+		<params>
+			<param id="actuator_id"/>
+		</params>
+		<message dest="robot_movement_actuators">
+			<command>actuator_close</command>
+			<params>
+				<param id="actuator_id"/>
+			</params>
+		</message>
+	</order>
+
+	<order ref="ia_delay">
+		<params>
+			<param id="time_sec"/>
+		</params>
+		<message dest="robot_ai">
+			<command>ai_delay</command>
+			<params>
+				<param id="time_sec"/>
+			</params>
+		</message>
+	</order>
+
+	<order ref="wait_for_jack">
+		<params></params>
+		<message dest="robot_movement_actuators">
+			<command>reply_when_jack</command>
+			<params></params>
+		</message>
+	</order>
+
+	<order ref="timer_start">
+		<params></params>
+		<message dest="robot_ai">
+			<command>timer_start</command>
+			<params></params>
+		</message>
+	</order>
+
+	<order ref="funny_action">
+		<params></params>
+		<message dest="robot_movement_actuators">
+			<command>funny_action</command>
+			<params></params>
+		</message>
+	</order>
+
 </orders>

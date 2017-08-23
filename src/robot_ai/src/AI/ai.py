@@ -12,11 +12,13 @@ CAUTION : This module requires the 'anytree' module. Install it with :
 class AI():
 	def __init__(self, strategyname):
 		self.xml_dirpath = os.path.dirname(__file__) + "/../Definitions/"
-		self.AvailableStrategies = None
+		self.AvailableStrategies = None # loaded later
+
 		orders = self.loadOrders()
 		actions = self.loadActions(orders)
 		self.Strategy = self.loadStrategy(strategyname, actions, orders)
 
+		print self.Strategy.TASKS.TASKS[1].TASKS[1].TASKS[3].TASKS[0].TASKS.TASKS[0].TASKS[1]#.TASKS.TASKS[0].Message.DestinationNode
 
 	def loadOrders(self):
 		self.XML_ORDERS = ET.parse(self.xml_dirpath + "3_Orders.xml").getroot()
@@ -26,7 +28,6 @@ class AI():
 			orders.append(Order(order_xml))
 		return orders
 
-
 	def loadActions(self, orders):
 		self.XML_ACTIONS = ET.parse(self.xml_dirpath + "2_Actions.xml").getroot()
 
@@ -35,7 +36,6 @@ class AI():
 		for action_xml in self.XML_ACTIONS:
 			actions.append(Action(action_xml, actions, orders))
 		return actions
-
 		
 	def loadStrategy(self, strategyname, actions, orders):
 		self.XML_STRATEGIES = ET.parse(self.xml_dirpath + "1_Strategies.xml").getroot()
@@ -46,7 +46,7 @@ class AI():
 			return Strategy(strategy_xml[0], actions, orders)
 		else:
 			print "FAIL Too many or no strategy to load with the given name. Aborting."
-
+			return None
 
 a = AI("Test1")
 

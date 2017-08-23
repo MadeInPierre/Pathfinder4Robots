@@ -1,4 +1,52 @@
 <actions>
+	<!-- Action goup : sucks a module in and loads it in the robot's module chest
+			No params, this only plays the load routine without moving the robot.-->
+	<action ref="takein_module">
+		<!-- The robot is already positioned, take it in -->
+		<params></params>
+		<conditions>
+			<chest ref = "robot_chest_modules" qty_left_min = "1" />
+		</conditions>
+		<actions>
+			<orderref ref="actuator_open">
+				<param id="module_ID">
+					<ID>2</ID>
+				</param>
+			</orderref>
+			<orderref ref="ia_delay">
+				<param id="time">
+					<time>1.5</time>
+				</param>
+			</orderref>
+			<orderref ref="actuator_close">
+				<ID>1</ID>
+			</orderref>
+		</actions>
+	</action>
+
+	<action ref="takeout_module">
+		<!-- The robot is already positioned, take it in -->
+		<params></params>
+		<conditions>
+			<chest ref = "robot_chest_modules" qty_in_min = "1" />
+		</conditions>
+		<actions>
+			<orderref ref="actuator_open">
+				<param id="module_ID">
+					<ID>2</ID>
+				</param>
+			</orderref>
+			<orderref ref="ia_delay">
+				<param id="time">
+					<time>1.5</time>
+				</param>
+			</orderref>
+			<orderref ref="actuator_close">
+				<ID>1</ID>
+			</orderref>
+		</actions>
+	</action>
+
 	<!---->
 	<!-- Action List : load module. 
     		params : 
@@ -12,38 +60,28 @@
 		</conditions>
 		<actions>
 			<actionlist name = "Search and Load module" exec = "linear" success="all">
-				<order ref = "wheels_goto">
+				<orderref ref = "wheels_goto">
 					<param id="position"/>
-				</order>
-				<action ref="takein_module"/>
+				</orderref>
+				<actionref ref="takein_module"/>
 			</actionlist>
 		</actions>
 	</action>
 
-	<!-- Action goup : sucks a module in and loads it in the robot's module chest
-			No params, this only plays the load routine without moving the robot.-->
-	<action ref="takein_module">
-		<!-- The robot is already positioned, take it in -->
+	<action ref="unload_module">
 		<params>
+			<param id="position"/>
 		</params>
 		<conditions>
-			<chest ref = "robot_chest_modules" qty_left_min = "1" />
-			<position type = "waypoint" ref = "unload_zone_1a"/>
+			<chest ref = "robot_chest_modules" qty_in_min = "1" />
 		</conditions>
 		<actions>
-			<order value = "actuator_open">
-				<param id="module_ID">
-					<ID>2</ID>
-				</param>
-			</order>
-			<order value = "delay">
-				<param id="time">
-					<time>1.5</time>
-				</param>
-			</order>
-			<order value = "actuator_close">
-				<ID>1</ID>
-			</order>
+			<actionlist name = "Goto place and Unload module" exec = "linear" success="all">
+				<orderref ref = "wheels_goto">
+					<param id="position"/>
+				</orderref>
+				<actionref ref="takeout_module"/>
+			</actionlist>
 		</actions>
 	</action>
 
@@ -52,9 +90,9 @@
 		<params></params>
 		<conditions></conditions>
 		<actions>
-			<actionlist exec="linear" success="all">
-				<order ref="wait_for_jack"/>
-				<order ref="timer_start"/>
+			<actionlist name = "jack then start timer" exec="linear" success="all">
+				<orderref ref="wait_for_jack"/>
+				<orderref ref="timer_start"/>
 			</actionlist>
 		</actions>
 	</action>
