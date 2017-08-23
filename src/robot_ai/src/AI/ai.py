@@ -1,6 +1,6 @@
 #!/bin/usr/python
 import os, json
-from anytree import Node, RenderTree
+from treelib import Tree, Node
 from ia_classes import AI_ITEM, Strategy, Objective, Action
 
 '''
@@ -31,8 +31,21 @@ class AI():
 						for objective in strategy["objectives"]:
 							Node(Objective(objective["name"], objective), parent = treenode_strategy)
 						'''
-						print RenderTree(treenode_strategy)
 						return None
 
 
 a = AI("Strategy 1")
+
+
+class TreeManager():
+	def __init__(self):
+		self.Tree = Tree()
+		self.Tree.create_node(object)
+		self.Tree.show()
+
+	
+	def addNode(self, obj):
+		apss
+
+t = TreeManager()
+

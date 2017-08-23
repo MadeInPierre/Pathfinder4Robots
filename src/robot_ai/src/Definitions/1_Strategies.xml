@@ -1,0 +1,56 @@
+<strategies>
+	<group name = "Strategy number 1" type = "linear">
+
+		<action value = "gotoxy">
+			<position type="xy" "x" = 3 "y" = 2000/>
+		</action>
+
+		<group name = "Take Modules" exec_sort = "linear" success="last">
+
+			<action value = "load_module">
+				<ID>3</ID>
+			</action>
+			<action value = "load_module">
+				<ID>7</ID>
+			</action>
+			<action value = "load_module">
+				<ID>4</ID>
+			</action>
+
+			<group name = "Unload on left platform" exec_sort = "linear">
+				<action value = "unload_module">
+					<position type="waypoint" value = "left_unloadzone_p1"/>
+				</action>
+				<action value = "unload_module">
+					<position type="waypoint" value = "left_unloadzone_p2"/>
+				</action>
+				<action value = "unload_module">
+					<position type="waypoint" value = "left_unloadzone_p2"/>
+				</action>
+			</group>
+
+		</group>
+
+		<group>
+			
+		</group>
+
+	</group>
+</strategies>
+
+
+
+
+<group name="Take Module 1">
+	<actionlist type = "linear">
+
+		<hwaction key="load_module">
+			<moduleID>3</moduleID>
+		</hwaction>
+
+		<hwaction key= "unload_module">
+			<place type="waypoint" name="zone_modules_left_1"/>
+		</hwaction>
+		
+	</actionlist>
+</group>

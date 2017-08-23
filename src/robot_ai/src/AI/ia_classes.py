@@ -9,7 +9,10 @@ from anytree import Node
 class ItemStatus:
     TODO, STARTED, PENDING, COMPLETED, PAUSED, ERROR, CRITICAL = range(7)
 
-class AI_ITEM(object):
+class ListHierarchyType:
+	LINEAR, FASTEST, MOST_SCORE, RANDOM = range(4)
+
+class AI_TASK(object):
 	def __init__(self, name, status = ItemStatus.TODO):
 		self.Status = status
 		self.Name = ""
@@ -26,7 +29,7 @@ class AI_ITEM(object):
 
 
 
-class Strategy(AI_ITEM):
+class Strategy(AI_TASK):
 	def __init__(self, name, initdict):
 		super(Strategy, self).__init__(name)
 		self.loadStrategy(initdict)
@@ -34,17 +37,19 @@ class Strategy(AI_ITEM):
 	def loadStrategy(self, initdict):
 		pass
 
+class ActionsList():
+	def __init__(self, initdict):
+		pass
 
 
-
-class Objective(AI_ITEM):
+class Objective(AI_TASK):
 	def __init__(self, name, initdict):
 		super(Objective, self).__init__(name)
 
 
 
 
-class Action(AI_ITEM):
+class Action(AI_TASK):
 	def __init__(self, name, initdict):
 		super(Action, self).__init__(name)
 

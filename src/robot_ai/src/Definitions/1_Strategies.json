@@ -1,24 +1,22 @@
 {
 	"Modules then Balls Auto": {
-		"objectives": [
+		"actions": [
 			{
 				"type": "action",
-				"name": "gotowaypoint",
-				"params": {
-					"name": "waypoint_start"
-				}
-			},{
-				"type": "objective",
-				"name": "auto_modules"
-			},{
-				"type": "objective",
-				"name": "auto_balls"
+
+			},
+			{
+				"type": "linearlist",
+				"name": "SDL kSJHF ksjdhf",
+				"actions": [
+
+				]
 			}
 		]
 	},
 	"Balls then Modules Auto": {
 		"objectives": [
-			{"name": "auto_balls"},
+			{"name": "auto_balls"  },
 			{"name": "auto_modules"}
 		]
 	},

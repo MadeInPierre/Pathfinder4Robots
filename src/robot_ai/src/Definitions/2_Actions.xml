@@ -1,0 +1,8 @@
+<actions>
+	<action name = "unload_module">
+		<params>
+			<position type = "xya"/>
+		</params>
+		
+	</action>
+</actions>

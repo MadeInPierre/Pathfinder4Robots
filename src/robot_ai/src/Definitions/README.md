@@ -1,23 +1,48 @@
-# AI Definition
-
+# AI Actions definition files
 This is where the robot is told what to do.
 
-##1. Strategies
-	Is a an ordered list of objectives and actions.
+##1. Files
+	- `1_Strategies.xml` 
+	- `2_Actions.xml`
+	- `3_HardwareActions.xml`
+
+##2. AI Objects
+###1. Strategies
+	The `1_Strategies.json` file is a JSON dictionary of several Strategy objects. When the whole system is launched, the user selects which strategy the robot has to follow.
+
+	This lets the user create several ways ("strategies") of achieving the final objective, and quickly execute the one he wants at each execution time.
+
+###2. Groups
+	Group tags are a list or actions. This list can be configured as :
+		- `linear` : Sorted (the robot follows the order of actions in the list given in the file)
+		- `mostreward` : The AI automatically picks the sequence that will give the most amount of reward points.
+		- `fastest`, : The AI automatically picks the sequence that will execute the quickest.
+		- Unsorted, fastest actions first.
+	
+	When a group is executed, the conditions to consider it is successful or not can be configured.
+		- `all` : All actions done correctly.
+		- `?` : At least one action done
+		- `last` : The last action was executed correctly.
+	
+	Properties :
+		- `reward`: If the whole group execution is considered successful, this is the amount of reward points given.
+
+###2. Actions
+	An Action object is a group of `HarwareAction` actions (see next section below).
 
 
-##2. Objectives
-	Is an ordered or non-ordered list of actions or objectives.
-##3. Actions
-	Is an ordered list of Harware Actions.
-##4. Hardware Actions
-	Supported embedded actions that can be used:
+###4. Hardware Actions
+	Properties :
+		- `time`, obligatory : Approximate time needed to complete an action (seconds).
+		- `reward` : If there is any, the action  
+	
+	Supported embedded actions that can be used in actions:
 		- The `wheels` group communicates with the ROS `robot_movement_wheels` package. This is how the AI asks for the robot to move from a point to another. Actions defined :
 			- `wheels_gotoxy`: Ask the robot to move to a certain position. angle doesn't matter.
 			- `wheels_gotoxya`: Go to a certain position and angle.
 			- `wheels_gotoa`: Ask the robot to turn toward a certain direction.
 			- `wheels_delay`: Stop the robot for a certain duration (seconds).
-
+	
 		- The `actuators` group:
 			- `actuator_open`: Set the actuator to the `closed` position set in the `robot.json` description file.
 			- `actuator_close`: Set the actuator to the `open` position set in the `robot.json` description file.
@@ -25,5 +50,5 @@ This is where the robot is told what to do.
 			- `actuator_setpos`: Manually set a position to the actuator.
 
 
-##4. Actions execution
+###4. Actions execution
 The last layer, `HardareActions.json`, 
