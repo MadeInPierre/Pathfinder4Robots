@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import rospy
+from ai_comunitation import AICommunication
 
-class AI_Node():
+class AINode():
 	def __init__(self):
-		pass
+		self.communicator = Communication()

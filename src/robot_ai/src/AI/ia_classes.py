@@ -3,6 +3,8 @@
 from anytree import Node
 import copy
 
+# utf-8 boxes link : http://jrgraphix.net/r/Unicode/2500-257F
+
 #/*====================================
 #=            Base classes            =
 #====================================*/
@@ -12,7 +14,7 @@ class TaskStatus:
 	WAITINGFORRESPONSE  = ('WAITINGFORRESPONSE' , '💬')
 	FREE                = ('FREE'               , '⬜')
 	PAUSED              = ('PAUSED'             , '🔶')
-	ERROR               = ('ERROR'              , '⛔')
+	FAIL                = ('FAIL '              , '⛔')
 	SUCCESS             = ('SUCCESS'            , '🆗')
 
 class Task(object):
@@ -107,10 +109,10 @@ class ActionList(Task):
 
 	def updateStatus(self):
 		if self.SuccessCondition == 'all':
-			priorityList = [TaskStatus.SUCCESS, TaskStatus.ERROR, TaskStatus.PAUSED, 
+			priorityList = [TaskStatus.SUCCESS, TaskStatus.FAIL, TaskStatus.PAUSED, 
 							TaskStatus.FREE, TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL]
 		elif self.SuccessCondition == 'one':
-			priorityList = [TaskStatus.ERROR, TaskStatus.SUCCESS, TaskStatus.PAUSED, 
+			priorityList = [TaskStatus.FAIL, TaskStatus.SUCCESS, TaskStatus.PAUSED, 
 							TaskStatus.FREE, TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL]
 		elif self.SuccessCondition == 'last':
 			self.Status = self.TASKS[-1].updateStatus()
@@ -129,7 +131,6 @@ class ActionList(Task):
 		return super(ActionList, self).getStatus()
 
 	def prettyprint(self, indentlevel, print_self = True):
-		print_self = True
 		if print_self:
 			super(ActionList, self).prettyprint(indentlevel)
 		for task in self.TASKS:

@@ -44,7 +44,7 @@ class AI():
 ai = AI("Test1")
 
 ai.Strategy.TASKS.TASKS[0].TASKS.TASKS[0].Status = TaskStatus.SUCCESS
-ai.Strategy.TASKS.TASKS[0].TASKS.TASKS[1].Status = TaskStatus.ERROR
+ai.Strategy.TASKS.TASKS[0].TASKS.TASKS[1].Status = TaskStatus.FAIL
 ai.Strategy.TASKS.TASKS[1].TASKS[1].TASKS[0].TASKS[0].Status = TaskStatus.SUCCESS
 
 ai.Strategy.updateStatus()
