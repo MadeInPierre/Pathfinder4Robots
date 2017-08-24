@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from anytree import Node
+import rospy
 import copy
 
 # utf-8 boxes link : http://jrgraphix.net/r/Unicode/2500-257F
@@ -35,7 +36,7 @@ class Task(object):
 	def getStatusEmoji(self):
 		return self.Status[1]
 	def prettyprint(self, indentlevel):
-		print "  ║ " * (indentlevel - 1) + "  ╠═" + self.__repr__()
+		rospy.loginfo("  ║ " * (indentlevel - 1) + "  ╠═" + self.__repr__())
 	def __repr__(self):
 		return "<Task with No Name>"
 
@@ -65,7 +66,7 @@ class Strategy(Task):
 		return self.TASKS.getStatus()
 
 	def PrettyPrint(self):
-		print 'STRATEGY'
+		rospy.loginfo('[STRATEGY] ' + self.__repr__())
 		self.TASKS.prettyprint(1)
 		self.TASKS_ONFINISH.prettyprint(1)
 	def __repr__(self):
@@ -102,7 +103,7 @@ class ActionList(Task):
 			elif task_xml.tag == "order":
 				self.TASKS.append(None)#Order(task_xml.attrib["ref"], task_xml.find("params")))
 			else:
-				print "WARNING Task skipped because '{}' type was not recognized.".format(task_xml.tag)
+				rospy.logwarn("WARNING Task skipped because '{}' type was not recognized.".format(task_xml.tag))
 
 	def getBest(self):
 		return None

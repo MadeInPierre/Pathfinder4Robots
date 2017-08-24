@@ -1,7 +1,7 @@
 <strategies>
 	
 	<!-- STRATEGY : <description> -->
-	<strategy name="Test1">
+	<strategy name="Strategy 1">
 		<game>
 			<time>90</time>
 		</game>
