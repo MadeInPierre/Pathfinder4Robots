@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 from anytree import Node
 
 
@@ -7,7 +8,14 @@ from anytree import Node
 #====================================*/
 
 class TaskStatus:
-    FREE, PENDING, WAITINGFORRESPONSE, COMPLETED, PAUSED, ERROR, CRITICAL = range(7)
+	FREEA, PENDING, WAITINGFORRESPONSE, COMPLETED, PAUSED, ERROR, CRITICAL = range(7)
+	FREE     = (0, 'FREE'    , '⬜')
+	PENDING  = (0, 'PENDING' , '🔄')
+	WAITING  = (2, 'WAITING' , '💬')
+	SUCCESS  = (3, 'SUCCESS' , '🆗')
+	PAUSED   = (4, 'PAUSED'  , '🔶')
+	ERROR    = (5, 'ERROR'   , '⛔')
+	CRITICAL = (6, 'CRITICAL', '💔')
 
 class ListHierarchyType:
 	LINEAR, FASTEST, MOST_SCORE, RANDOM = range(4)
@@ -16,7 +24,14 @@ class Task(object):
 	def __init__(self, xml, status = TaskStatus.FREE):
 		self.Status = status
 	def getStatus(self):
-		return self.Status
+		return self.Status[0]
+	def getStatusString(self):
+		return self.Status[1]
+	def getStatusEmoji(self):
+		return self.Status[2]
+
+	def prettyprint(self, indentlevel):
+		print "  ║ " * (indentlevel - 1) + "  ╠═" + self.__repr__()
 	def __repr__(self):
 		return "<Task with No Name>"
 
@@ -41,6 +56,13 @@ class Strategy(Task):
 		print "---"
 		self.TASKS_ONFINISH = ActionList(xml.find("actions_onfinish"), actions, orders)
 
+	def getStatus(self):
+		return self.TASKS.getStatus()
+
+	def PrettyPrint(self):
+		print 'STRATEGY'
+		self.TASKS.prettyprint(1)
+		self.TASKS_ONFINISH.prettyprint(1)
 	def __repr__(self):
 		return self.Name
 
@@ -48,6 +70,9 @@ class ActionList(Task):
 	def __init__(self, xml, actions, orders, name = None):
 		super(ActionList, self).__init__(xml)
 		self.Name = name if name else xml.attrib["name"]
+		self.ExecutionMode    = xml.attrib["exec"]    if "exec"    in xml.attrib else 'none'
+		self.SuccessCondition = xml.attrib["success"] if "success" in xml.attrib else 'none'
+
 		self.TASKS = None
 		self.loadxml(xml, actions, orders)
 
@@ -76,8 +101,15 @@ class ActionList(Task):
 	def getBest(self):
 		return None
 
+	def getStatus(self):
+		return self.TASKS[0].getStatus() #TODO
+
+	def prettyprint(self, indentlevel):
+		super(ActionList, self).prettyprint(indentlevel)
+		for task in self.TASKS:
+			task.prettyprint(indentlevel + 1)
 	def __repr__(self):
-		return "[ActionList] " + self.Name
+		return "[{0} ActionList] {1}".format(self.getStatusEmoji(), self.Name)
 
 
 
@@ -91,8 +123,11 @@ class Action(Task):
 	def loadxml(self, xml, actions, orders):
 		self.TASKS = ActionList(xml.find("actions"), actions, orders, name = "Action Tasks")
 
+	def prettyprint(self, indentlevel):
+		print "  ║ " * (indentlevel - 1) + "  ╠═" + self.__repr__()
+		self.TASKS.prettyprint(indentlevel + 1)
 	def __repr__(self):
-		return "[Action] " + self.Ref
+		return "[{0} Action] {1}".format(self.getStatusEmoji(), self.Ref)
 
 
 
@@ -111,7 +146,7 @@ class Order(Task):
 		self.Status = TaskStatus.INPROGRESS
 
 	def __repr__(self):
-		return "[Order] " + self.Ref
+		return "[{0} Order] {1}".format(self.getStatusEmoji(), self.Ref)
 
 
 

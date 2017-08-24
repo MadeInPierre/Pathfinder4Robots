@@ -18,8 +18,6 @@ class AI():
 		actions = self.loadActions(orders)
 		self.Strategy = self.loadStrategy(strategyname, actions, orders)
 
-		print self.Strategy.TASKS.TASKS[1].TASKS[1].TASKS[3].TASKS[0].TASKS.TASKS[0].TASKS[1]#.TASKS.TASKS[0].Message.DestinationNode
-
 	def loadOrders(self):
 		self.XML_ORDERS = ET.parse(self.xml_dirpath + "3_Orders.xml").getroot()
 
@@ -49,6 +47,7 @@ class AI():
 			return None
 
 a = AI("Test1")
+a.Strategy.PrettyPrint()
 
 
 

@@ -42,6 +42,9 @@
 
 				</actionlist>
 			</actionlist>
+			<orderref ref="funny_action">
+				
+			</orderref>
 		</actions>
 		<actions_onfinish name="Actions after game">
 			<orderref ref="funny_action"/>
