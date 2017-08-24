@@ -1,6 +1,9 @@
 <orders>
 
 	<order ref="actuator_toggle">
+		<ai>
+			<ETL>1.5</ETL>
+		</ai>
 		<params>
 			<param id="actuator_id"/>
 		</params>
@@ -14,6 +17,9 @@
 
 
 	<order ref="wheels_goto">
+		<ai>
+			<ETL>6</ETL>
+		</ai>
 		<params>
 			<param id="position"/>
 		</params>
@@ -27,6 +33,9 @@
 
 
 	<order ref="actuator_open">
+		<ai>
+			<ETL>1.5</ETL>
+		</ai>
 		<params>
 			<param id="actuator_id"/>
 		</params>
@@ -38,6 +47,9 @@
 		</message>
 	</order>
 	<order ref="actuator_close">
+		<ai>
+			<ETL>1.5</ETL>
+		</ai>
 		<params>
 			<param id="actuator_id"/>
 		</params>
@@ -49,7 +61,10 @@
 		</message>
 	</order>
 
-	<order ref="ia_delay">
+	<order ref="ai_delay">
+		<ai>
+			<ETL>2</ETL>
+		</ai>
 		<params>
 			<param id="time_sec"/>
 		</params>
@@ -62,6 +77,9 @@
 	</order>
 
 	<order ref="wait_for_jack">
+		<ai>
+			<ETL>20</ETL>
+		</ai>
 		<params></params>
 		<message dest="robot_movement_actuators">
 			<command>reply_when_jack</command>
@@ -70,6 +88,9 @@
 	</order>
 
 	<order ref="timer_start">
+		<ai>
+			<ETL>0</ETL>
+		</ai>
 		<params></params>
 		<message dest="robot_ai">
 			<command>timer_start</command>
@@ -78,6 +99,9 @@
 	</order>
 
 	<order ref="funny_action">
+		<ai>
+			<ETL>4</ETL>
+		</ai>
 		<params></params>
 		<message dest="robot_movement_actuators">
 			<command>funny_action</command>

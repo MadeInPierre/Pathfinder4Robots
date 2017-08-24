@@ -1,35 +1,37 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from anytree import Node
-
+import copy
 
 #/*====================================
 #=            Base classes            =
 #====================================*/
 
 class TaskStatus:
-	FREEA, PENDING, WAITINGFORRESPONSE, COMPLETED, PAUSED, ERROR, CRITICAL = range(7)
-	FREE     = (0, 'FREE'    , '⬜')
-	PENDING  = (0, 'PENDING' , '🔄')
-	WAITING  = (2, 'WAITING' , '💬')
-	SUCCESS  = (3, 'SUCCESS' , '🆗')
-	PAUSED   = (4, 'PAUSED'  , '🔶')
-	ERROR    = (5, 'ERROR'   , '⛔')
-	CRITICAL = (6, 'CRITICAL', '💔')
-
-class ListHierarchyType:
-	LINEAR, FASTEST, MOST_SCORE, RANDOM = range(4)
+	CRITICAL            = ('CRITICAL'           , '💔')
+	WAITINGFORRESPONSE  = ('WAITINGFORRESPONSE' , '💬')
+	FREE                = ('FREE'               , '⬜')
+	PAUSED              = ('PAUSED'             , '🔶')
+	ERROR               = ('ERROR'              , '⛔')
+	SUCCESS             = ('SUCCESS'            , '🆗')
 
 class Task(object):
 	def __init__(self, xml, status = TaskStatus.FREE):
 		self.Status = status
+
+	def updateStatus(self):
+		return self.getStatus()
+
 	def getStatus(self):
+		return self.Status
+	'''
+	def getStatusCode(self):
 		return self.Status[0]
 	def getStatusString(self):
 		return self.Status[1]
+	'''
 	def getStatusEmoji(self):
-		return self.Status[2]
-
+		return self.Status[1]
 	def prettyprint(self, indentlevel):
 		print "  ║ " * (indentlevel - 1) + "  ╠═" + self.__repr__()
 	def __repr__(self):
@@ -53,9 +55,10 @@ class Strategy(Task):
 
 		# Fill actions
 		self.TASKS = ActionList(xml.find("actions"), actions, orders)
-		print "---"
 		self.TASKS_ONFINISH = ActionList(xml.find("actions_onfinish"), actions, orders)
 
+	def updateStatus(self):
+		self.TASKS.updateStatus()
 	def getStatus(self):
 		return self.TASKS.getStatus()
 
@@ -67,11 +70,12 @@ class Strategy(Task):
 		return self.Name
 
 class ActionList(Task):
-	def __init__(self, xml, actions, orders, name = None):
+	def __init__(self, xml, actions, orders):
 		super(ActionList, self).__init__(xml)
-		self.Name = name if name else xml.attrib["name"]
-		self.ExecutionMode    = xml.attrib["exec"]    if "exec"    in xml.attrib else 'none'
-		self.SuccessCondition = xml.attrib["success"] if "success" in xml.attrib else 'none'
+		self.Name = xml.attrib["name"] if "name" in xml.attrib else xml.tag
+		self.ExecutionMode    = xml.attrib["exec"]    if "exec"    in xml.attrib else 'linear'
+		self.SuccessCondition = xml.attrib["success"] if "success" in xml.attrib else 'all'
+		self.Conditions = xml.find("conditions") if "conditions" in xml else None # Conditions that must be true before executing the actions.
 
 		self.TASKS = None
 		self.loadxml(xml, actions, orders)
@@ -85,12 +89,12 @@ class ActionList(Task):
 				instances = [action for action in actions if action.Ref == task_xml.attrib["ref"]]
 				if len(instances) != 1:
 					raise KeyError, "{} action instance(s) found with the name '{}'.".format(len(instances), task_xml.attrib["ref"])
-				self.TASKS.append(instances[0])
+				self.TASKS.append(copy.deepcopy(instances[0]))
 			elif task_xml.tag == "orderref":
 				instances = [order for order in orders if order.Ref == task_xml.attrib["ref"]]
 				if len(instances) != 1:
 					raise KeyError, "{} order instance(s) found with the name '{}'.".format(len(instances), task_xml.attrib["ref"])
-				self.TASKS.append(instances[0])
+				self.TASKS.append(copy.deepcopy(instances[0]))
 			elif task_xml.tag == "action":
 				self.TASKS.append(None)
 			elif task_xml.tag == "order":
@@ -101,15 +105,37 @@ class ActionList(Task):
 	def getBest(self):
 		return None
 
-	def getStatus(self):
-		return self.TASKS[0].getStatus() #TODO
+	def updateStatus(self):
+		if self.SuccessCondition == 'all':
+			priorityList = [TaskStatus.SUCCESS, TaskStatus.ERROR, TaskStatus.PAUSED, 
+							TaskStatus.FREE, TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL]
+		elif self.SuccessCondition == 'one':
+			priorityList = [TaskStatus.ERROR, TaskStatus.SUCCESS, TaskStatus.PAUSED, 
+							TaskStatus.FREE, TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL]
+		elif self.SuccessCondition == 'last':
+			self.Status = self.TASKS[-1].updateStatus()
+			return super(ActionList, self).updateStatus()
+		else:
+			raise ValueError, "CRITICAL ActionList has no success condition!"
+		#print "---" + self.__repr__()
+		#print self.TASKS
+		# Update status based on the tasks
+		status = -1
+		for i in xrange(len(self.TASKS)):
+			s = priorityList.index(self.TASKS[i].updateStatus())
+			if s > status: 
+				status = s
+		self.Status = priorityList[status]
+		return super(ActionList, self).getStatus()
 
-	def prettyprint(self, indentlevel):
-		super(ActionList, self).prettyprint(indentlevel)
+	def prettyprint(self, indentlevel, print_self = True):
+		print_self = True
+		if print_self:
+			super(ActionList, self).prettyprint(indentlevel)
 		for task in self.TASKS:
-			task.prettyprint(indentlevel + 1)
+			task.prettyprint(indentlevel + (1 if print_self else 0))
 	def __repr__(self):
-		return "[{0} ActionList] {1}".format(self.getStatusEmoji(), self.Name)
+		return "\033[1m\033[91m[{0} ActionList] {1} [{2}]".format(self.getStatusEmoji(), self.Name, self.SuccessCondition) + "\033[0m"
 
 
 
@@ -121,13 +147,16 @@ class Action(Task):
 		self.loadxml(xml, actions, orders)
 
 	def loadxml(self, xml, actions, orders):
-		self.TASKS = ActionList(xml.find("actions"), actions, orders, name = "Action Tasks")
+		self.TASKS = ActionList(xml.find("actions"), actions, orders)
 
+	def updateStatus(self):
+		self.Status = self.TASKS.updateStatus()
+		return super(Action, self).getStatus()
 	def prettyprint(self, indentlevel):
-		print "  ║ " * (indentlevel - 1) + "  ╠═" + self.__repr__()
-		self.TASKS.prettyprint(indentlevel + 1)
+		super(Action, self).prettyprint(indentlevel)
+		self.TASKS.prettyprint(indentlevel + 1, print_self = False)
 	def __repr__(self):
-		return "[{0} Action] {1}".format(self.getStatusEmoji(), self.Ref)
+		return "\033[1m\033[95m[{0} Action]\033[0m\033[95m {1}".format(self.getStatusEmoji(), self.Ref) + "\033[0m"
 
 
 
@@ -136,6 +165,9 @@ class Order(Task):
 	def __init__(self, xml):
 		super(Order, self).__init__(xml)
 		self.Ref = xml.attrib["ref"]
+
+		self.ETL = xml.find("ai").find("ETL").text # Manually estimated time to execute this action
+		self.Reward = xml.find("ai").find("reward") if "reward" in xml.find("ai") else 0
 		
 		#self.ParamsNeededCount = len(xml.find("message").find("params").findall("param"))
 		self.Message = Message(xml.find("message"))
@@ -146,7 +178,7 @@ class Order(Task):
 		self.Status = TaskStatus.INPROGRESS
 
 	def __repr__(self):
-		return "[{0} Order] {1}".format(self.getStatusEmoji(), self.Ref)
+		return "\033[1m[{0} Order]\033[0m {1}".format(self.getStatusEmoji(), self.Ref)
 
 
 

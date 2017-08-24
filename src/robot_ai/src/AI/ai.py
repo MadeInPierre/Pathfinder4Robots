@@ -1,13 +1,7 @@
 #!/bin/usr/python
-import os
-from treelib import Tree, Node
-from ia_classes import Task, Strategy, Action, Order
+import os, time
+from ia_classes import Task, TaskStatus, Strategy, Action, Order
 import xml.etree.ElementTree as ET
-
-'''
-CAUTION : This module requires the 'anytree' module. Install it with :
-	pip install anytree
-'''
 
 class AI():
 	def __init__(self, strategyname):
@@ -46,31 +40,14 @@ class AI():
 			print "FAIL Too many or no strategy to load with the given name. Aborting."
 			return None
 
-a = AI("Test1")
-a.Strategy.PrettyPrint()
+# 6-8ms to load
+ai = AI("Test1")
 
+ai.Strategy.TASKS.TASKS[0].TASKS.TASKS[0].Status = TaskStatus.SUCCESS
+ai.Strategy.TASKS.TASKS[0].TASKS.TASKS[1].Status = TaskStatus.ERROR
+ai.Strategy.TASKS.TASKS[1].TASKS[1].TASKS[0].TASKS[0].Status = TaskStatus.SUCCESS
 
-
-
-
-
-
-
-
-'''
-	def load_json(self, definitions_dir, strategyname):
-		treenode_strategy = Node(strategyname)
-
-		with open(definitions_dir + "1_Strategies.json")                  as file_strategies :
-			with open(definitions_dir + "2_Objectives.json")              as file_objectives :
-				with open(definitions_dir + "3_Actions.json")             as file_actions    :
-					with open(definitions_dir + "4_HardwareActions.json") as file_hwactions  :
-						data_strategies = json.load(file_strategies)
-						data_objectives = json.load(file_objectives)
-						data_actions    = json.load(file_actions   )
-						data_hwactions  = json.load(file_hwactions )
-
-						strategy = Strategy(strategyname, data_strategies[strategyname])
-						# print json.dumps(strategy, indent = 2)
-						return None
-'''
+ai.Strategy.updateStatus()
+ai.Strategy.PrettyPrint()
+t = time.time() * 1000
+print time.time() * 1000 - t

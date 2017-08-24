@@ -12,23 +12,26 @@
 					<position type="xy" x="3" y="2000"/>
 				</orderref>
 
-				<actionlist name = "Take Modules" exec="linear" success="last">
+				<actionlist name = "Take Modules" exec="linear" success="all">
 
-					<actionref ref = "load_module">
-						<params>
-							<position type="object" ref="map_object_module1" origin="robot_origin_gripper"/>
-						</params>
-					</actionref>
-
-					<actionref ref = "load_module">
-						<ID>7</ID>
-					</actionref>
-
-					<actionref ref = "load_module">
-						<ID>4</ID>
-					</actionref>
+					<actionlist name="Load modules" exec = "linear" success = "one">
+						<actionref ref = "load_module">
+							<params>
+								<position type="object" ref="map_object_module1" origin="robot_origin_gripper"/>
+							</params>
+						</actionref>
+						<actionref ref = "load_module">
+							<ID>7</ID>
+						</actionref>
+						<actionref ref = "load_module">
+							<ID>4</ID>
+						</actionref>
+					</actionlist>
 
 					<actionlist name = "Unload on left platform" exec="linear" success = "all">
+						<conditions>
+							<needlastaction/> <!-- This actionList needs the previous action to be OK in order to run-->
+						</conditions>
 						<actionref ref = "unload_module">
 							<position type="waypoint" ref = "left_unloadzone_p1"/>
 						</actionref>
@@ -40,11 +43,9 @@
 						</actionref>
 					</actionlist>
 
+
 				</actionlist>
 			</actionlist>
-			<orderref ref="funny_action">
-				
-			</orderref>
 		</actions>
 		<actions_onfinish name="Actions after game">
 			<orderref ref="funny_action"/>

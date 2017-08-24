@@ -48,7 +48,7 @@ Strategy basic structure:
 
 
 
-### 2. Groups
+### 2. ActionLists
 Group tags are a list or actions. This list can be configured as :
 - `linear` : Sorted (the robot follows the order of actions in the list given in the file)
 - `mostreward` : The AI automatically picks the sequence that will give the most amount of reward points.
