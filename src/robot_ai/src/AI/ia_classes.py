@@ -15,32 +15,27 @@ class TaskStatus:
 	WAITINGFORRESPONSE  = ('WAITINGFORRESPONSE' , '💬')
 	FREE                = ('FREE'               , '⬜')
 	PAUSED              = ('PAUSED'             , '🔶')
-	ERROR                = ('ERROR '              , '⛔')
+	ERROR               = ('ERROR '             , '⛔')
+	BLOCKED             = ('BLOCKED'            , '◼')
 	SUCCESS             = ('SUCCESS'            , '🆗')
 
 class Task(object):
 	def __init__(self, xml, status = TaskStatus.FREE):
 		self.Reward = int(xml.attrib["reward"]) if "reward" in xml.attrib else 0
 		self.Status = status
+		self.Parent = None
 
-		self.parent_on_status_change_cb = None
-
-	def updateStatus(self):
-		return self.getStatus()
-
-	def getStatus(self):
-		return self.Status
+	
+	def setParent(self, parent):
+		self.Parent = parent
 	def setStatus(self, new_status):
 		if self.Status != new_status:
 			self.Status = new_status
-			if self.parent_on_status_change_cb:
-				self.parent_on_status_change_cb()
-	'''
-	def getStatusCode(self):
-		return self.Status[0]
-	def getStatusString(self):
-		return self.Status[1]
-	'''
+			if self.Parent:
+				self.Parent.refreshStatus()
+	def getStatus(self):
+		return self.Status
+
 	def getStatusEmoji(self):
 		return self.Status[1]
 	def prettyprint(self, indentlevel):
@@ -76,8 +71,6 @@ class Strategy(Task):
 	def getNext(self): # Returns the next free task (ActionList, Action or Order).
 		return self.TASKS.getNext()
 
-	def updateStatus(self): # Update the lists status by looking at their orders' status.
-		self.TASKS.updateStatus()
 	def getStatus(self):
 		return self.TASKS.getStatus()
 
@@ -110,18 +103,21 @@ class ActionList(Task):
 		for task_xml in xml:
 			if task_xml.tag == "actionlist":
 				i = ActionList(task_xml, actions, orders)
+				i.setParent(self)
 				self.TASKS.append(i)
 			elif task_xml.tag == "actionref":
 				instances = [action for action in actions if action.Ref == task_xml.attrib["ref"]]
 				if len(instances) != 1:
 					raise KeyError, "{} action instance(s) found with the name '{}'.".format(len(instances), task_xml.attrib["ref"])
 				i = copy.deepcopy(instances[0])
+				i.setParent(self)
 				self.TASKS.append(i)
 			elif task_xml.tag == "orderref":
 				instances = [order for order in orders if order.Ref == task_xml.attrib["ref"]]
 				if len(instances) != 1:
 					raise KeyError, "{} order instance(s) found with the name '{}'.".format(len(instances), task_xml.attrib["ref"])
 				i = copy.deepcopy(instances[0])
+				i.setParent(self)
 				self.TASKS.append(i)
 			else:
 				rospy.logwarn("WARNING Task skipped because '{}' type was not recognized.".format(task_xml.tag))
@@ -139,6 +135,34 @@ class ActionList(Task):
 		else:
 			raise ValueError, "ERROR asked to execute a task that's not free"
 
+	def setParent(self, parent):
+		self.Parent = parent
+	def refreshStatus(self):
+		if self.SuccessCondition == 'all':
+			priorityList = [TaskStatus.SUCCESS, TaskStatus.BLOCKED,            TaskStatus.ERROR,    TaskStatus.PAUSED, 
+							TaskStatus.FREE,    TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL]
+		elif self.SuccessCondition == 'one':
+			priorityList = [TaskStatus.ERROR, TaskStatus.BLOCKED,            TaskStatus.SUCCESS,    TaskStatus.PAUSED, 
+							TaskStatus.FREE,  TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL]
+		elif self.SuccessCondition == 'last':
+			self.setStatus(self.TASKS[-1].getStatus())
+		else:
+			raise ValueError, "CRITICAL ActionList has no success condition!"
+		
+		status = -1
+		for task in self.TASKS:
+			s = priorityList.index(task.getStatus())
+			if s > status: 
+				status = s
+		self.setStatus(priorityList[status])
+	def setStatus(self, new_status):
+		if self.Status != new_status:
+			self.Status = new_status
+			if self.Parent:
+				self.Parent.refreshStatus()
+
+
+	'''
 	def updateStatus(self):
 		if self.SuccessCondition == 'all':
 			priorityList = [TaskStatus.SUCCESS, TaskStatus.ERROR, TaskStatus.PAUSED, 
@@ -159,7 +183,7 @@ class ActionList(Task):
 				status = s
 		self.Status = priorityList[status]
 		return super(ActionList, self).getStatus()
-
+	'''
 	def prettyprint(self, indentlevel, print_self = True):
 		if print_self:
 			super(ActionList, self).prettyprint(indentlevel)
@@ -181,11 +205,15 @@ class Action(Task):
 
 	def loadxml(self, xml, actions, orders):
 		self.TASKS = ActionList(xml.find("actions"), actions, orders)
+		self.TASKS.setParent(self)
 
 	def getNext(self):
 		for task in self.TASKS.TASKS:
 			if task.getStatus() == TaskStatus.FREE:
 				return task
+
+	def refreshStatus(self):
+		self.setStatus(self.TASKS.getStatus())
 
 	def execute(self, communicator):
 		if self.getStatus() == TaskStatus.FREE:
@@ -193,16 +221,12 @@ class Action(Task):
 		else:
 			raise ValueError, "ERROR asked to execute a task that's not free"
 
-	def updateStatus(self):
-		self.Status = self.TASKS.updateStatus()
-		return super(Action, self).getStatus()
 	def prettyprint(self, indentlevel):
-		self.updateStatus() #TODO 
 		super(Action, self).prettyprint(indentlevel)
 		self.TASKS.prettyprint(indentlevel + 1, print_self = False)
 	def __repr__(self):
-		return "\033[1m\033[95m[{0} Action]\033[0m\033[95m {1}{2}".format(self.getStatusEmoji(), self.Ref,
-																		  " [{}⚡]".format(self.Reward) if self.Reward else "") + "\033[0m"
+		return "\033[1m\033[95m[{0} Action]\033[0m\033[95m {1} [{2}{3}]".format(self.getStatusEmoji(), self.Ref, self.TASKS.SuccessCondition,
+																	     ", {}⚡".format(self.Reward) if self.Reward else "") + "\033[0m"
 
 
 
@@ -224,13 +248,21 @@ class Order(Task):
 	def execute(self, communicator):
 		'''if len(kwargs) != len(self.NeededParamsIDs):
 			raise ValueError, "ERROR missing or too many parameters for message."'''
-		self.Status = TaskStatus.WAITINGFORRESPONSE
+		self.setStatus(TaskStatus.WAITINGFORRESPONSE)
 		rospy.logdebug("Executing task : {}...".format(self.__repr__()))
 		
 
 		response = self.Message.send(communicator)
-		self.Status = TaskStatus.SUCCESS if response.success else TaskStatus.ERROR
 		rospy.loginfo('got response ! reason : ' + response.reason)
+		self.setStatus(TaskStatus.SUCCESS if response.success else TaskStatus.ERROR)
+
+	def setParent(self, parent):
+		self.Parent = parent
+	def setStatus(self, new_status):
+		if self.Status != new_status:
+			self.Status = new_status
+			if self.Parent:
+				self.Parent.refreshStatus()
 
 
 	def __repr__(self):

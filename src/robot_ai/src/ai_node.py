@@ -15,16 +15,19 @@ class AINode():
 		self.AI = RobotAI("Strategy 1", self.communication)
 
 		# t = time.time() * 1000
-		self.AI.Strategy.TASKS.TASKS[0].TASKS.TASKS[0].Status = TaskStatus.SUCCESS
-		self.AI.Strategy.TASKS.TASKS[0].TASKS.TASKS[1].Status = TaskStatus.ERROR
-		self.AI.Strategy.updateStatus()
+		self.AI.Strategy.TASKS.TASKS[0].TASKS.TASKS[0].setStatus(TaskStatus.SUCCESS)
+		self.AI.Strategy.TASKS.TASKS[0].TASKS.TASKS[1].setStatus(TaskStatus.ERROR)
+		#self.AI.Strategy.updateStatus() #TODO
 
 		# rospy.logdebug("Took {}ms".format(time.time() * 1000 - t))
-
+		self.AI.Strategy.PrettyPrint()
 		while True:
-			self.AI.Strategy.getNext().execute(self.communication)
+			if self.AI.Strategy.getStatus() in [TaskStatus.FREE, TaskStatus.PAUSED]:
+				self.AI.Strategy.getNext().execute(self.communication)
+			else:
+				rospy.loginfo("InGame actions finished!")
+				break
 			self.AI.Strategy.PrettyPrint()
-			self.AI.Strategy.updateStatus()
 
 
 		'''
