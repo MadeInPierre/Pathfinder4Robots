@@ -1,7 +1,7 @@
 <actions>
 	<!-- Action goup : sucks a module in and loads it in the robot's module chest
 			No params, this only plays the load routine without moving the robot.-->
-	<action ref="takein_module">
+	<action ref="takein_module" reward="20">
 		<!-- The robot is already positioned, take it in -->
 		<params></params>
 		<conditions>

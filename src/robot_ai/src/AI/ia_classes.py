@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from anytree import Node
-import rospy
+import rospy, time
 import copy
 
 # utf-8 boxes link : http://jrgraphix.net/r/Unicode/2500-257F
@@ -15,11 +15,12 @@ class TaskStatus:
 	WAITINGFORRESPONSE  = ('WAITINGFORRESPONSE' , '💬')
 	FREE                = ('FREE'               , '⬜')
 	PAUSED              = ('PAUSED'             , '🔶')
-	FAIL                = ('FAIL '              , '⛔')
+	ERROR                = ('ERROR '              , '⛔')
 	SUCCESS             = ('SUCCESS'            , '🆗')
 
 class Task(object):
 	def __init__(self, xml, status = TaskStatus.FREE):
+		self.Reward = int(xml.attrib["reward"]) if "reward" in xml.attrib else 0
 		self.Status = status
 
 	def updateStatus(self):
@@ -60,12 +61,16 @@ class Strategy(Task):
 		self.TASKS = ActionList(xml.find("actions"), actions, orders)
 		self.TASKS_ONFINISH = ActionList(xml.find("actions_onfinish"), actions, orders)
 
-	def updateStatus(self):
+	def getNext(self): # Returns the next free task (ActionList, Action or Order).
+		return self.TASKS.getNext()
+
+	def updateStatus(self): # Update the lists status by looking at their orders' status.
 		self.TASKS.updateStatus()
 	def getStatus(self):
 		return self.TASKS.getStatus()
 
-	def PrettyPrint(self):
+	def PrettyPrint(self): # Updates and then prints
+		self.updateStatus()
 		rospy.loginfo('[STRATEGY] ' + self.__repr__())
 		self.TASKS.prettyprint(1)
 		self.TASKS_ONFINISH.prettyprint(1)
@@ -73,7 +78,7 @@ class Strategy(Task):
 		return self.Name
 
 class ActionList(Task):
-	def __init__(self, xml, actions, orders):
+	def __init__(self, xml, actions, orders, parent_on_status_change_cb):
 		super(ActionList, self).__init__(xml)
 		self.Name = xml.attrib["name"] if "name" in xml.attrib else xml.tag
 		self.ExecutionMode    = xml.attrib["exec"]    if "exec"    in xml.attrib else 'linear'
@@ -82,6 +87,7 @@ class ActionList(Task):
 
 		self.TASKS = None
 		self.loadxml(xml, actions, orders)
+		self.parent_on_status_change_cb = parent_on_status_change_cb
 
 	def loadxml(self, xml, actions, orders):
 		self.TASKS = []
@@ -99,33 +105,47 @@ class ActionList(Task):
 					raise KeyError, "{} order instance(s) found with the name '{}'.".format(len(instances), task_xml.attrib["ref"])
 				self.TASKS.append(copy.deepcopy(instances[0]))
 			elif task_xml.tag == "action":
+				print "hi?"
 				self.TASKS.append(None)
 			elif task_xml.tag == "order":
-				self.TASKS.append(None)#Order(task_xml.attrib["ref"], task_xml.find("params")))
+				print "hi?"
+				self.TASKS.append(None)
 			else:
 				rospy.logwarn("WARNING Task skipped because '{}' type was not recognized.".format(task_xml.tag))
 
-	def getBest(self):
+	def getNext(self):
+		for task in self.TASKS:
+			if task.getStatus() == TaskStatus.FREE:
+				return task
+		print "NO FREE TASK"
 		return None
+
+	def execute(self, communicator):
+		if self.getStatus() == TaskStatus.FREE:
+			self.getNext().execute(communicator)
+		else:
+			raise ValueError, "ERROR asked to execute a task that's not free"
+
+	def on_child_status_change(self):
+		self.updateStatus()
+		self.parent_on_status_change_cb()
 
 	def updateStatus(self):
 		if self.SuccessCondition == 'all':
-			priorityList = [TaskStatus.SUCCESS, TaskStatus.FAIL, TaskStatus.PAUSED, 
+			priorityList = [TaskStatus.SUCCESS, TaskStatus.ERROR, TaskStatus.PAUSED, 
 							TaskStatus.FREE, TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL]
 		elif self.SuccessCondition == 'one':
-			priorityList = [TaskStatus.FAIL, TaskStatus.SUCCESS, TaskStatus.PAUSED, 
+			priorityList = [TaskStatus.ERROR, TaskStatus.SUCCESS, TaskStatus.PAUSED, 
 							TaskStatus.FREE, TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL]
 		elif self.SuccessCondition == 'last':
 			self.Status = self.TASKS[-1].updateStatus()
 			return super(ActionList, self).updateStatus()
 		else:
 			raise ValueError, "CRITICAL ActionList has no success condition!"
-		#print "---" + self.__repr__()
-		#print self.TASKS
-		# Update status based on the tasks
+		
 		status = -1
-		for i in xrange(len(self.TASKS)):
-			s = priorityList.index(self.TASKS[i].updateStatus())
+		for task in self.TASKS:
+			s = priorityList.index(task.updateStatus())
 			if s > status: 
 				status = s
 		self.Status = priorityList[status]
@@ -137,34 +157,53 @@ class ActionList(Task):
 		for task in self.TASKS:
 			task.prettyprint(indentlevel + (1 if print_self else 0))
 	def __repr__(self):
-		return "\033[1m\033[91m[{0} ActionList] {1} [{2}]".format(self.getStatusEmoji(), self.Name, self.SuccessCondition) + "\033[0m"
+		return "\033[1m\033[91m[{0} ActionList] {1} [{2}{3}]".format(self.getStatusEmoji(), self.Name, self.SuccessCondition,
+																	 ", {}⚡".format(self.Reward) if self.Reward else "") + "\033[0m"
 
 
 
 
 class Action(Task):
-	def __init__(self, xml, actions, orders):
+	def __init__(self, xml, actions, orders, parent_on_status_change_cb):
 		super(Action, self).__init__(xml)
 		self.Ref = xml.attrib["ref"]
 		self.loadxml(xml, actions, orders)
+		self.parent_on_status_change_cb = parent_on_status_change_cb
 
 	def loadxml(self, xml, actions, orders):
-		self.TASKS = ActionList(xml.find("actions"), actions, orders)
+		self.TASKS = ActionList(xml.find("actions"), actions, orders, self.on_child_status_change)
+
+	def getNext(self):
+		for task in self.TASKS.TASKS:
+			if task.getStatus() == TaskStatus.FREE:
+				return task
+
+	def execute(self, communicator):
+		if self.getStatus() == TaskStatus.FREE:
+			self.getNext().execute(communicator)
+		else:
+			raise ValueError, "ERROR asked to execute a task that's not free"
+	
+	def on_child_status_change(self):
+		self.updateStatus()
+		self.parent_on_status_change_cb()
 
 	def updateStatus(self):
 		self.Status = self.TASKS.updateStatus()
 		return super(Action, self).getStatus()
 	def prettyprint(self, indentlevel):
+		self.updateStatus() #TODO 
 		super(Action, self).prettyprint(indentlevel)
 		self.TASKS.prettyprint(indentlevel + 1, print_self = False)
 	def __repr__(self):
-		return "\033[1m\033[95m[{0} Action]\033[0m\033[95m {1}".format(self.getStatusEmoji(), self.Ref) + "\033[0m"
+		return "\033[1m\033[95m[{0} Action]\033[0m\033[95m {1}{2}".format(self.getStatusEmoji(), self.Ref,
+																		  " [{}⚡]".format(self.Reward) if self.Reward else "") + "\033[0m"
 
 
 
 
 class Order(Task):
-	def __init__(self, xml):
+	def __init__(self, xml, parent_on_status_change_cb):
 		super(Order, self).__init__(xml)
 		self.Ref = xml.attrib["ref"]
 
@@ -174,20 +213,34 @@ class Order(Task):
 		#self.ParamsNeededCount = len(xml.find("message").find("params").findall("param"))
 		self.Message = Message(xml.find("message"))
 
-	def execute(self, params_dict):
+		self.parent_on_status_change_cb = parent_on_status_change_cb # When this task status changes, calls the parent to change its own status.
+
+	def execute(self, communicator):
 		'''if len(kwargs) != len(self.NeededParamsIDs):
 			raise ValueError, "ERROR missing or too many parameters for message."'''
-		self.Status = TaskStatus.INPROGRESS
+		self.Status = TaskStatus.WAITINGFORRESPONSE
+		rospy.logdebug("Executing task : {}...".format(self.__repr__()))
+		
+
+		response = self.Message.send(communicator)
+		self.change_status(TaskStatus.SUCCESS if response.success else TaskStatus.ERROR)
+		rospy.loginfo('got response ! reason : ' + response.reason)
+
+	def change_status(self, new_status):
+		if new_status != self.getStatus():
+			self.Status = new_status
+			self.parent_on_change_status_cb()
+
 
 	def __repr__(self):
-		return "\033[1m[{0} Order]\033[0m {1}".format(self.getStatusEmoji(), self.Ref)
-
+		return "\033[1m[{0} Order]\033[0m {1}{2}".format(self.getStatusEmoji(), self.Ref, 
+														  " [{}⚡]".format(self.Reward) if self.Reward else "")
 
 
 class Message():
 	def __init__(self, xml):
 		self.DestinationNode = xml.attrib["dest"]
-		self.Command = xml.find("command")
+		self.Command = xml.find("command").text
 		
 		# Save which parameters are needed for the message
 		self.NeededParamsIDs = []
@@ -197,51 +250,9 @@ class Message():
 
 		self.Parameters = {}
 		for param in xml.find("params"):
-			pass#print param.tag #TODO
+			pass
 
-	def send(self, params_dict):
-		body = {
-			"dest": self.DestinationNode,
-			"command": self.Command,
-			"params": {}
-		}
-		for param_id in self.NeededParamsIDs:
-			body["params"].append(params_dict[param_id]) #TODO
-		return False #bool if sent successfully or not
-
-'''
-{
-	"command": "ldkjfgh",
-	"params": {
-		"position": {
-			"x": 2000,
-			"y": 2400,
-			"a": false
-		}
-	}
-}
-'''
-
-
-
-
-
-
-
-#/*========================================
-#=                 Orders                 =
-#========================================*/
-class wheels(Order):
-	pass
-
-class order_actuator(Order):
-	pass
-
-class order_wheels(Order):
-	pass
-
-class order_robotarm(Order):
-	pass
-
-
-#/*==========  End of Orders  ===========*/
+	def send(self, communicator):
+		params = None #TODO
+		response = communicator.SendGenericCommand(self.DestinationNode, self.Command, "params")
+		return response

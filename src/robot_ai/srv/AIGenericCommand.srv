@@ -1,0 +1,6 @@
+string destination
+string command
+string params
+---
+bool success
+string reason

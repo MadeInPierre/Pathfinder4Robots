@@ -1,0 +1,4 @@
+geometry_msgs/Pose2D startpos
+geometry_msgs/Pose2D endpos
+---
+geometry_msgs/Pose2D[] waypoints

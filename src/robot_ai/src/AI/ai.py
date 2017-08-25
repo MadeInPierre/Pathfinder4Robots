@@ -40,16 +40,21 @@ class RobotAI():
 			print "FAIL Too many or no strategy to load with the given name. Aborting."
 			return None
 
-
+'''
 if __name__ == "__main__":
 	# 6-8ms to load
-	ai = AI("Test1")
+	ai = RobotAI("Strategy 1", None)
 
 	ai.Strategy.TASKS.TASKS[0].TASKS.TASKS[0].Status = TaskStatus.SUCCESS
 	ai.Strategy.TASKS.TASKS[0].TASKS.TASKS[1].Status = TaskStatus.FAIL
-	ai.Strategy.TASKS.TASKS[1].TASKS[1].TASKS[0].TASKS[0].Status = TaskStatus.SUCCESS
+	ai.Strategy.TASKS.TASKS[1].TASKS[1].TASKS[0].TASKS[0].Status = TaskStatus.CRITICAL
 
 	ai.Strategy.updateStatus()
+	
+	ai.Strategy.getNext().Status = TaskStatus.WAITINGFORRESPONSE
 	ai.Strategy.PrettyPrint()
+
+
 	#t = time.time() * 1000
 	#print time.time() * 1000 - t
+'''

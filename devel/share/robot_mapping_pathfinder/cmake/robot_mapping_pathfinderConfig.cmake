@@ -91,9 +91,9 @@ endif()
 # flag project as catkin-based to distinguish if a find_package()-ed project is a catkin project
 set(robot_mapping_pathfinder_FOUND_CATKIN_PROJECT TRUE)
 
-if(NOT " " STREQUAL " ")
+if(NOT "/home/jack/Programming/Robotics/RobotOS/devel/include " STREQUAL " ")
   set(robot_mapping_pathfinder_INCLUDE_DIRS "")
-  set(_include_dirs "")
+  set(_include_dirs "/home/jack/Programming/Robotics/RobotOS/devel/include")
   foreach(idir ${_include_dirs})
     if(IS_ABSOLUTE ${idir} AND IS_DIRECTORY ${idir})
       set(include ${idir})
@@ -122,7 +122,7 @@ foreach(library ${libraries})
     set(lib_path "")
     set(lib "${library}-NOTFOUND")
     # since the path where the library is found is returned we have to iterate over the paths manually
-    foreach(path /home/jack/Programming/Robotics/RobotOS/devel/lib;/home/jack/ROS/catkin_ws/devel/lib;/opt/ros/kinetic/lib)
+    foreach(path /home/jack/Programming/Robotics/RobotOS/devel/lib;/home/jack/Programming/Robotics/RobotOS/devel/lib;/home/jack/ROS/catkin_ws/devel/lib;/opt/ros/kinetic/lib)
       find_library(lib ${library}
         PATHS ${path}
         NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
@@ -145,7 +145,7 @@ foreach(library ${libraries})
   endif()
 endforeach()
 
-set(robot_mapping_pathfinder_EXPORTED_TARGETS "")
+set(robot_mapping_pathfinder_EXPORTED_TARGETS "robot_mapping_pathfinder_generate_messages_cpp;robot_mapping_pathfinder_generate_messages_eus;robot_mapping_pathfinder_generate_messages_lisp;robot_mapping_pathfinder_generate_messages_nodejs;robot_mapping_pathfinder_generate_messages_py")
 # create dummy targets for exported code generation targets to make life of users easier
 foreach(t ${robot_mapping_pathfinder_EXPORTED_TARGETS})
   if(NOT TARGET ${t})
@@ -153,7 +153,7 @@ foreach(t ${robot_mapping_pathfinder_EXPORTED_TARGETS})
   endif()
 endforeach()
 
-set(depends "")
+set(depends "message_runtime")
 foreach(depend ${depends})
   string(REPLACE " " ";" depend_list ${depend})
   # the package name of the dependency must be kept in a unique variable so that it is not overwritten in recursive calls
@@ -182,7 +182,7 @@ foreach(depend ${depends})
   list(APPEND robot_mapping_pathfinder_EXPORTED_TARGETS ${${robot_mapping_pathfinder_dep}_EXPORTED_TARGETS})
 endforeach()
 
-set(pkg_cfg_extras "")
+set(pkg_cfg_extras "robot_mapping_pathfinder-msg-extras.cmake")
 foreach(extra ${pkg_cfg_extras})
   if(NOT IS_ABSOLUTE ${extra})
     set(extra ${robot_mapping_pathfinder_DIR}/${extra})

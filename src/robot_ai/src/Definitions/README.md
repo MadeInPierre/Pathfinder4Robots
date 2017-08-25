@@ -58,6 +58,7 @@ Group tags are a list or actions. This list can be configured as :
 When a group is executed, the conditions to consider it is successful or not can be configured :
 - `all` : All actions must be done correctly.
 - `one` : At least one action must be done correctly.
+- `+` : Do all actions if possible, but if one is done it will be considered successful.
 - `last` : The last action must be executed correctly.
 	
 Properties :

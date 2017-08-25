@@ -1,0 +1,10 @@
+(cl:defpackage robot_ai-srv
+  (:use )
+  (:export
+   "AIGENERICCOMMAND"
+   "<AIGENERICCOMMAND-REQUEST>"
+   "AIGENERICCOMMAND-REQUEST"
+   "<AIGENERICCOMMAND-RESPONSE>"
+   "AIGENERICCOMMAND-RESPONSE"
+  ))
+

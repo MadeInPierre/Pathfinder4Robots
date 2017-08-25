@@ -51,5 +51,4 @@
 			<orderref ref="funny_action"/>
 		</actions_onfinish>
 	</strategy>
-	<strategy name="fdg"></strategy>
 </strategies>
