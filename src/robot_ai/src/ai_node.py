@@ -22,8 +22,8 @@ class AINode():
 		# rospy.logdebug("Took {}ms".format(time.time() * 1000 - t))
 
 		while True:
-			self.AI.Strategy.PrettyPrint()
 			self.AI.Strategy.getNext().execute(self.communication)
+			self.AI.Strategy.PrettyPrint()
 			self.AI.Strategy.updateStatus()
 
 

@@ -23,11 +23,18 @@ class Task(object):
 		self.Reward = int(xml.attrib["reward"]) if "reward" in xml.attrib else 0
 		self.Status = status
 
+		self.parent_on_status_change_cb = None
+
 	def updateStatus(self):
 		return self.getStatus()
 
 	def getStatus(self):
 		return self.Status
+	def setStatus(self, new_status):
+		if self.Status != new_status:
+			self.Status = new_status
+			if self.parent_on_status_change_cb:
+				self.parent_on_status_change_cb()
 	'''
 	def getStatusCode(self):
 		return self.Status[0]
@@ -45,6 +52,11 @@ class GameProperties():
 	GAME_DURATION = None
 
 #/*=====  End of Base classes  ======*/
+
+
+
+
+
 
 
 class Strategy(Task):
@@ -70,15 +82,20 @@ class Strategy(Task):
 		return self.TASKS.getStatus()
 
 	def PrettyPrint(self): # Updates and then prints
-		self.updateStatus()
+		#self.updateStatus()
 		rospy.loginfo('[STRATEGY] ' + self.__repr__())
 		self.TASKS.prettyprint(1)
 		self.TASKS_ONFINISH.prettyprint(1)
 	def __repr__(self):
 		return self.Name
 
+
+
+
+
+
 class ActionList(Task):
-	def __init__(self, xml, actions, orders, parent_on_status_change_cb):
+	def __init__(self, xml, actions, orders):
 		super(ActionList, self).__init__(xml)
 		self.Name = xml.attrib["name"] if "name" in xml.attrib else xml.tag
 		self.ExecutionMode    = xml.attrib["exec"]    if "exec"    in xml.attrib else 'linear'
@@ -87,29 +104,25 @@ class ActionList(Task):
 
 		self.TASKS = None
 		self.loadxml(xml, actions, orders)
-		self.parent_on_status_change_cb = parent_on_status_change_cb
 
 	def loadxml(self, xml, actions, orders):
 		self.TASKS = []
 		for task_xml in xml:
 			if task_xml.tag == "actionlist":
-				self.TASKS.append(ActionList(task_xml, actions, orders))
+				i = ActionList(task_xml, actions, orders)
+				self.TASKS.append(i)
 			elif task_xml.tag == "actionref":
 				instances = [action for action in actions if action.Ref == task_xml.attrib["ref"]]
 				if len(instances) != 1:
 					raise KeyError, "{} action instance(s) found with the name '{}'.".format(len(instances), task_xml.attrib["ref"])
-				self.TASKS.append(copy.deepcopy(instances[0]))
+				i = copy.deepcopy(instances[0])
+				self.TASKS.append(i)
 			elif task_xml.tag == "orderref":
 				instances = [order for order in orders if order.Ref == task_xml.attrib["ref"]]
 				if len(instances) != 1:
 					raise KeyError, "{} order instance(s) found with the name '{}'.".format(len(instances), task_xml.attrib["ref"])
-				self.TASKS.append(copy.deepcopy(instances[0]))
-			elif task_xml.tag == "action":
-				print "hi?"
-				self.TASKS.append(None)
-			elif task_xml.tag == "order":
-				print "hi?"
-				self.TASKS.append(None)
+				i = copy.deepcopy(instances[0])
+				self.TASKS.append(i)
 			else:
 				rospy.logwarn("WARNING Task skipped because '{}' type was not recognized.".format(task_xml.tag))
 
@@ -125,10 +138,6 @@ class ActionList(Task):
 			self.getNext().execute(communicator)
 		else:
 			raise ValueError, "ERROR asked to execute a task that's not free"
-
-	def on_child_status_change(self):
-		self.updateStatus()
-		self.parent_on_status_change_cb()
 
 	def updateStatus(self):
 		if self.SuccessCondition == 'all':
@@ -163,15 +172,15 @@ class ActionList(Task):
 
 
 
+
 class Action(Task):
-	def __init__(self, xml, actions, orders, parent_on_status_change_cb):
+	def __init__(self, xml, actions, orders):
 		super(Action, self).__init__(xml)
 		self.Ref = xml.attrib["ref"]
 		self.loadxml(xml, actions, orders)
-		self.parent_on_status_change_cb = parent_on_status_change_cb
 
 	def loadxml(self, xml, actions, orders):
-		self.TASKS = ActionList(xml.find("actions"), actions, orders, self.on_child_status_change)
+		self.TASKS = ActionList(xml.find("actions"), actions, orders)
 
 	def getNext(self):
 		for task in self.TASKS.TASKS:
@@ -183,10 +192,6 @@ class Action(Task):
 			self.getNext().execute(communicator)
 		else:
 			raise ValueError, "ERROR asked to execute a task that's not free"
-	
-	def on_child_status_change(self):
-		self.updateStatus()
-		self.parent_on_status_change_cb()
 
 	def updateStatus(self):
 		self.Status = self.TASKS.updateStatus()
@@ -202,8 +207,10 @@ class Action(Task):
 
 
 
+
+
 class Order(Task):
-	def __init__(self, xml, parent_on_status_change_cb):
+	def __init__(self, xml):
 		super(Order, self).__init__(xml)
 		self.Ref = xml.attrib["ref"]
 
@@ -213,7 +220,6 @@ class Order(Task):
 		#self.ParamsNeededCount = len(xml.find("message").find("params").findall("param"))
 		self.Message = Message(xml.find("message"))
 
-		self.parent_on_status_change_cb = parent_on_status_change_cb # When this task status changes, calls the parent to change its own status.
 
 	def execute(self, communicator):
 		'''if len(kwargs) != len(self.NeededParamsIDs):
@@ -223,18 +229,16 @@ class Order(Task):
 		
 
 		response = self.Message.send(communicator)
-		self.change_status(TaskStatus.SUCCESS if response.success else TaskStatus.ERROR)
+		self.Status = TaskStatus.SUCCESS if response.success else TaskStatus.ERROR
 		rospy.loginfo('got response ! reason : ' + response.reason)
-
-	def change_status(self, new_status):
-		if new_status != self.getStatus():
-			self.Status = new_status
-			self.parent_on_change_status_cb()
 
 
 	def __repr__(self):
 		return "\033[1m[{0} Order]\033[0m {1}{2}".format(self.getStatusEmoji(), self.Ref, 
 														  " [{}⚡]".format(self.Reward) if self.Reward else "")
+
+
+
 
 
 class Message():
