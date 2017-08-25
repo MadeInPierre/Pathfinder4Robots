@@ -39,7 +39,7 @@ class Task(object):
 	def getStatusEmoji(self):
 		return self.Status[1]
 	def prettyprint(self, indentlevel):
-		rospy.loginfo("  ║ " * (indentlevel - 1) + "  ╠═" + self.__repr__())
+		rospy.logdebug("\033[0m" + "  ║ " * (indentlevel - 1) + "  ╠═" + self.__repr__())
 	def __repr__(self):
 		return "<Task with No Name>"
 
@@ -76,7 +76,7 @@ class Strategy(Task):
 
 	def PrettyPrint(self): # Updates and then prints
 		#self.updateStatus()
-		rospy.loginfo('[STRATEGY] ' + self.__repr__())
+		rospy.logdebug('[STRATEGY] ' + self.__repr__())
 		self.TASKS.prettyprint(1)
 		self.TASKS_ONFINISH.prettyprint(1)
 	def __repr__(self):
@@ -91,8 +91,8 @@ class ActionList(Task):
 	def __init__(self, xml, actions, orders):
 		super(ActionList, self).__init__(xml)
 		self.Name = xml.attrib["name"] if "name" in xml.attrib else xml.tag
-		self.ExecutionMode    = xml.attrib["exec"]    if "exec"    in xml.attrib else 'linear'
-		self.SuccessCondition = xml.attrib["success"] if "success" in xml.attrib else 'all'
+		self.ExecutionMode    = xml.attrib["exec"]    if "exec"    in xml.attrib else 'all' # all, one, +, last
+		self.ExecutionOrder   = xml.attrib["order"] if "order" in xml.attrib else 'linear'
 		self.Conditions = xml.find("conditions") if "conditions" in xml else None # Conditions that must be true before executing the actions.
 
 		self.TASKS = None
@@ -135,16 +135,14 @@ class ActionList(Task):
 		else:
 			raise ValueError, "ERROR asked to execute a task that's not free"
 
-	def setParent(self, parent):
-		self.Parent = parent
 	def refreshStatus(self):
-		if self.SuccessCondition == 'all':
+		if self.ExecutionMode == 'all':
 			priorityList = [TaskStatus.SUCCESS, TaskStatus.BLOCKED,            TaskStatus.ERROR,    TaskStatus.PAUSED, 
 							TaskStatus.FREE,    TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL]
-		elif self.SuccessCondition == 'one':
-			priorityList = [TaskStatus.ERROR, TaskStatus.BLOCKED,            TaskStatus.SUCCESS,    TaskStatus.PAUSED, 
+		elif self.ExecutionMode == 'one' or self.ExecutionMode == '+': #TODO
+			priorityList = [TaskStatus.ERROR, TaskStatus.BLOCKED,              TaskStatus.SUCCESS,  TaskStatus.PAUSED, 
 							TaskStatus.FREE,  TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL]
-		elif self.SuccessCondition == 'last':
+		elif self.ExecutionMode == 'last':
 			self.setStatus(self.TASKS[-1].getStatus())
 		else:
 			raise ValueError, "CRITICAL ActionList has no success condition!"
@@ -155,42 +153,15 @@ class ActionList(Task):
 			if s > status: 
 				status = s
 		self.setStatus(priorityList[status])
-	def setStatus(self, new_status):
-		if self.Status != new_status:
-			self.Status = new_status
-			if self.Parent:
-				self.Parent.refreshStatus()
 
 
-	'''
-	def updateStatus(self):
-		if self.SuccessCondition == 'all':
-			priorityList = [TaskStatus.SUCCESS, TaskStatus.ERROR, TaskStatus.PAUSED, 
-							TaskStatus.FREE, TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL]
-		elif self.SuccessCondition == 'one':
-			priorityList = [TaskStatus.ERROR, TaskStatus.SUCCESS, TaskStatus.PAUSED, 
-							TaskStatus.FREE, TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL]
-		elif self.SuccessCondition == 'last':
-			self.Status = self.TASKS[-1].updateStatus()
-			return super(ActionList, self).updateStatus()
-		else:
-			raise ValueError, "CRITICAL ActionList has no success condition!"
-		
-		status = -1
-		for task in self.TASKS:
-			s = priorityList.index(task.updateStatus())
-			if s > status: 
-				status = s
-		self.Status = priorityList[status]
-		return super(ActionList, self).getStatus()
-	'''
 	def prettyprint(self, indentlevel, print_self = True):
 		if print_self:
 			super(ActionList, self).prettyprint(indentlevel)
 		for task in self.TASKS:
 			task.prettyprint(indentlevel + (1 if print_self else 0))
 	def __repr__(self):
-		return "\033[1m\033[91m[{0} ActionList] {1} [{2}{3}]".format(self.getStatusEmoji(), self.Name, self.SuccessCondition,
+		return "\033[1m\033[91m[{0} ActionList] {1} [{2}, {3}{4}]".format(self.getStatusEmoji(), self.Name, self.ExecutionMode, self.ExecutionOrder,
 																	 ", {}⚡".format(self.Reward) if self.Reward else "") + "\033[0m"
 
 
@@ -225,7 +196,7 @@ class Action(Task):
 		super(Action, self).prettyprint(indentlevel)
 		self.TASKS.prettyprint(indentlevel + 1, print_self = False)
 	def __repr__(self):
-		return "\033[1m\033[95m[{0} Action]\033[0m\033[95m {1} [{2}{3}]".format(self.getStatusEmoji(), self.Ref, self.TASKS.SuccessCondition,
+		return "\033[1m\033[95m[{0} Action]\033[0m\033[95m {1} [{2}, {3}{4}]".format(self.getStatusEmoji(), self.Ref, self.TASKS.ExecutionMode, self.TASKS.ExecutionOrder,
 																	     ", {}⚡".format(self.Reward) if self.Reward else "") + "\033[0m"
 
 
@@ -238,8 +209,8 @@ class Order(Task):
 		super(Order, self).__init__(xml)
 		self.Ref = xml.attrib["ref"]
 
-		self.ETL = xml.find("ai").find("ETL").text # Manually estimated time to execute this action
-		self.Reward = xml.find("ai").find("reward") if "reward" in xml.find("ai") else 0
+		self.ETL    = float(xml.attrib["time"]) # Manually estimated time to execute this action
+		self.Reward = int(xml.attrib["reward"]) if "reward" in xml.attrib else 0
 		
 		#self.ParamsNeededCount = len(xml.find("message").find("params").findall("param"))
 		self.Message = Message(xml.find("message"))
@@ -249,21 +220,12 @@ class Order(Task):
 		'''if len(kwargs) != len(self.NeededParamsIDs):
 			raise ValueError, "ERROR missing or too many parameters for message."'''
 		self.setStatus(TaskStatus.WAITINGFORRESPONSE)
-		rospy.logdebug("Executing task : {}...".format(self.__repr__()))
+		rospy.loginfo("Executing task : {}...".format(self.__repr__()))
 		
 
 		response = self.Message.send(communicator)
 		rospy.loginfo('got response ! reason : ' + response.reason)
 		self.setStatus(TaskStatus.SUCCESS if response.success else TaskStatus.ERROR)
-
-	def setParent(self, parent):
-		self.Parent = parent
-	def setStatus(self, new_status):
-		if self.Status != new_status:
-			self.Status = new_status
-			if self.Parent:
-				self.Parent.refreshStatus()
-
 
 	def __repr__(self):
 		return "\033[1m[{0} Order]\033[0m {1}{2}".format(self.getStatusEmoji(), self.Ref, 

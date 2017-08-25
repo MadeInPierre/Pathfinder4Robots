@@ -7,7 +7,7 @@
 		<conditions>
 			<chest ref = "robot_chest_modules" qty_left_min = "1" />
 		</conditions>
-		<actions>
+		<actions exec="+">
 			<orderref ref="actuator_open">
 				<param id="module_ID">
 					<ID>2</ID>
@@ -28,7 +28,7 @@
 		<!-- The robot is already positioned, take it in -->
 		<params></params>
 		<conditions>
-			<chest ref = "robot_chest_modules" qty_in_min = "1" />
+			<chest ref = "robot_chest_modules" qty_in_min="1" />
 		</conditions>
 		<actions>
 			<orderref ref="actuator_open">
@@ -58,7 +58,7 @@
 		<conditions>
 			<chest ref = "robot_chest_modules" qty_left_min = "1" />
 		</conditions>
-		<actions name = "Search and Load module" exec = "linear" success="all">
+		<actions name = "Search and Load module" exec="all" order="linear">
 			<orderref ref = "wheels_goto">
 				<param id="position"/>
 			</orderref>
@@ -73,7 +73,7 @@
 		<conditions>
 			<chest ref = "robot_chest_modules" qty_in_min = "1" />
 		</conditions>
-		<actions name = "Goto place and Unload module" exec = "linear" success="all">
+		<actions name = "Goto place and Unload module" exec = "all" order="linear">
 			<orderref ref = "wheels_goto">
 				<param id="position"/>
 			</orderref>
@@ -85,7 +85,7 @@
 	<action name="Wait for jack pullup..." ref="wait_for_jack">
 		<params></params>
 		<conditions></conditions>
-		<actions name = "jack then start timer" exec="linear" success="all">
+		<actions name = "jack then start timer" exec="all" order="linear">
 			<orderref ref="wait_for_jack"/>
 			<orderref ref="timer_start"/>
 		</actions>

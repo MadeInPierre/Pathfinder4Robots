@@ -7,18 +7,16 @@
 		</game>
 		<actions name="In-Game Actions">
 			<actionref ref="wait_for_jack"/>
-			<actionlist name = "Strategy number 1" type = "linear">
+			<actionlist name = "Strategy number 1" order="linear">
 				<orderref ref="wheels_goto">
 					<position type="xy" x="3" y="2000"/>
 				</orderref>
 
-				<actionlist name = "Take Modules" exec="linear" success="all">
+				<actionlist name="Take Modules" exec="all" order="linear" reward="100">
 
-					<actionlist name="Load modules" exec = "linear" success = "one">
+					<actionlist name="Load modules" exec="+" order="linear">
 						<actionref ref = "load_module">
-							<params>
-								<position type="object" ref="map_object_module1" origin="robot_origin_gripper"/>
-							</params>
+							<position type="object" ref="map_object_module1" origin="robot_origin_gripper"/>
 						</actionref>
 						<actionref ref = "load_module">
 							<ID>7</ID>
@@ -28,7 +26,7 @@
 						</actionref>
 					</actionlist>
 
-					<actionlist name = "Unload on left platform" exec="linear" success = "all">
+					<actionlist name="Unload on left platform" exec="+" order="linear">
 						<conditions>
 							<needlastaction/> <!-- This actionList needs the previous action to be OK in order to run-->
 						</conditions>
