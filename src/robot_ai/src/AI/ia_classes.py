@@ -11,13 +11,47 @@ import copy
 #====================================*/
 
 class TaskStatus:
-	CRITICAL            = ('CRITICAL'           , '💔')
-	WAITINGFORRESPONSE  = ('WAITINGFORRESPONSE' , '💬')
-	FREE                = ('FREE'               , '⬜')
-	PAUSED              = ('PAUSED'             , '🔶')
-	ERROR               = ('ERROR '             , '⛔')
-	BLOCKED             = ('BLOCKED'            , '◼')
-	SUCCESS             = ('SUCCESS'            , '🆗')
+	CRITICAL            = ('CRITICAL'			, '💔')
+	WAITINGFORRESPONSE  = ('WAITINGFORRESPONSE'	, '💬')
+	FREE                = ('FREE'				, '⬜')
+	PAUSED              = ('PAUSED'				, '🔶')
+	ERROR               = ('ERROR'				, '⛔')
+	BLOCKED             = ('BLOCKED'			, '◼')
+	SUCCESS             = ('SUCCESS'			, '🆗')
+	def toEmoji(status):
+		return status[1]
+
+class ExecutionMode():
+	ALL                 = ('all'				, '⚫')
+	ONE                 = ('one'				, '1')
+	ATLEASTONE          = ('+'					, '+')
+	@staticmethod
+	def toEmoji(mode):
+		return mode[1]
+	@staticmethod
+	def fromText(text):
+		if text == 'all'         : return ExecutionMode.ALL
+		if text == 'one'         : return ExecutionMode.ONE
+		if text == '+'           : return ExecutionMode.ATLEASTONE
+
+class ExecutionOrder():
+	LINEAR              = ('linear'				, '⬇')
+	RANDOM              = ('random'				, '🌀')
+	SIMULTANEOUS        = ('simultaneous'		, '⇶')
+	FASTEST             = ('fastest'			, '🕒')
+	MOSTREWARD          = ('mostreward'			, '⚡')
+	@staticmethod
+	def toEmoji(order):
+		return order[1]
+	@staticmethod
+	def fromText(text):
+		print text
+		if text == 'linear'      : return ExecutionOrder.LINEAR
+		if text == 'random'      : return ExecutionOrder.RANDOM
+		if text == 'simultaneous': return ExecutionOrder.SIMULTANEOUS
+		if text == 'fastest'     : return ExecutionOrder.FASTEST
+		if text == 'mostreward'  : return ExecutionOrder.MOSTREWARD
+
 
 class Task(object):
 	def __init__(self, xml, status = TaskStatus.FREE):
@@ -31,10 +65,11 @@ class Task(object):
 	def setStatus(self, new_status):
 		if self.Status != new_status:
 			self.Status = new_status
+			#print "set status to " + str(self.getStatus(text = True)) + " " + str(self.Parent)
 			if self.Parent:
 				self.Parent.refreshStatus()
-	def getStatus(self):
-		return self.Status
+	def getStatus(self, text = False):
+		return self.Status if not text else self.Status[0]
 
 	def getStatusEmoji(self):
 		return self.Status[1]
@@ -91,8 +126,9 @@ class ActionList(Task):
 	def __init__(self, xml, actions, orders):
 		super(ActionList, self).__init__(xml)
 		self.Name = xml.attrib["name"] if "name" in xml.attrib else xml.tag
-		self.ExecutionMode    = xml.attrib["exec"]    if "exec"    in xml.attrib else 'all' # all, one, +, last
-		self.ExecutionOrder   = xml.attrib["order"] if "order" in xml.attrib else 'linear'
+		self.executionMode    = ExecutionMode.fromText( xml.attrib["exec"])  if "exec"    in xml.attrib else ExecutionMode.ALL
+		self.executionOrder   = ExecutionOrder.fromText(xml.attrib["order"]) if "order" in xml.attrib   else ExecutionOrder.LINEAR
+		print self.executionOrder, self.executionMode
 		self.Conditions = xml.find("conditions") if "conditions" in xml else None # Conditions that must be true before executing the actions.
 
 		self.TASKS = None
@@ -136,33 +172,44 @@ class ActionList(Task):
 			raise ValueError, "ERROR asked to execute a task that's not free"
 
 	def refreshStatus(self):
-		if self.ExecutionMode == 'all':
-			priorityList = [TaskStatus.SUCCESS, TaskStatus.BLOCKED,            TaskStatus.ERROR,    TaskStatus.PAUSED, 
-							TaskStatus.FREE,    TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL]
-		elif self.ExecutionMode == 'one' or self.ExecutionMode == '+': #TODO
-			priorityList = [TaskStatus.ERROR, TaskStatus.BLOCKED,              TaskStatus.SUCCESS,  TaskStatus.PAUSED, 
-							TaskStatus.FREE,  TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL]
-		elif self.ExecutionMode == 'last':
-			self.setStatus(self.TASKS[-1].getStatus())
-		else:
-			raise ValueError, "CRITICAL ActionList has no success condition!"
+		child_statuses = [task.getStatus() for task in self.TASKS]
+		# The order of conditions do count!
+		if TaskStatus.CRITICAL in child_statuses:
+			self.setStatus(TaskStatus.CRITICAL) 
+			return
+		if TaskStatus.WAITINGFORRESPONSE in child_statuses:
+			self.setStatus(TaskStatus.WAITINGFORRESPONSE)
+			return
+		if TaskStatus.PAUSED in child_statuses:
+			self.setStatus(TaskStatus.PAUSED)
+			return
+		if TaskStatus.FREE in child_statuses:
+			self.setStatus(TaskStatus.FREE)
+			return
+
+		if self.executionMode == ExecutionMode.ALL:
+			if len([1 for c in child_statuses if c == TaskStatus.SUCCESS]) == len(child_statuses):
+				self.setStatus(TaskStatus.SUCCESS);return
+		elif self.executionMode == ExecutionMode.ATLEASTONE:
+			if len([1 for c in child_statuses if c == TaskStatus.SUCCESS]) >= 1:
+				self.setStatus(TaskStatus.SUCCESS);return
+		elif self.executionMode == ExecutionMode.ONE:
+			if len([1 for c in child_statuses if c == TaskStatus.SUCCESS]) == 1:
+				self.setStatus(TaskStatus.SUCCESS);return
+
+		if TaskStatus.ERROR in child_statuses:
+			self.setStatus(TaskStatus.ERROR)
+			return
 		
-		status = -1
-		for task in self.TASKS:
-			s = priorityList.index(task.getStatus())
-			if s > status: 
-				status = s
-		self.setStatus(priorityList[status])
-
-
 	def prettyprint(self, indentlevel, print_self = True):
 		if print_self:
 			super(ActionList, self).prettyprint(indentlevel)
 		for task in self.TASKS:
 			task.prettyprint(indentlevel + (1 if print_self else 0))
 	def __repr__(self):
-		return "\033[1m\033[91m[{0} ActionList] {1} [{2}, {3}{4}]".format(self.getStatusEmoji(), self.Name, self.ExecutionMode, self.ExecutionOrder,
-																	 ", {}⚡".format(self.Reward) if self.Reward else "") + "\033[0m"
+		return "\033[1m\033[91m[{0} ActionList] {1} [{2} {3}{4}]".format(self.getStatusEmoji(), self.Name, ExecutionMode.toEmoji(self.executionMode),
+																		  ExecutionOrder.toEmoji(self.executionOrder),
+																		  ", {}⚡".format(self.Reward) if self.Reward else "") + "\033[0m"
 
 
 
@@ -196,8 +243,9 @@ class Action(Task):
 		super(Action, self).prettyprint(indentlevel)
 		self.TASKS.prettyprint(indentlevel + 1, print_self = False)
 	def __repr__(self):
-		return "\033[1m\033[95m[{0} Action]\033[0m\033[95m {1} [{2}, {3}{4}]".format(self.getStatusEmoji(), self.Ref, self.TASKS.ExecutionMode, self.TASKS.ExecutionOrder,
-																	     ", {}⚡".format(self.Reward) if self.Reward else "") + "\033[0m"
+		return "\033[1m\033[95m[{0} Action]\033[0m\033[95m {1} [{2} {3}{4}]".format(self.getStatusEmoji(), self.Ref, ExecutionMode.toEmoji(self.TASKS.executionMode),
+																					 ExecutionOrder.toEmoji(self.TASKS.executionOrder),
+																	     			", {}⚡".format(self.Reward) if self.Reward else "") + "\033[0m"
 
 
 
@@ -254,3 +302,26 @@ class Message():
 		params = None #TODO
 		response = communicator.SendGenericCommand(self.DestinationNode, self.Command, "params")
 		return response
+		if self.ExecutionMode == 'all' or self.ExecutionMode == '+' or self.ExecutionMode == 'one':
+			
+
+				#TODO Set to BLOCKED all tasks that can't be executed anymore (because they depend on previous tasks that errored).
+			'''
+			priorityList = {
+				"all": 	[TaskStatus.SUCCESS, TaskStatus.BLOCKED,            TaskStatus.ERROR,    TaskStatus.PAUSED, 
+						TaskStatus.FREE,    TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL],
+				"+": 	[TaskStatus.ERROR, TaskStatus.BLOCKED,              TaskStatus.SUCCESS,  TaskStatus.PAUSED, 
+						TaskStatus.FREE,  TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL],
+				"one": 	[TaskStatus.ERROR, TaskStatus.BLOCKED,              TaskStatus.FREE,     TaskStatus.PAUSED, 
+						TaskStatus.SUCCESS,  TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL]
+			}
+			status_i = -1
+			for task in self.TASKS:
+				s = priorityList[self.ExecutionMode].index(task.getStatus())
+				if s > final_status: status_i = s
+			final_status = priorityList[self.ExecutionMode][status_i]
+			'''
+		elif self.ExecutionMode == 'last':
+			self.setStatus(self.TASKS[-1].getStatus())
+		else:
+			raise ValueError, "CRITICAL ActionList has no or unrecognized success condition!"
