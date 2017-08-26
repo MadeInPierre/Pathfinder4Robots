@@ -1,6 +1,6 @@
 <orders>
 
-	<order ref="actuator_toggle" time="1.5" reward="3">
+	<order ref="actuator_toggle" duration="1.5" reward="3">
 		<params>
 			<param id="actuator_id"/>
 		</params>
@@ -13,7 +13,7 @@
 	</order>
 
 
-	<order ref="wheels_goto" time="1">
+	<order ref="wheels_goto" duration="1">
 		<params>
 			<param id="position"/>
 		</params>
@@ -26,7 +26,7 @@
 	</order>
 
 
-	<order ref="actuator_open" time="1">
+	<order ref="actuator_open" duration="1">
 		<params>
 			<param id="actuator_id"/>
 		</params>
@@ -37,7 +37,7 @@
 			</params>
 		</message>
 	</order>
-	<order ref="actuator_close" time="1">
+	<order ref="actuator_close" duration="1">
 		<params>
 			<param id="actuator_id"/>
 		</params>
@@ -49,7 +49,7 @@
 		</message>
 	</order>
 
-	<order ref="ai_delay" time="1">
+	<order ref="ai_delay" duration="1">
 		<params>
 			<param id="time_sec"/>
 		</params>
@@ -61,7 +61,7 @@
 		</message>
 	</order>
 
-	<order ref="wait_for_jack" time="1">
+	<order ref="wait_for_jack" duration="1">
 		<params></params>
 		<message dest="robot_movement_actuators">
 			<command>reply_when_jack</command>
@@ -69,7 +69,7 @@
 		</message>
 	</order>
 
-	<order ref="timer_start" time="1">
+	<order ref="timer_start">
 		<params></params>
 		<message dest="robot_ai">
 			<command>timer_start</command>
@@ -77,7 +77,7 @@
 		</message>
 	</order>
 
-	<order ref="funny_action" time="1">
+	<order ref="funny_action" duration="1">
 		<params></params>
 		<message dest="robot_movement_actuators">
 			<command>funny_action</command>

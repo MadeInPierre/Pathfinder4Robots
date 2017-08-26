@@ -30,7 +30,7 @@
 		<conditions>
 			<chest ref = "robot_chest_modules" qty_in_min="1" />
 		</conditions>
-		<actions exec='one' order="random">
+		<actions exec='all' order="random">
 			<orderref ref="actuator_open">
 				<param id="module_ID">
 					<ID>2</ID>

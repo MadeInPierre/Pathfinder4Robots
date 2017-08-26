@@ -27,9 +27,9 @@ class TaskStatus:
 	PENDING             = ('PENDING'            , '⋯')	# For lists only. Active when one or not all child tasks are still active.
 	FREE                = ('FREE'				, '⬜')	# Free task, not activated yet.
 	PAUSED              = ('PAUSED'				, '🔶')	# TODO
-	ERROR               = ('ERROR'				, '⛔')	# Error. Order couldn't be done, AI will try to find an alternative path of orders in the tree.
+	ERROR               = ('ERROR'				, '⛔', "error_msg")	# Error. Order couldn't be done, AI will try to find an alternative path of orders in the tree.
 	BLOCKED             = ('BLOCKED'			, '◼')	# Node can't execute because conditions aren't fully satisfied.
-	SUCCESS             = ('SUCCESS'			, '🆗')	# Order and lists complete.
+	SUCCESS             = ('SUCCESS'			, '🆗', 0.0)	# Order and lists complete.
 	def toEmoji(status):
 		return status[1]
 
@@ -176,9 +176,9 @@ class ActionList(Task):
 				rospy.logwarn("WARNING Task skipped because '{}' type was not recognized.".format(task_xml.tag))
 
 	def getReward(self):
-		return self.Reward + sum([task.getReward() for task in self.Tasks])
+		return self.Reward + sum([task.getReward() for task in self.TASKS])
 	def getDuration(self):
-		return sum([task.getDuration() for task in self.Tasks])
+		return sum([task.getDuration() for task in self.TASKS])
 	def getNext(self):
 		if   self.executionOrder == ExecutionOrder.LINEAR:
 			for task in self.TASKS:
@@ -216,11 +216,9 @@ class ActionList(Task):
 		child_statuses = [task.getStatus() for task in self.TASKS]
 		# The order of conditions do count!
 		if TaskStatus.CRITICAL in child_statuses:
-			self.setStatus(TaskStatus.CRITICAL) 
-			return
+			self.setStatus(TaskStatus.CRITICAL);return
 		if TaskStatus.WAITINGFORRESPONSE in child_statuses:
-			self.setStatus(TaskStatus.WAITINGFORRESPONSE)
-			return
+			self.setStatus(TaskStatus.WAITINGFORRESPONSE);return
 
 		if self.executionMode == ExecutionMode.ONE:
 			if len([1 for c in child_statuses if c == TaskStatus.SUCCESS]) == 1:
@@ -232,14 +230,11 @@ class ActionList(Task):
 				return
 
 		if TaskStatus.PAUSED in child_statuses:
-			self.setStatus(TaskStatus.PAUSED)
-			return
+			self.setStatus(TaskStatus.PAUSED);return
 		if TaskStatus.PENDING in child_statuses:
-			self.setStatus(TaskStatus.PENDING)
-			return
+			self.setStatus(TaskStatus.PENDING);return
 		if TaskStatus.FREE in child_statuses:
-			self.setStatus(TaskStatus.PENDING)
-			return
+			self.setStatus(TaskStatus.PENDING);return
 
 		if self.executionMode == ExecutionMode.ALL:
 			if len([1 for c in child_statuses if c == TaskStatus.SUCCESS]) == len(child_statuses):
@@ -249,8 +244,7 @@ class ActionList(Task):
 				self.setStatus(TaskStatus.SUCCESS);return
 
 		if TaskStatus.ERROR in child_statuses:
-			self.setStatus(TaskStatus.ERROR)
-			return
+			self.setStatus(TaskStatus.ERROR);return
 		
 	def prettyprint(self, indentlevel, print_self = True):
 		if print_self:
@@ -258,9 +252,12 @@ class ActionList(Task):
 		for task in self.TASKS:
 			task.prettyprint(indentlevel + (1 if print_self else 0))
 	def __repr__(self):
-		return "\033[1m\033[91m[{0} ActionList] {1} [{2} {3}{4}]".format(self.getStatusEmoji(), self.Name, ExecutionMode.toEmoji(self.executionMode),
-																		  ExecutionOrder.toEmoji(self.executionOrder),
-																		  ", {}⚡".format(self.Reward) if self.Reward else "") + "\033[0m"
+		return "\033[1m\033[91m[{0} ActionList] {1} [{2} {3}{4}{5}]".format(self.getStatusEmoji(), 
+																self.Name, ExecutionMode.toEmoji(self.executionMode),
+																ExecutionOrder.toEmoji(self.executionOrder),
+																", {}⚡".format(self.getReward()) if self.getReward() else "",
+																", ~{}⌛".format(int(self.getDuration())) if self.getDuration() else "") \
+																+ "\033[0m"
 
 
 
@@ -296,9 +293,12 @@ class Action(Task):
 		super(Action, self).prettyprint(indentlevel)
 		self.TASKS.prettyprint(indentlevel + 1, print_self = False)
 	def __repr__(self):
-		return "\033[1m\033[95m[{0} Action]\033[0m\033[95m {1} [{2} {3}{4}]".format(self.getStatusEmoji(), self.Ref, ExecutionMode.toEmoji(self.TASKS.executionMode),
-																					 ExecutionOrder.toEmoji(self.TASKS.executionOrder),
-																	     			", {}⚡".format(self.Reward) if self.Reward else "") + "\033[0m"
+		return "\033[1m\033[95m[{0} Action]\033[0m\033[95m {1} [{2} {3}{4}{5}]".format(self.getStatusEmoji(), 
+																self.Ref, ExecutionMode.toEmoji(self.TASKS.executionMode),
+																ExecutionOrder.toEmoji(self.TASKS.executionOrder),
+															    ", {}⚡".format(self.TASKS.getReward()) if self.TASKS.getReward() else "",
+																", ~{}⌛".format(int(self.TASKS.getDuration())) if self.TASKS.getDuration() else "") \
+																+ "\033[0m"
 
 
 
@@ -310,11 +310,13 @@ class Order(Task):
 		super(Order, self).__init__(xml)
 		self.Ref = xml.attrib["ref"]
 
-		self.Duration = float(xml.attrib["time"]) # Manually estimated time to execute this action
+		self.Duration = float(xml.attrib["duration"]) if "duration" in xml.attrib else 0.0 # Manually estimated time to execute this action
 		self.Reward   = int(xml.attrib["reward"]) if "reward" in xml.attrib else 0
 		
 		#self.ParamsNeededCount = len(xml.find("message").find("params").findall("param"))
 		self.Message = Message(xml.find("message"))
+
+		self.TimeTaken = None
 
 	def getDuration(self):
 		return self.Duration
@@ -326,13 +328,16 @@ class Order(Task):
 		rospy.loginfo("Executing task : {}...".format(self.__repr__()))
 		
 
-		response = self.Message.send(communicator)
+		response, self.TimeTaken = self.Message.send(communicator)
 		rospy.loginfo('got response ! reason : ' + response.reason)
 		self.setStatus(TaskStatus.SUCCESS if response.success else TaskStatus.ERROR)
 
 	def __repr__(self):
-		return "\033[1m[{0} Order]\033[0m {1}{2}".format(self.getStatusEmoji(), self.Ref, 
-														  " [{}⚡]".format(self.Reward) if self.Reward else "")
+		return "\033[1m" + "[{0}{1} Order]\033[0m {2}{3}".format(self.getStatusEmoji(), 
+														" , {0:.1f}⌛".format(self.TimeTaken) if self.getStatus() in [TaskStatus.SUCCESS, 
+														TaskStatus.ERROR, TaskStatus.PAUSED, TaskStatus.CRITICAL] else "",
+														self.Ref, 
+														" [{}⚡]".format(self.Reward) if self.Reward else "")
 
 
 
@@ -355,5 +360,7 @@ class Message():
 
 	def send(self, communicator):
 		params = None #TODO
+		self.startTime = time.time()
 		response = communicator.SendGenericCommand(self.DestinationNode, self.Command, "params")
-		return response
+		self.TimeTaken = time.time() - self.startTime
+		return response, self.TimeTaken
