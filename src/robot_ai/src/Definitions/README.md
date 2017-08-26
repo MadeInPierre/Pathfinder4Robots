@@ -5,19 +5,32 @@ This is where the robot is told what to do.
 - `1_Strategies.xml` 
 
 File basic structure :
-
 ```xml
 <strategies>
 	<strategy>
-		...
+	...
 	</strategy>
 	<strategy>
-		...
+	...
 	</strategy>
 </strategies>
 ```
 
 - `2_Actions.xml`
+
+Fail basic structure :
+```xml
+<actionsstrategies>
+	<action name="sth", ref="actuator_open">
+	...
+	</action>
+	<action name="sth", ref="actuator_close">
+	...
+	</action>
+</actions>
+```
+
+
 - `3_HardwareActions.xml`
 
 
@@ -38,10 +51,10 @@ Strategy basic structure:
 		<duration>90</duration>
 	</game>
 	<actions>
-		...
+	...
 	</actions>
 	<actions_onfinish>
-		...
+	...
 	</actions_onfinish>
 </strategy>
 ```
@@ -65,7 +78,8 @@ Properties :
 - `reward`: If the whole group execution is considered successful, this is the amount of reward points given.
 
 ### 2. Actions
-An Action object is a group of `HarwareAction` actions (see next section below).
+Actiosn are almost the same as ActionLists, except they are necessarily defined in the file `2_Actions.xml` and can be referenced by other actions.
+An Action object is a group of `Orders`, `Actions` and `ActionLists`.
 
 
 ### 4. Orders

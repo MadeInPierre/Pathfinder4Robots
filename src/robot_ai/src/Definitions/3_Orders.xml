@@ -85,4 +85,16 @@
 		</message>
 	</order>
 
+	<order ref="actuator_startup_sequence">
+		<params>
+			<param id="actuator_id"/>
+		</params>
+		<message dest="robot_movement_actuators">
+			<command>actuator_startup_sequence</command>
+			<params>
+				<param id="actuator_id"/>
+			</params>
+		</message>
+	</order>
+
 </orders>

@@ -1,6 +1,6 @@
 #!/bin/usr/python
 import os, time
-from ia_classes import Task, TaskStatus, Strategy, Action, Order
+from ai_classes import Task, TaskStatus, Strategy, Action, Order
 import xml.etree.ElementTree as ET
 
 class RobotAI():

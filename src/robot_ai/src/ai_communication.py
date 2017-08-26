@@ -13,7 +13,7 @@ class AICommunication():
 		return service(msg_dest, msg_command, msg_params)
 
 	def ServiceRequest(self):
-		#Send a service (waiting for a response)
+		# Send a service (waiting for a response)
 		pass
 
 
