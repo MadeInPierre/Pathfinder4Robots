@@ -7,7 +7,7 @@ def callback(msg):
     rospy.loginfo("Command '{}' with params: {}".format(msg.command, msg.params))
 
 def on_generic_command(req):
-	print "Destination : {}\nCommand : {}\nParams:{}".format(req.destination, req.command, req.params)
+	print "---\nDestination : {}\nCommand : {}\nParams:{}".format(req.destination, req.command, req.params)
 	success = bool(input("Send success or not ? "))
 	reason = ""
 	if not success:

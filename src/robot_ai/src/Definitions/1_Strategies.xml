@@ -14,7 +14,7 @@
 
 				<actionlist name="Take Modules" exec="all" order="linear" reward="100">
 
-					<actionlist name="Load modules" exec="+" order="linear">
+					<actionlist name="Load modules" exec="+" order="random">
 						<actionref ref = "load_module">
 							<position type="object" ref="map_object_module1" origin="robot_origin_gripper"/>
 						</actionref>

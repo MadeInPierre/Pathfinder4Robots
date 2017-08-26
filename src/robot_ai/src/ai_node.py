@@ -19,7 +19,7 @@ class AINode():
 		#self.AI.Strategy.getNext().setStatus(TaskStatus.WAITINGFORRESPONSE)
 		self.AI.Strategy.PrettyPrint()
 		while True:
-			if self.AI.Strategy.getStatus() in [TaskStatus.FREE, TaskStatus.WAITINGFORRESPONSE, TaskStatus.PAUSED]:
+			if self.AI.Strategy.canContinue():
 				self.AI.Strategy.getNext().execute(self.communication)
 			else:
 				rospy.loginfo("[AI] In-Game actions finished!")

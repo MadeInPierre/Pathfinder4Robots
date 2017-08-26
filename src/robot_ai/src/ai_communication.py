@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import rospy
 import robot_ai.srv
 
@@ -14,3 +15,7 @@ class AICommunication():
 	def ServiceRequest(self):
 		#Send a service (waiting for a response)
 		pass
+
+
+
+# THREADING THIS : https://stackoverflow.com/questions/6800984/python-how-to-pass-and-run-a-callback-method-in-python

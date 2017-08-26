@@ -1,8 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from anytree import Node
+from random import randint
 import rospy, time
 import copy
+
+'''
+GENERAL TODO
+	- Pending state to lists CAUTION should still execute like if it was free.
+	- Parameters
+	- ExecutionOrder
+	- Conditions (chest, needsprevious..)
+
+WARNINGS
+	- Paused tasks re-activation not implemented 
+'''
 
 # utf-8 boxes link : http://jrgraphix.net/r/Unicode/2500-257F
 
@@ -11,46 +22,49 @@ import copy
 #====================================*/
 
 class TaskStatus:
-	CRITICAL            = ('CRITICAL'			, '💔')
-	WAITINGFORRESPONSE  = ('WAITINGFORRESPONSE'	, '💬')
-	FREE                = ('FREE'				, '⬜')
-	PAUSED              = ('PAUSED'				, '🔶')
-	ERROR               = ('ERROR'				, '⛔')
-	BLOCKED             = ('BLOCKED'			, '◼')
-	SUCCESS             = ('SUCCESS'			, '🆗')
+	CRITICAL            = ('CRITICAL'			, '💔')	# Fatal error, system will shutdown.
+	WAITINGFORRESPONSE  = ('WAITINGFORRESPONSE'	, '💬')	# Order sent service or action message, waiting for response callback.
+	PENDING             = ('PENDING'            , '⋯')	# For lists only. Active when one or not all child tasks are still active.
+	FREE                = ('FREE'				, '⬜')	# Free task, not activated yet.
+	PAUSED              = ('PAUSED'				, '🔶')	# TODO
+	ERROR               = ('ERROR'				, '⛔')	# Error. Order couldn't be done, AI will try to find an alternative path of orders in the tree.
+	BLOCKED             = ('BLOCKED'			, '◼')	# Node can't execute because conditions aren't fully satisfied.
+	SUCCESS             = ('SUCCESS'			, '🆗')	# Order and lists complete.
 	def toEmoji(status):
 		return status[1]
 
 class ExecutionMode():
-	ALL                 = ('all'				, '⚫')
-	ONE                 = ('one'				, '1')
-	ATLEASTONE          = ('+'					, '+')
+	ALL                 = ('all'				, '⚫')	# All tasks in the list must be executed.
+	ONE                 = ('one'				, '1')	# Only one task in the list must be executed.
+	ATLEASTONE          = ('+'					, '+')	# At least one task in the list must be executed, will try to execute all.
 	@staticmethod
 	def toEmoji(mode):
 		return mode[1]
 	@staticmethod
 	def fromText(text):
-		if text == 'all'         : return ExecutionMode.ALL
-		if text == 'one'         : return ExecutionMode.ONE
-		if text == '+'           : return ExecutionMode.ATLEASTONE
+		if text == 'all'           : return ExecutionMode.ALL
+		elif text == 'one'         : return ExecutionMode.ONE
+		elif text == '+'           : return ExecutionMode.ATLEASTONE
+		else: raise ValueError, "ExecutionMode '{}' not recognized.".format(text)
 
 class ExecutionOrder():
-	LINEAR              = ('linear'				, '⬇')
-	RANDOM              = ('random'				, '🌀')
-	SIMULTANEOUS        = ('simultaneous'		, '⇶')
-	FASTEST             = ('fastest'			, '🕒')
-	MOSTREWARD          = ('mostreward'			, '⚡')
+	LINEAR              = ('linear'				, '⬇')	# Will follow linearly the order given in the XML file.
+	RANDOM              = ('random'				, '🌀')	# Will pick a random free task.
+	SIMULTANEOUS        = ('simultaneous'		, '⇶')	# Will activate all tasks at once.
+	FASTEST             = ('fastest'			, '🕒')	# Will sort the tasks from least Duration to most.
+	MOSTREWARD          = ('mostreward'			, '⚡')	# Will sort the tasks from most Reward to least.
 	@staticmethod
 	def toEmoji(order):
 		return order[1]
 	@staticmethod
 	def fromText(text):
 		print text
-		if text == 'linear'      : return ExecutionOrder.LINEAR
-		if text == 'random'      : return ExecutionOrder.RANDOM
-		if text == 'simultaneous': return ExecutionOrder.SIMULTANEOUS
-		if text == 'fastest'     : return ExecutionOrder.FASTEST
-		if text == 'mostreward'  : return ExecutionOrder.MOSTREWARD
+		if text == 'linear'        : return ExecutionOrder.LINEAR
+		elif text == 'random'      : return ExecutionOrder.RANDOM
+		elif text == 'simultaneous': return ExecutionOrder.SIMULTANEOUS
+		elif text == 'fastest'     : return ExecutionOrder.FASTEST
+		elif text == 'mostreward'  : return ExecutionOrder.MOSTREWARD
+		else: raise ValueError, "ExecutionOrder '{}' not recognized.".format(text)
 
 
 class Task(object):
@@ -59,6 +73,8 @@ class Task(object):
 		self.Status = status
 		self.Parent = None
 
+	def getReward(self):
+		return self.Reward
 	
 	def setParent(self, parent):
 		self.Parent = parent
@@ -103,6 +119,8 @@ class Strategy(Task):
 		self.TASKS = ActionList(xml.find("actions"), actions, orders)
 		self.TASKS_ONFINISH = ActionList(xml.find("actions_onfinish"), actions, orders)
 
+	def canContinue(self):
+		return self.getStatus() in [TaskStatus.FREE, TaskStatus.PENDING, TaskStatus.WAITINGFORRESPONSE]
 	def getNext(self): # Returns the next free task (ActionList, Action or Order).
 		return self.TASKS.getNext()
 
@@ -126,9 +144,8 @@ class ActionList(Task):
 	def __init__(self, xml, actions, orders):
 		super(ActionList, self).__init__(xml)
 		self.Name = xml.attrib["name"] if "name" in xml.attrib else xml.tag
-		self.executionMode    = ExecutionMode.fromText( xml.attrib["exec"])  if "exec"    in xml.attrib else ExecutionMode.ALL
-		self.executionOrder   = ExecutionOrder.fromText(xml.attrib["order"]) if "order" in xml.attrib   else ExecutionOrder.LINEAR
-		print self.executionOrder, self.executionMode
+		self.executionMode    = ExecutionMode.fromText( xml.attrib["exec"])  if "exec"  in xml.attrib else ExecutionMode.ALL
+		self.executionOrder   = ExecutionOrder.fromText(xml.attrib["order"]) if "order" in xml.attrib else ExecutionOrder.LINEAR
 		self.Conditions = xml.find("conditions") if "conditions" in xml else None # Conditions that must be true before executing the actions.
 
 		self.TASKS = None
@@ -158,15 +175,39 @@ class ActionList(Task):
 			else:
 				rospy.logwarn("WARNING Task skipped because '{}' type was not recognized.".format(task_xml.tag))
 
+	def getReward(self):
+		return self.Reward + sum([task.getReward() for task in self.Tasks])
+	def getDuration(self):
+		return sum([task.getDuration() for task in self.Tasks])
 	def getNext(self):
-		for task in self.TASKS:
-			if task.getStatus() == TaskStatus.FREE:
-				return task
-		print "NO FREE TASK"
-		return None
+		if   self.executionOrder == ExecutionOrder.LINEAR:
+			for task in self.TASKS:
+				if task.getStatus() in [TaskStatus.FREE, TaskStatus.PENDING]: return task
+		elif self.executionOrder == ExecutionOrder.RANDOM:
+			for task in self.TASKS:
+				if task.getStatus() == TaskStatus.PENDING:
+					return task
+			free_tasks = [task for task in self.TASKS if task.getStatus() == TaskStatus.FREE]
+			return free_tasks[randint(0, len(free_tasks) - 1)]
+		elif self.executionOrder == ExecutionOrder.SIMULTANEOUS:
+			return [task for task in self.TASKS if task.getStatus() in [TaskStatus.FREE, TaskStatus.PENDING]]
+		elif self.executionOrder == ExecutionOrder.FASTEST:
+			record, result = 10000000, None
+			for task in self.TASKS:
+				if task.getDuration() < record:
+					record = task.getDuration()
+					result = task
+			return result
+		elif self.executionOrder == ExecutionOrder.MOSTREWARD:
+			record, result = -1, None
+			for task in self.TASKS:
+				if task.getReward() > record:
+					record = task.getReward()
+					result = task
+			return result
 
 	def execute(self, communicator):
-		if self.getStatus() == TaskStatus.FREE:
+		if self.getStatus() in [TaskStatus.FREE, TaskStatus.PENDING]:
 			self.getNext().execute(communicator)
 		else:
 			raise ValueError, "ERROR asked to execute a task that's not free"
@@ -180,11 +221,24 @@ class ActionList(Task):
 		if TaskStatus.WAITINGFORRESPONSE in child_statuses:
 			self.setStatus(TaskStatus.WAITINGFORRESPONSE)
 			return
+
+		if self.executionMode == ExecutionMode.ONE:
+			if len([1 for c in child_statuses if c == TaskStatus.SUCCESS]) == 1:
+				self.setStatus(TaskStatus.SUCCESS)
+				#TODO block all dependent tasks too
+				for task in self.TASKS:
+					if task.getStatus() in [TaskStatus.FREE, TaskStatus.PENDING]:
+						task.setStatus(TaskStatus.BLOCKED)
+				return
+
 		if TaskStatus.PAUSED in child_statuses:
 			self.setStatus(TaskStatus.PAUSED)
 			return
+		if TaskStatus.PENDING in child_statuses:
+			self.setStatus(TaskStatus.PENDING)
+			return
 		if TaskStatus.FREE in child_statuses:
-			self.setStatus(TaskStatus.FREE)
+			self.setStatus(TaskStatus.PENDING)
 			return
 
 		if self.executionMode == ExecutionMode.ALL:
@@ -192,9 +246,6 @@ class ActionList(Task):
 				self.setStatus(TaskStatus.SUCCESS);return
 		elif self.executionMode == ExecutionMode.ATLEASTONE:
 			if len([1 for c in child_statuses if c == TaskStatus.SUCCESS]) >= 1:
-				self.setStatus(TaskStatus.SUCCESS);return
-		elif self.executionMode == ExecutionMode.ONE:
-			if len([1 for c in child_statuses if c == TaskStatus.SUCCESS]) == 1:
 				self.setStatus(TaskStatus.SUCCESS);return
 
 		if TaskStatus.ERROR in child_statuses:
@@ -225,16 +276,18 @@ class Action(Task):
 		self.TASKS = ActionList(xml.find("actions"), actions, orders)
 		self.TASKS.setParent(self)
 
+	def getDuration(self):
+		return self.TASKS.getDuration()
+	def getReward(self):
+		return self.TASKS.getReward()
 	def getNext(self):
-		for task in self.TASKS.TASKS:
-			if task.getStatus() == TaskStatus.FREE:
-				return task
+		return self.TASKS.getNext()
 
 	def refreshStatus(self):
 		self.setStatus(self.TASKS.getStatus())
 
 	def execute(self, communicator):
-		if self.getStatus() == TaskStatus.FREE:
+		if self.getStatus() in [TaskStatus.FREE, TaskStatus.PENDING]:
 			self.getNext().execute(communicator)
 		else:
 			raise ValueError, "ERROR asked to execute a task that's not free"
@@ -257,12 +310,14 @@ class Order(Task):
 		super(Order, self).__init__(xml)
 		self.Ref = xml.attrib["ref"]
 
-		self.ETL    = float(xml.attrib["time"]) # Manually estimated time to execute this action
-		self.Reward = int(xml.attrib["reward"]) if "reward" in xml.attrib else 0
+		self.Duration = float(xml.attrib["time"]) # Manually estimated time to execute this action
+		self.Reward   = int(xml.attrib["reward"]) if "reward" in xml.attrib else 0
 		
 		#self.ParamsNeededCount = len(xml.find("message").find("params").findall("param"))
 		self.Message = Message(xml.find("message"))
 
+	def getDuration(self):
+		return self.Duration
 
 	def execute(self, communicator):
 		'''if len(kwargs) != len(self.NeededParamsIDs):
@@ -302,26 +357,3 @@ class Message():
 		params = None #TODO
 		response = communicator.SendGenericCommand(self.DestinationNode, self.Command, "params")
 		return response
-		if self.ExecutionMode == 'all' or self.ExecutionMode == '+' or self.ExecutionMode == 'one':
-			
-
-				#TODO Set to BLOCKED all tasks that can't be executed anymore (because they depend on previous tasks that errored).
-			'''
-			priorityList = {
-				"all": 	[TaskStatus.SUCCESS, TaskStatus.BLOCKED,            TaskStatus.ERROR,    TaskStatus.PAUSED, 
-						TaskStatus.FREE,    TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL],
-				"+": 	[TaskStatus.ERROR, TaskStatus.BLOCKED,              TaskStatus.SUCCESS,  TaskStatus.PAUSED, 
-						TaskStatus.FREE,  TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL],
-				"one": 	[TaskStatus.ERROR, TaskStatus.BLOCKED,              TaskStatus.FREE,     TaskStatus.PAUSED, 
-						TaskStatus.SUCCESS,  TaskStatus.WAITINGFORRESPONSE, TaskStatus.CRITICAL]
-			}
-			status_i = -1
-			for task in self.TASKS:
-				s = priorityList[self.ExecutionMode].index(task.getStatus())
-				if s > final_status: status_i = s
-			final_status = priorityList[self.ExecutionMode][status_i]
-			'''
-		elif self.ExecutionMode == 'last':
-			self.setStatus(self.TASKS[-1].getStatus())
-		else:
-			raise ValueError, "CRITICAL ActionList has no or unrecognized success condition!"

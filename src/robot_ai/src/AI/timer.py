@@ -1,7 +1,9 @@
-import time
+import rospy, time
 
 class Timer():
 	def __init__(self, duration_sec, cb = None):
+		self.NODE = rospy.init_node("robot_ai_timer", log_level = rospy.DEBUG)
+		self.SUB = rospy.Subscriber("game_timer", queue_size = 10, on_)
 		self.duration_sec = duraction_sec
 
 	def start(self):
