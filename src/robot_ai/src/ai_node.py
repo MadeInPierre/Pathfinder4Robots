@@ -34,7 +34,7 @@ class AINode():
 		self.SER = rospy.Service('ai_service', AICommand, queue_size = 10)
 		msg = AICommand()
 		msg.command = "hello"
-		msg.params = "params here heh"
+		msg.params = "params here"
 
 		while not rospy.is_shutdown():
 			self.PUB.publish(msg)

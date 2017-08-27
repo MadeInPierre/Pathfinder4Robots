@@ -6,6 +6,7 @@
 			<time>90</time>
 		</game>
 		<actions name="In-Game Actions">
+			<actionref ref="actuators_startup_sequence"/>
 			<actionref ref="wait_for_jack"/>
 			<actionlist name = "Strategy number 1" order="linear">
 				<conditions>
@@ -48,8 +49,6 @@
 
 
 				</actionlist>
-				<actionref ref="actuators_startup_sequence">
-				</actionref>
 			</actionlist>
 		</actions>
 		<actions_onfinish name="Actions after game">

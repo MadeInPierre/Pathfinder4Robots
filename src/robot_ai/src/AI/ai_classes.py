@@ -90,8 +90,8 @@ class Task(object):
 			self.Status = new_status
 			if self.Parent:
 				self.Parent.refreshStatus()
-	def getStatus(self, text = False):
-		return self.Status if not text else self.Status[0]
+	def getStatus(self, str = False):
+		return self.Status if not str else self.Status[0]
 
 	def getStatusEmoji(self):
 		return self.Status[1]
@@ -267,7 +267,12 @@ class ActionList(Task):
 				self.setStatus(TaskStatus.SUCCESS);return
 
 		if TaskStatus.ERROR in child_statuses:
-			self.setStatus(TaskStatus.ERROR);return
+			self.setStatus(TaskStatus.ERROR)
+			#TODO Block all dependent nodes
+			return
+
+	def find_executable_childs(self):
+		pass
 		
 	def prettyprint(self, indentlevel, hide = False):
 		if not hide:
@@ -276,8 +281,9 @@ class ActionList(Task):
 			task.prettyprint(indentlevel + (1 if not hide else 0))
 	def __repr__(self):
 		c = Console();c.setstyle(Colors.BOLD);c.setstyle(Colors.RED)
-		c.addtext("{0}[{1} Action]".format(" ↳" if self.NeedsPrevious else "", self.getStatusEmoji()))
-		c.addtext(" {0} [{1} {2}{3}{4}]".format(self.Name, ExecutionMode.toEmoji(self.executionMode),
+		c.addtext("{0}[{1} ActionList] {2} ".format(" ↳" if self.NeedsPrevious else "", self.getStatusEmoji(), self.Name))
+		c.endstyle();c.setstyle(Colors.GRAY)
+		c.addtext("[{0} {1}{2}{3}]".format(ExecutionMode.toEmoji(self.executionMode),
 												ExecutionOrder.toEmoji(self.executionOrder),
 												", {}⚡".format(self.getReward()) if self.getReward() else "",
 												", ~{}⌛".format(int(self.getDuration())) if self.getDuration() else ""))
@@ -322,11 +328,12 @@ class Action(Task):
 	def __repr__(self):
 		c = Console();c.setstyle(Colors.BOLD);c.setstyle(Colors.BLUE)
 		c.addtext("{0}[{1} Action]".format(" ↳" if self.NeedsPrevious else "", self.getStatusEmoji()))
-		c.endstyle();c.setstyle(Colors.BLUE)
-		c.addtext(" {0} [{1} {2}{3}{4}]".format(self.Name, ExecutionMode.toEmoji(self.TASKS.executionMode),
-												ExecutionOrder.toEmoji(self.TASKS.executionOrder),
-												", {}⚡".format(self.getReward()) if self.getReward() else "",
-												", ~{}⌛".format(int(self.TASKS.getDuration())) if self.TASKS.getDuration() else ""))
+		c.endstyle();c.setstyle(Colors.BLUE);c.addtext(" {0} ".format(self.Name));c.endstyle();c.setstyle(Colors.GRAY)
+		
+		c.addtext("[{0} {1}{2}{3}]".format(ExecutionMode.toEmoji(self.TASKS.executionMode),
+											ExecutionOrder.toEmoji(self.TASKS.executionOrder),
+											", {}⚡".format(self.getReward()) if self.getReward() else "",
+											", ~{}⌛".format(int(self.TASKS.getDuration())) if self.TASKS.getDuration() else ""))
 		return c.getText()
 
 

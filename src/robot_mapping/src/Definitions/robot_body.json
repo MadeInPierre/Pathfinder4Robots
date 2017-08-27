@@ -1,0 +1,15 @@
+{
+	"robot_body": {
+		"chests": {
+			"chest_modules": {
+				"type": "stack",
+				"capacity": 5,
+			},
+			"chest_balls": {
+				"type": "room",
+				"capacity": "test",
+				"test_sensor": "robot_sensors_ballschest_full"
+			}
+		}
+	}
+}
