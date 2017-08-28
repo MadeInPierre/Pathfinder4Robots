@@ -339,7 +339,7 @@ class Action(Task):
 		if self.getStatus() in [TaskStatus.FREE, TaskStatus.PENDING]:
 			next_tasks = self.getNext()
 			if type(next_tasks) is list:
-				raise NotImplementedError, "Simultaneous task launches aren't supported yet !"
+				raise NotImplementedError, "Simultaneous task launches aren't supported yet !" #TODO
 			next_tasks.execute(communicator)
 		else:
 			raise ValueError, "ERROR asked to execute '{}' task that's not free".format(self.__repr__())
@@ -427,24 +427,21 @@ class Message():
 
 
 class Colors():
-	BOLD, GRAY, BLUE, RED = range(4)
+	BOLD  = "\033[1m"
+	GRAY  = "\033[92m"
+	BLUE  = "\033[95m"
+	RED   = "\033[91m"
+	RESET = "\033[0m"
 class Console():
 	def __init__(self):
-		self.Text = "\033[0m"
+		self.Text = Colors.RESET
 
 	def setstyle(self, color):
-		if color == Colors.BOLD:
-			self.Text += "\033[1m"
-		if color == Colors.GRAY:
-			self.Text += "\033[92m" #TODO
-		if color == Colors.BLUE:
-			self.Text += "\033[95m"
-		if color == Colors.RED:
-			self.Text += "\033[91m"
+		self.Text += color
 	def addtext(self, text):
 		self.Text += text
 	def endstyle(self):
-		self.Text += "\033[0m"
+		self.Text += Colors.RESET
 
 	def getText(self):
 		return self.Text
