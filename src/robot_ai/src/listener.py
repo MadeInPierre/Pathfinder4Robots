@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import rospy
+import rospy, random, time
 from robot_ai.msg import AICommand
 from robot_ai.srv import AIGenericCommand, AIGenericCommandResponse
 
@@ -8,7 +8,9 @@ def callback(msg):
 
 def on_generic_command(req):
 	print "---\nDestination : {}\nCommand : {}\nParams:{}".format(req.destination, req.command, req.params)
-	success = bool(input("Send success or not ? "))
+	#success = True#bool(input("Send success or not ? "))
+	#time.sleep(1)
+	success = bool(random.randint(0, 1))
 	reason = ""
 	if not success:
 		reason = "Timeout"

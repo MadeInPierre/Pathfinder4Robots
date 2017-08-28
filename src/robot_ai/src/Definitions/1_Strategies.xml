@@ -30,6 +30,7 @@
 						</actionref>
 					</actionlist>
 
+					<nextneedsprevious/>
 					<actionlist name="Unload on left platform" exec="+" order="linear">
 						<conditions>
 							<needsprevious/> <!-- This actionList needs the previous task to be OK in order to run-->
@@ -37,6 +38,7 @@
 						<actionref ref = "unload_module">
 							<position type="waypoint" ref = "left_unloadzone_p1"/>
 						</actionref>
+						<nextneedsprevious/>
 						<actionref ref = "unload_module">
 							<needsprevious/>
 							<position type="waypoint" ref = "left_unloadzone_p2"/>

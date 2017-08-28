@@ -29,6 +29,7 @@ WARNINGS
 class TaskStatus:
 	CRITICAL            = ('CRITICAL'			, '💔')	# Fatal error, system will shutdown.
 	WAITINGFORRESPONSE  = ('WAITINGFORRESPONSE'	, '💬')	# Order sent service or action message, waiting for response callback.
+	NEEDSPREVIOUS       = ('NEEDSPREVIOUS'      , '↳')
 	PENDING             = ('PENDING'            , '⋯')	# For lists only. Active when one or not all child tasks are still active.
 	FREE                = ('FREE'				, '⬜')	# Free task, not activated yet.
 	PAUSED              = ('PAUSED'				, '🔶')	# TODO
@@ -85,10 +86,10 @@ class Task(object):
 	
 	def setParent(self, parent):
 		self.Parent = parent
-	def setStatus(self, new_status):
+	def setStatus(self, new_status, refresh_parent = True):
 		if self.Status != new_status:
 			self.Status = new_status
-			if self.Parent:
+			if refresh_parent and self.Parent:
 				self.Parent.refreshStatus()
 	def getStatus(self, str = False):
 		return self.Status if not str else self.Status[0]
@@ -155,14 +156,18 @@ class ActionList(Task):
 
 		self.TASKS = None
 		self.loadxml(xml, actions, orders)
+		#if len(self.TASKS) < 2: raise ValueError, "ERROR {} task in a list, not accepted.".format(len(self.TASKS))
 
 	def loadxml(self, xml, actions, orders):
 		self.TASKS = []
+		nextneedsprevious = False
 		for node_xml in xml:
 			tag = node_xml.tag
 			if tag == "actionlist":
 				i = ActionList(node_xml, actions, orders)
 				i.setParent(self)
+				if nextneedsprevious:
+					i.Status = TaskStatus.NEEDSPREVIOUS;nextneedsprevious = False
 				self.TASKS.append(i)
 			elif tag == "actionref":
 				instances = [action for action in actions if action.Ref == node_xml.attrib["ref"]]
@@ -170,7 +175,8 @@ class ActionList(Task):
 					raise KeyError, "{} action instance(s) found with the name '{}'.".format(len(instances), node_xml.attrib["ref"])
 				i = copy.deepcopy(instances[0])
 				i.setParent(self)
-				i.NeedsPrevious = True if node_xml.findall("needsprevious") else False
+				if nextneedsprevious:
+					i.Status = TaskStatus.NEEDSPREVIOUS;nextneedsprevious = False
 				self.TASKS.append(i)
 			elif tag == "orderref":
 				instances = [order for order in orders if order.Ref == node_xml.attrib["ref"]]
@@ -178,12 +184,15 @@ class ActionList(Task):
 					raise KeyError, "{} order instance(s) found with the name '{}'.".format(len(instances), node_xml.attrib["ref"])
 				i = copy.deepcopy(instances[0])
 				i.setParent(self)
-				i.NeedsPrevious = True if node_xml.findall("needsprevious") else False
+				if nextneedsprevious:
+					i.Status = TaskStatus.NEEDSPREVIOUS;nextneedsprevious = False
 				self.TASKS.append(i)
+			elif tag == "nextneedsprevious":
+				nextneedsprevious = True
 			elif tag == "conditions":
 				self.loadConditions(node_xml)
 			else:
-				rospy.logwarn("WARNING Task skipped because '{}' type was not recognized.".format(tag))
+				rospy.logwarn("WARNING Element skipped because '{}' type was not recognized.".format(tag))
 
 	def loadConditions(self, xml):
 		#Conditions definition
@@ -235,6 +244,19 @@ class ActionList(Task):
 			raise ValueError, "ERROR asked to execute a task that's not free"
 
 	def refreshStatus(self):
+		# unblock or block tasks that need previous tasks
+		previous_task = self.TASKS[0]
+		for task in self.TASKS[1:]:
+			if task.getStatus() == TaskStatus.NEEDSPREVIOUS:
+				print "needs previous! previous task is " + previous_task.getStatus()[0] + ", this task is " + str(task.getStatus())
+				if previous_task.getStatus() == TaskStatus.SUCCESS:
+					print "setting needprevious task as free!"
+					task.setStatus(TaskStatus.FREE, refresh_parent = False)
+				if previous_task.getStatus() in [TaskStatus.BLOCKED, TaskStatus.ERROR]:
+					print "setting needprevious task as BLOCKED!"
+					task.setStatus(TaskStatus.BLOCKED)
+			previous_task = task
+
 		# Decides the status of the list based on the childs' statuses and the ExecutionMode XML setting.
 		child_statuses = [task.getStatus() for task in self.TASKS]
 		# The order of conditions do count!
@@ -281,9 +303,9 @@ class ActionList(Task):
 			task.prettyprint(indentlevel + (1 if not hide else 0))
 	def __repr__(self):
 		c = Console();c.setstyle(Colors.BOLD);c.setstyle(Colors.RED)
-		c.addtext("{0}[{1} ActionList] {2} ".format(" ↳" if self.NeedsPrevious else "", self.getStatusEmoji(), self.Name))
+		c.addtext("[{} ActionList] {} ".format(self.getStatusEmoji(), self.Name))
 		c.endstyle();c.setstyle(Colors.GRAY)
-		c.addtext("[{0} {1}{2}{3}]".format(ExecutionMode.toEmoji(self.executionMode),
+		c.addtext("[{} {}{}{}]".format(ExecutionMode.toEmoji(self.executionMode),
 												ExecutionOrder.toEmoji(self.executionOrder),
 												", {}⚡".format(self.getReward()) if self.getReward() else "",
 												", ~{}⌛".format(int(self.getDuration())) if self.getDuration() else ""))
@@ -327,13 +349,13 @@ class Action(Task):
 		self.TASKS.prettyprint(indentlevel + 1, hide = True)
 	def __repr__(self):
 		c = Console();c.setstyle(Colors.BOLD);c.setstyle(Colors.BLUE)
-		c.addtext("{0}[{1} Action]".format(" ↳" if self.NeedsPrevious else "", self.getStatusEmoji()))
+		c.addtext("[{} Action]".format(self.getStatusEmoji()))
 		c.endstyle();c.setstyle(Colors.BLUE);c.addtext(" {0} ".format(self.Name));c.endstyle();c.setstyle(Colors.GRAY)
 		
-		c.addtext("[{0} {1}{2}{3}]".format(ExecutionMode.toEmoji(self.TASKS.executionMode),
-											ExecutionOrder.toEmoji(self.TASKS.executionOrder),
-											", {}⚡".format(self.getReward()) if self.getReward() else "",
-											", ~{}⌛".format(int(self.TASKS.getDuration())) if self.TASKS.getDuration() else ""))
+		c.addtext("[{} {}{}{}]".format(ExecutionMode.toEmoji(self.TASKS.executionMode),
+										ExecutionOrder.toEmoji(self.TASKS.executionOrder),
+										", {}⚡".format(self.getReward()) if self.getReward() else "",
+										", ~{}⌛".format(int(self.TASKS.getDuration())) if self.TASKS.getDuration() else ""))
 		return c.getText()
 
 
@@ -371,7 +393,7 @@ class Order(Task):
 	def __repr__(self):
 		c = Console()
 		c.setstyle(Colors.BOLD)
-		c.addtext("{0}[{1}{2} Order] ".format(" ↳" if self.NeedsPrevious else "", self.getStatusEmoji(), 
+		c.addtext("[{}{} Order] ".format(self.getStatusEmoji(), 
 										" , {0:.1f}⌛".format(self.TimeTaken) if self.getStatus() in [TaskStatus.SUCCESS, 
 										TaskStatus.ERROR, TaskStatus.PAUSED, TaskStatus.CRITICAL] else ""))
 		c.endstyle()
