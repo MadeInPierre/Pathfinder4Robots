@@ -56,6 +56,7 @@
 			<param id="position"/>
 		</params>
 		<conditions>
+			<chest ref="robot_body_chest_module_gripper" qty="full"/>
 			<chest ref = "robot_body_chest_modules" qty_left_min = "1" />
 		</conditions>
 		<actions exec="all" order="linear">

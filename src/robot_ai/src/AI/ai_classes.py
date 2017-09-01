@@ -1,17 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from random import randint
+from conditions import *
 import rospy, time
 import copy
 
 '''
 GENERAL TOBEDONE
 	- Service responses codes instead of simple true/false
-	- Pending state to lists CAUTION should still execute like if it was free.
 	- Parameters
-	- ExecutionOrder
 	- Conditions (chest, needsprevious..)
-	- Change how colors are printed on terminal.
 
 TESTS TOBEDONE
 	- Fastest ExecutionOrder
@@ -27,15 +25,15 @@ WARNINGS
 #====================================*/
 
 class TaskStatus:
-	CRITICAL            = ('CRITICAL'			, '💔')	# Fatal error, system will shutdown.
-	WAITINGFORRESPONSE  = ('WAITINGFORRESPONSE'	, '💬')	# Order sent service or action message, waiting for response callback.
-	NEEDSPREVIOUS       = ('NEEDSPREVIOUS'      , '↳')
-	PENDING             = ('PENDING'            , '⋯')	# For lists only. Active when one or not all child tasks are still active.
-	FREE                = ('FREE'				, '⬜')	# Free task, not activated yet.
-	PAUSED              = ('PAUSED'				, '🔶')	# TODO
-	ERROR               = ('ERROR'				, '⛔', "error_msg")	# Error. Order couldn't be done, AI will try to find an alternative path of orders in the tree.
-	BLOCKED             = ('BLOCKED'			, '◼')	# Node can't execute because conditions aren't fully satisfied.
-	SUCCESS             = ('SUCCESS'			, '🆗', 0.0)	# Order and lists complete.
+	CRITICAL            = ('CRITICAL'			, '💔')					# Fatal error, system will shutdown.
+	WAITINGFORRESPONSE  = ('WAITINGFORRESPONSE'	, '💬')					# Order sent service or action message, waiting for response callback.
+	NEEDSPREVIOUS       = ('NEEDSPREVIOUS'      , '↳')					# Task can't execute yet because it needs the previous task to be at SUCCESS still.
+	PENDING             = ('PENDING'            , '⋯')					# For lists only. Active when one or not all child tasks are still active.
+	FREE                = ('FREE'				, '⬜')					# Free task, not activated yet.
+	PAUSED              = ('PAUSED'				, '🔶')					# TODO
+	ERROR               = ('ERROR'				, '⛔', "error_msg")		# Error. Order couldn't be done, AI will try to find an alternative path of orders in the tree.
+	BLOCKED             = ('BLOCKED'			, '◼')					# Node can't execute because conditions aren't fully satisfied.
+	SUCCESS             = ('SUCCESS'			, '🆗', 0.0)				# Order and lists complete.
 	def toEmoji(status):
 		return status[1]
 
@@ -81,6 +79,16 @@ class Task(object):
 		self.Parent = None
 		self.NeedsPrevious = False
 
+		self.loadConditions(xml)
+
+	def loadConditions(self, xml):
+		self.Conditions = []
+		if not "conditions" in [node.tag for node in xml]: return
+		for condition in xml.find("conditions"):
+			pass#self.Conditions.append()
+
+
+
 	def getReward(self):
 		return self.Reward
 	
@@ -103,6 +111,7 @@ class Task(object):
 
 class GameProperties():
 	GAME_DURATION = None
+	REWARD_POINTS = 0
 
 #/*=====  End of Base classes  ======*/
 
@@ -387,8 +396,14 @@ class Order(Task):
 		
 
 		response, self.TimeTaken = self.Message.send(communicator)
+
+		# After response
 		rospy.loginfo('got response ! reason : ' + response.reason)
-		self.setStatus(TaskStatus.SUCCESS if response.success else TaskStatus.ERROR)
+		if response.success == True:
+			self.setStatus(TaskStatus.SUCCESS)
+			#GameProperties.REWARD_POINTS += self.getReward() #TODO
+		else:
+			self.setStatus(TaskStatus.ERROR)
 
 	def __repr__(self):
 		c = Console()

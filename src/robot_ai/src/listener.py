@@ -8,9 +8,9 @@ def callback(msg):
 
 def on_generic_command(req):
 	print "---\nDestination : {}\nCommand : {}\nParams:{}".format(req.destination, req.command, req.params)
-	#success = True#bool(input("Send success or not ? "))
 	#time.sleep(1)
 	success = bool(random.randint(0, 1))
+	success = bool(input("Send success or not ? "))
 	reason = ""
 	if not success:
 		reason = "Timeout"
