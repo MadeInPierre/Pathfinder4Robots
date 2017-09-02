@@ -1,0 +1,11 @@
+<robots>
+	<!-- You can create several robot profiles and activate the one you want on each robot. -->
+	<robot name="GR">
+		<footprint>
+			
+		</footprint>
+		<chests>
+			
+		</chests>
+	</robot>
+</robots>
