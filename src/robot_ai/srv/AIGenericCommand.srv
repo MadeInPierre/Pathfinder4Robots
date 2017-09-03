@@ -3,5 +3,5 @@ string destination
 string command
 string params
 ---
-bool success
+int16 response_code
 string reason

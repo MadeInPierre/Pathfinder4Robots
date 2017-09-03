@@ -127,10 +127,10 @@
   "robot_ai/AIGenericCommandRequest")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<AIGenericCommand-request>)))
   "Returns md5sum for a message object of type '<AIGenericCommand-request>"
-  "0bbc3ecedf61307352ea72431f6a44e8")
+  "03627a98e56c86556490728af60f9ba4")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'AIGenericCommand-request)))
   "Returns md5sum for a message object of type 'AIGenericCommand-request"
-  "0bbc3ecedf61307352ea72431f6a44e8")
+  "03627a98e56c86556490728af60f9ba4")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<AIGenericCommand-request>)))
   "Returns full string definition for message of type '<AIGenericCommand-request>"
   (cl:format cl:nil "string department~%string destination~%string command~%string params~%~%~%"))
@@ -155,11 +155,11 @@
 ;//! \htmlinclude AIGenericCommand-response.msg.html
 
 (cl:defclass <AIGenericCommand-response> (roslisp-msg-protocol:ros-message)
-  ((success
-    :reader success
-    :initarg :success
-    :type cl:boolean
-    :initform cl:nil)
+  ((response_code
+    :reader response_code
+    :initarg :response_code
+    :type cl:fixnum
+    :initform 0)
    (reason
     :reader reason
     :initarg :reason
@@ -175,10 +175,10 @@
   (cl:unless (cl:typep m 'AIGenericCommand-response)
     (roslisp-msg-protocol:msg-deprecation-warning "using old message class name robot_ai-srv:<AIGenericCommand-response> is deprecated: use robot_ai-srv:AIGenericCommand-response instead.")))
 
-(cl:ensure-generic-function 'success-val :lambda-list '(m))
-(cl:defmethod success-val ((m <AIGenericCommand-response>))
-  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader robot_ai-srv:success-val is deprecated.  Use robot_ai-srv:success instead.")
-  (success m))
+(cl:ensure-generic-function 'response_code-val :lambda-list '(m))
+(cl:defmethod response_code-val ((m <AIGenericCommand-response>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader robot_ai-srv:response_code-val is deprecated.  Use robot_ai-srv:response_code instead.")
+  (response_code m))
 
 (cl:ensure-generic-function 'reason-val :lambda-list '(m))
 (cl:defmethod reason-val ((m <AIGenericCommand-response>))
@@ -186,7 +186,10 @@
   (reason m))
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <AIGenericCommand-response>) ostream)
   "Serializes a message object of type '<AIGenericCommand-response>"
-  (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:if (cl:slot-value msg 'success) 1 0)) ostream)
+  (cl:let* ((signed (cl:slot-value msg 'response_code)) (unsigned (cl:if (cl:< signed 0) (cl:+ signed 65536) signed)))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) unsigned) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) unsigned) ostream)
+    )
   (cl:let ((__ros_str_len (cl:length (cl:slot-value msg 'reason))))
     (cl:write-byte (cl:ldb (cl:byte 8 0) __ros_str_len) ostream)
     (cl:write-byte (cl:ldb (cl:byte 8 8) __ros_str_len) ostream)
@@ -196,7 +199,10 @@
 )
 (cl:defmethod roslisp-msg-protocol:deserialize ((msg <AIGenericCommand-response>) istream)
   "Deserializes a message object of type '<AIGenericCommand-response>"
-    (cl:setf (cl:slot-value msg 'success) (cl:not (cl:zerop (cl:read-byte istream))))
+    (cl:let ((unsigned 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) unsigned) (cl:read-byte istream))
+      (cl:setf (cl:slot-value msg 'response_code) (cl:if (cl:< unsigned 32768) unsigned (cl:- unsigned 65536))))
     (cl:let ((__ros_str_len 0))
       (cl:setf (cl:ldb (cl:byte 8 0) __ros_str_len) (cl:read-byte istream))
       (cl:setf (cl:ldb (cl:byte 8 8) __ros_str_len) (cl:read-byte istream))
@@ -215,25 +221,25 @@
   "robot_ai/AIGenericCommandResponse")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<AIGenericCommand-response>)))
   "Returns md5sum for a message object of type '<AIGenericCommand-response>"
-  "0bbc3ecedf61307352ea72431f6a44e8")
+  "03627a98e56c86556490728af60f9ba4")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'AIGenericCommand-response)))
   "Returns md5sum for a message object of type 'AIGenericCommand-response"
-  "0bbc3ecedf61307352ea72431f6a44e8")
+  "03627a98e56c86556490728af60f9ba4")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<AIGenericCommand-response>)))
   "Returns full string definition for message of type '<AIGenericCommand-response>"
-  (cl:format cl:nil "bool success~%string reason~%~%~%~%"))
+  (cl:format cl:nil "int16 response_code~%string reason~%~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql 'AIGenericCommand-response)))
   "Returns full string definition for message of type 'AIGenericCommand-response"
-  (cl:format cl:nil "bool success~%string reason~%~%~%~%"))
+  (cl:format cl:nil "int16 response_code~%string reason~%~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:serialization-length ((msg <AIGenericCommand-response>))
   (cl:+ 0
-     1
+     2
      4 (cl:length (cl:slot-value msg 'reason))
 ))
 (cl:defmethod roslisp-msg-protocol:ros-message-to-list ((msg <AIGenericCommand-response>))
   "Converts a ROS message object to a list"
   (cl:list 'AIGenericCommand-response
-    (cl:cons ':success (success msg))
+    (cl:cons ':response_code (response_code msg))
     (cl:cons ':reason (reason msg))
 ))
 (cl:defmethod roslisp-msg-protocol:service-request-type ((msg (cl:eql 'AIGenericCommand)))

@@ -8,6 +8,7 @@ project(robot_movement)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  robot_ai
   roscpp
   rospy
   std_msgs

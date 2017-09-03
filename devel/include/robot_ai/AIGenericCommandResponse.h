@@ -24,19 +24,19 @@ struct AIGenericCommandResponse_
   typedef AIGenericCommandResponse_<ContainerAllocator> Type;
 
   AIGenericCommandResponse_()
-    : success(false)
+    : response_code(0)
     , reason()  {
     }
   AIGenericCommandResponse_(const ContainerAllocator& _alloc)
-    : success(false)
+    : response_code(0)
     , reason(_alloc)  {
   (void)_alloc;
     }
 
 
 
-   typedef uint8_t _success_type;
-  _success_type success;
+   typedef int16_t _response_code_type;
+  _response_code_type response_code;
 
    typedef std::basic_string<char, std::char_traits<char>, typename ContainerAllocator::template rebind<char>::other >  _reason_type;
   _reason_type reason;
@@ -118,12 +118,12 @@ struct MD5Sum< ::robot_ai::AIGenericCommandResponse_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "a4d50a34d34f18de48e2436ff1472594";
+    return "a40e2e8a729fb2f435e3fce71dfeed71";
   }
 
   static const char* value(const ::robot_ai::AIGenericCommandResponse_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0xa4d50a34d34f18deULL;
-  static const uint64_t static_value2 = 0x48e2436ff1472594ULL;
+  static const uint64_t static_value1 = 0xa40e2e8a729fb2f4ULL;
+  static const uint64_t static_value2 = 0x35e3fce71dfeed71ULL;
 };
 
 template<class ContainerAllocator>
@@ -142,7 +142,7 @@ struct Definition< ::robot_ai::AIGenericCommandResponse_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "bool success\n\
+    return "int16 response_code\n\
 string reason\n\
 \n\
 ";
@@ -163,7 +163,7 @@ namespace serialization
   {
     template<typename Stream, typename T> inline static void allInOne(Stream& stream, T m)
     {
-      stream.next(m.success);
+      stream.next(m.response_code);
       stream.next(m.reason);
     }
 
@@ -183,8 +183,8 @@ struct Printer< ::robot_ai::AIGenericCommandResponse_<ContainerAllocator> >
 {
   template<typename Stream> static void stream(Stream& s, const std::string& indent, const ::robot_ai::AIGenericCommandResponse_<ContainerAllocator>& v)
   {
-    s << indent << "success: ";
-    Printer<uint8_t>::stream(s, indent + "  ", v.success);
+    s << indent << "response_code: ";
+    Printer<int16_t>::stream(s, indent + "  ", v.response_code);
     s << indent << "reason: ";
     Printer<std::basic_string<char, std::char_traits<char>, typename ContainerAllocator::template rebind<char>::other > >::stream(s, indent + "  ", v.reason);
   }

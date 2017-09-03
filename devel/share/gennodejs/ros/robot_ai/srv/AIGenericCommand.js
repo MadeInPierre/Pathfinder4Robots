@@ -154,15 +154,15 @@ class AIGenericCommandResponse {
   constructor(initObj={}) {
     if (initObj === null) {
       // initObj === null is a special case for deserialization where we don't initialize fields
-      this.success = null;
+      this.response_code = null;
       this.reason = null;
     }
     else {
-      if (initObj.hasOwnProperty('success')) {
-        this.success = initObj.success
+      if (initObj.hasOwnProperty('response_code')) {
+        this.response_code = initObj.response_code
       }
       else {
-        this.success = false;
+        this.response_code = 0;
       }
       if (initObj.hasOwnProperty('reason')) {
         this.reason = initObj.reason
@@ -175,8 +175,8 @@ class AIGenericCommandResponse {
 
   static serialize(obj, buffer, bufferOffset) {
     // Serializes a message object of type AIGenericCommandResponse
-    // Serialize message field [success]
-    bufferOffset = _serializer.bool(obj.success, buffer, bufferOffset);
+    // Serialize message field [response_code]
+    bufferOffset = _serializer.int16(obj.response_code, buffer, bufferOffset);
     // Serialize message field [reason]
     bufferOffset = _serializer.string(obj.reason, buffer, bufferOffset);
     return bufferOffset;
@@ -186,8 +186,8 @@ class AIGenericCommandResponse {
     //deserializes a message object of type AIGenericCommandResponse
     let len;
     let data = new AIGenericCommandResponse(null);
-    // Deserialize message field [success]
-    data.success = _deserializer.bool(buffer, bufferOffset);
+    // Deserialize message field [response_code]
+    data.response_code = _deserializer.int16(buffer, bufferOffset);
     // Deserialize message field [reason]
     data.reason = _deserializer.string(buffer, bufferOffset);
     return data;
@@ -196,7 +196,7 @@ class AIGenericCommandResponse {
   static getMessageSize(object) {
     let length = 0;
     length += object.reason.length;
-    return length + 5;
+    return length + 6;
   }
 
   static datatype() {
@@ -206,13 +206,13 @@ class AIGenericCommandResponse {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return 'a4d50a34d34f18de48e2436ff1472594';
+    return 'a40e2e8a729fb2f435e3fce71dfeed71';
   }
 
   static messageDefinition() {
     // Returns full string definition for message
     return `
-    bool success
+    int16 response_code
     string reason
     
     
@@ -225,11 +225,11 @@ class AIGenericCommandResponse {
       msg = {};
     }
     const resolved = new AIGenericCommandResponse(null);
-    if (msg.success !== undefined) {
-      resolved.success = msg.success;
+    if (msg.response_code !== undefined) {
+      resolved.response_code = msg.response_code;
     }
     else {
-      resolved.success = false
+      resolved.response_code = 0
     }
 
     if (msg.reason !== undefined) {
@@ -246,6 +246,6 @@ class AIGenericCommandResponse {
 module.exports = {
   Request: AIGenericCommandRequest,
   Response: AIGenericCommandResponse,
-  md5sum() { return '0bbc3ecedf61307352ea72431f6a44e8'; },
+  md5sum() { return '03627a98e56c86556490728af60f9ba4'; },
   datatype() { return 'robot_ai/AIGenericCommand'; }
 };

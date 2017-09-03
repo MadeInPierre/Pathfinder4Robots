@@ -7,8 +7,8 @@
           COMMAND
           PARAMS-VAL
           PARAMS
-          SUCCESS-VAL
-          SUCCESS
+          RESPONSE_CODE-VAL
+          RESPONSE_CODE
           REASON-VAL
           REASON
 ))

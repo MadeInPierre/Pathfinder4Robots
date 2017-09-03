@@ -50,6 +50,9 @@
   <build_depend>message_generation</build_depend>
   <run_depend>message_runtime</run_depend>
 
+  <build_depend>robot_ai</build_depend>
+  <run_depend>robot_ai</run_depend>
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

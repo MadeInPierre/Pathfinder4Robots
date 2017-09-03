@@ -90,29 +90,29 @@
 
 (defclass robot_ai::AIGenericCommandResponse
   :super ros::object
-  :slots (_success _reason ))
+  :slots (_response_code _reason ))
 
 (defmethod robot_ai::AIGenericCommandResponse
   (:init
    (&key
-    ((:success __success) nil)
+    ((:response_code __response_code) 0)
     ((:reason __reason) "")
     )
    (send-super :init)
-   (setq _success __success)
+   (setq _response_code (round __response_code))
    (setq _reason (string __reason))
    self)
-  (:success
-   (&optional __success)
-   (if __success (setq _success __success)) _success)
+  (:response_code
+   (&optional __response_code)
+   (if __response_code (setq _response_code __response_code)) _response_code)
   (:reason
    (&optional __reason)
    (if __reason (setq _reason __reason)) _reason)
   (:serialization-length
    ()
    (+
-    ;; bool _success
-    1
+    ;; int16 _response_code
+    2
     ;; string _reason
     4 (length _reason)
     ))
@@ -120,16 +120,16 @@
    (&optional strm)
    (let ((s (if strm strm
               (make-string-output-stream (send self :serialization-length)))))
-     ;; bool _success
-       (if _success (write-byte -1 s) (write-byte 0 s))
+     ;; int16 _response_code
+       (write-word _response_code s)
      ;; string _reason
        (write-long (length _reason) s) (princ _reason s)
      ;;
      (if (null strm) (get-output-stream-string s))))
   (:deserialize
    (buf &optional (ptr- 0))
-   ;; bool _success
-     (setq _success (not (= 0 (sys::peek buf ptr- :char)))) (incf ptr- 1)
+   ;; int16 _response_code
+     (setq _response_code (sys::peek buf ptr- :short)) (incf ptr- 2)
    ;; string _reason
      (let (n) (setq n (sys::peek buf ptr- :integer)) (incf ptr- 4) (setq _reason (subseq buf ptr- (+ ptr- n))) (incf ptr- n))
    ;;
@@ -140,7 +140,7 @@
   :super ros::object
   :slots ())
 
-(setf (get robot_ai::AIGenericCommand :md5sum-) "0bbc3ecedf61307352ea72431f6a44e8")
+(setf (get robot_ai::AIGenericCommand :md5sum-) "03627a98e56c86556490728af60f9ba4")
 (setf (get robot_ai::AIGenericCommand :datatype-) "robot_ai/AIGenericCommand")
 (setf (get robot_ai::AIGenericCommand :request) robot_ai::AIGenericCommandRequest)
 (setf (get robot_ai::AIGenericCommand :response) robot_ai::AIGenericCommandResponse)
@@ -148,7 +148,7 @@
 (defmethod robot_ai::AIGenericCommandRequest
   (:response () (instance robot_ai::AIGenericCommandResponse :init)))
 
-(setf (get robot_ai::AIGenericCommandRequest :md5sum-) "0bbc3ecedf61307352ea72431f6a44e8")
+(setf (get robot_ai::AIGenericCommandRequest :md5sum-) "03627a98e56c86556490728af60f9ba4")
 (setf (get robot_ai::AIGenericCommandRequest :datatype-) "robot_ai/AIGenericCommandRequest")
 (setf (get robot_ai::AIGenericCommandRequest :definition-)
       "string department
@@ -156,12 +156,12 @@ string destination
 string command
 string params
 ---
-bool success
+int16 response_code
 string reason
 
 ")
 
-(setf (get robot_ai::AIGenericCommandResponse :md5sum-) "0bbc3ecedf61307352ea72431f6a44e8")
+(setf (get robot_ai::AIGenericCommandResponse :md5sum-) "03627a98e56c86556490728af60f9ba4")
 (setf (get robot_ai::AIGenericCommandResponse :datatype-) "robot_ai/AIGenericCommandResponse")
 (setf (get robot_ai::AIGenericCommandResponse :definition-)
       "string department
@@ -169,13 +169,13 @@ string destination
 string command
 string params
 ---
-bool success
+int16 response_code
 string reason
 
 ")
 
 
 
-(provide :robot_ai/AIGenericCommand "0bbc3ecedf61307352ea72431f6a44e8")
+(provide :robot_ai/AIGenericCommand "03627a98e56c86556490728af60f9ba4")
 
 

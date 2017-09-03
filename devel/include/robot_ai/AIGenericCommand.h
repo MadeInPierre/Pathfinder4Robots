@@ -40,7 +40,7 @@ template<>
 struct MD5Sum< ::robot_ai::AIGenericCommand > {
   static const char* value()
   {
-    return "0bbc3ecedf61307352ea72431f6a44e8";
+    return "03627a98e56c86556490728af60f9ba4";
   }
 
   static const char* value(const ::robot_ai::AIGenericCommand&) { return value(); }

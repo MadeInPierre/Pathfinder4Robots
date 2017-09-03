@@ -135,7 +135,9 @@ class Strategy(Task):
 		self.TASKS = ActionList(xml.find("actions"), actions, orders)
 		self.TASKS_ONFINISH = ActionList(xml.find("actions_onfinish"), actions, orders)
 
-	def canContinue(self):
+	def canContinue(self, timer):
+		if timer.is_finished():
+			return False
 		return self.getStatus() in [TaskStatus.FREE, TaskStatus.PENDING, TaskStatus.WAITINGFORRESPONSE]
 	def getNext(self): # Returns the next free task (ActionList, Action or Order).
 		return self.TASKS.getNext()
@@ -395,12 +397,13 @@ class Order(Task):
 		response, self.TimeTaken = self.Message.send(communicator)
 
 		# After response
-		rospy.loginfo('got response ! reason : ' + response.reason)
-		if response.success == True:
+		if response.response_code == 200:
 			self.setStatus(TaskStatus.SUCCESS)
+			rospy.loginfo("order '{}' succeeded!".format(self.Name))
 			#GameProperties.REWARD_POINTS += self.getReward() #TODO
 		else:
 			self.setStatus(TaskStatus.ERROR)
+			rospy.logerr("order '{}' execution failed, code : {}, reason : '{}'".format(self.Name, response.response_code, response.reason))
 
 	def __repr__(self):
 		c = Console()
