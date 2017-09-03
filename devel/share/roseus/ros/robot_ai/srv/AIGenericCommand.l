@@ -20,20 +20,25 @@
 
 (defclass robot_ai::AIGenericCommandRequest
   :super ros::object
-  :slots (_destination _command _params ))
+  :slots (_department _destination _command _params ))
 
 (defmethod robot_ai::AIGenericCommandRequest
   (:init
    (&key
+    ((:department __department) "")
     ((:destination __destination) "")
     ((:command __command) "")
     ((:params __params) "")
     )
    (send-super :init)
+   (setq _department (string __department))
    (setq _destination (string __destination))
    (setq _command (string __command))
    (setq _params (string __params))
    self)
+  (:department
+   (&optional __department)
+   (if __department (setq _department __department)) _department)
   (:destination
    (&optional __destination)
    (if __destination (setq _destination __destination)) _destination)
@@ -46,6 +51,8 @@
   (:serialization-length
    ()
    (+
+    ;; string _department
+    4 (length _department)
     ;; string _destination
     4 (length _destination)
     ;; string _command
@@ -57,6 +64,8 @@
    (&optional strm)
    (let ((s (if strm strm
               (make-string-output-stream (send self :serialization-length)))))
+     ;; string _department
+       (write-long (length _department) s) (princ _department s)
      ;; string _destination
        (write-long (length _destination) s) (princ _destination s)
      ;; string _command
@@ -67,6 +76,8 @@
      (if (null strm) (get-output-stream-string s))))
   (:deserialize
    (buf &optional (ptr- 0))
+   ;; string _department
+     (let (n) (setq n (sys::peek buf ptr- :integer)) (incf ptr- 4) (setq _department (subseq buf ptr- (+ ptr- n))) (incf ptr- n))
    ;; string _destination
      (let (n) (setq n (sys::peek buf ptr- :integer)) (incf ptr- 4) (setq _destination (subseq buf ptr- (+ ptr- n))) (incf ptr- n))
    ;; string _command
@@ -129,7 +140,7 @@
   :super ros::object
   :slots ())
 
-(setf (get robot_ai::AIGenericCommand :md5sum-) "486981db1cfa05f3d7fa6076f176b704")
+(setf (get robot_ai::AIGenericCommand :md5sum-) "0bbc3ecedf61307352ea72431f6a44e8")
 (setf (get robot_ai::AIGenericCommand :datatype-) "robot_ai/AIGenericCommand")
 (setf (get robot_ai::AIGenericCommand :request) robot_ai::AIGenericCommandRequest)
 (setf (get robot_ai::AIGenericCommand :response) robot_ai::AIGenericCommandResponse)
@@ -137,10 +148,11 @@
 (defmethod robot_ai::AIGenericCommandRequest
   (:response () (instance robot_ai::AIGenericCommandResponse :init)))
 
-(setf (get robot_ai::AIGenericCommandRequest :md5sum-) "486981db1cfa05f3d7fa6076f176b704")
+(setf (get robot_ai::AIGenericCommandRequest :md5sum-) "0bbc3ecedf61307352ea72431f6a44e8")
 (setf (get robot_ai::AIGenericCommandRequest :datatype-) "robot_ai/AIGenericCommandRequest")
 (setf (get robot_ai::AIGenericCommandRequest :definition-)
-      "string destination
+      "string department
+string destination
 string command
 string params
 ---
@@ -149,10 +161,11 @@ string reason
 
 ")
 
-(setf (get robot_ai::AIGenericCommandResponse :md5sum-) "486981db1cfa05f3d7fa6076f176b704")
+(setf (get robot_ai::AIGenericCommandResponse :md5sum-) "0bbc3ecedf61307352ea72431f6a44e8")
 (setf (get robot_ai::AIGenericCommandResponse :datatype-) "robot_ai/AIGenericCommandResponse")
 (setf (get robot_ai::AIGenericCommandResponse :definition-)
-      "string destination
+      "string department
+string destination
 string command
 string params
 ---
@@ -163,6 +176,6 @@ string reason
 
 
 
-(provide :robot_ai/AIGenericCommand "486981db1cfa05f3d7fa6076f176b704")
+(provide :robot_ai/AIGenericCommand "0bbc3ecedf61307352ea72431f6a44e8")
 
 

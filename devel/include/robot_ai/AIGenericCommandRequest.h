@@ -24,18 +24,23 @@ struct AIGenericCommandRequest_
   typedef AIGenericCommandRequest_<ContainerAllocator> Type;
 
   AIGenericCommandRequest_()
-    : destination()
+    : department()
+    , destination()
     , command()
     , params()  {
     }
   AIGenericCommandRequest_(const ContainerAllocator& _alloc)
-    : destination(_alloc)
+    : department(_alloc)
+    , destination(_alloc)
     , command(_alloc)
     , params(_alloc)  {
   (void)_alloc;
     }
 
 
+
+   typedef std::basic_string<char, std::char_traits<char>, typename ContainerAllocator::template rebind<char>::other >  _department_type;
+  _department_type department;
 
    typedef std::basic_string<char, std::char_traits<char>, typename ContainerAllocator::template rebind<char>::other >  _destination_type;
   _destination_type destination;
@@ -123,12 +128,12 @@ struct MD5Sum< ::robot_ai::AIGenericCommandRequest_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "d5f53219b59bf686a1d1901f79af6610";
+    return "121cf84ef2958e8916f9792ec575e134";
   }
 
   static const char* value(const ::robot_ai::AIGenericCommandRequest_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0xd5f53219b59bf686ULL;
-  static const uint64_t static_value2 = 0xa1d1901f79af6610ULL;
+  static const uint64_t static_value1 = 0x121cf84ef2958e89ULL;
+  static const uint64_t static_value2 = 0x16f9792ec575e134ULL;
 };
 
 template<class ContainerAllocator>
@@ -147,7 +152,8 @@ struct Definition< ::robot_ai::AIGenericCommandRequest_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "string destination\n\
+    return "string department\n\
+string destination\n\
 string command\n\
 string params\n\
 ";
@@ -168,6 +174,7 @@ namespace serialization
   {
     template<typename Stream, typename T> inline static void allInOne(Stream& stream, T m)
     {
+      stream.next(m.department);
       stream.next(m.destination);
       stream.next(m.command);
       stream.next(m.params);
@@ -189,6 +196,8 @@ struct Printer< ::robot_ai::AIGenericCommandRequest_<ContainerAllocator> >
 {
   template<typename Stream> static void stream(Stream& s, const std::string& indent, const ::robot_ai::AIGenericCommandRequest_<ContainerAllocator>& v)
   {
+    s << indent << "department: ";
+    Printer<std::basic_string<char, std::char_traits<char>, typename ContainerAllocator::template rebind<char>::other > >::stream(s, indent + "  ", v.department);
     s << indent << "destination: ";
     Printer<std::basic_string<char, std::char_traits<char>, typename ContainerAllocator::template rebind<char>::other > >::stream(s, indent + "  ", v.destination);
     s << indent << "command: ";

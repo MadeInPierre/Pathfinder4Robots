@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(robot_localizer)
+project(robot_localization)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -8,9 +8,10 @@ project(robot_localizer)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  std_msgs
+  geometry_msgs
   roscpp
   rospy
-  std_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -70,7 +71,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs
+#   common_msgs
 # )
 
 ################################################
@@ -104,8 +105,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES robot_localizer
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+#  LIBRARIES robot_localization
+#  CATKIN_DEPENDS common_msgs roscpp rospy
 #  DEPENDS system_lib
 )
 
@@ -122,7 +123,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/robot_localizer.cpp
+#   src/${PROJECT_NAME}/robot_localization.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -133,7 +134,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/robot_localizer_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/robot_localization_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -190,7 +191,7 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_robot_localizer.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_robot_localization.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

@@ -7,7 +7,12 @@
 ;//! \htmlinclude AIGenericCommand-request.msg.html
 
 (cl:defclass <AIGenericCommand-request> (roslisp-msg-protocol:ros-message)
-  ((destination
+  ((department
+    :reader department
+    :initarg :department
+    :type cl:string
+    :initform "")
+   (destination
     :reader destination
     :initarg :destination
     :type cl:string
@@ -32,6 +37,11 @@
   (cl:unless (cl:typep m 'AIGenericCommand-request)
     (roslisp-msg-protocol:msg-deprecation-warning "using old message class name robot_ai-srv:<AIGenericCommand-request> is deprecated: use robot_ai-srv:AIGenericCommand-request instead.")))
 
+(cl:ensure-generic-function 'department-val :lambda-list '(m))
+(cl:defmethod department-val ((m <AIGenericCommand-request>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader robot_ai-srv:department-val is deprecated.  Use robot_ai-srv:department instead.")
+  (department m))
+
 (cl:ensure-generic-function 'destination-val :lambda-list '(m))
 (cl:defmethod destination-val ((m <AIGenericCommand-request>))
   (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader robot_ai-srv:destination-val is deprecated.  Use robot_ai-srv:destination instead.")
@@ -48,6 +58,12 @@
   (params m))
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <AIGenericCommand-request>) ostream)
   "Serializes a message object of type '<AIGenericCommand-request>"
+  (cl:let ((__ros_str_len (cl:length (cl:slot-value msg 'department))))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) __ros_str_len) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) __ros_str_len) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) __ros_str_len) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) __ros_str_len) ostream))
+  (cl:map cl:nil #'(cl:lambda (c) (cl:write-byte (cl:char-code c) ostream)) (cl:slot-value msg 'department))
   (cl:let ((__ros_str_len (cl:length (cl:slot-value msg 'destination))))
     (cl:write-byte (cl:ldb (cl:byte 8 0) __ros_str_len) ostream)
     (cl:write-byte (cl:ldb (cl:byte 8 8) __ros_str_len) ostream)
@@ -69,6 +85,14 @@
 )
 (cl:defmethod roslisp-msg-protocol:deserialize ((msg <AIGenericCommand-request>) istream)
   "Deserializes a message object of type '<AIGenericCommand-request>"
+    (cl:let ((__ros_str_len 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) __ros_str_len) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) __ros_str_len) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 16) __ros_str_len) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 24) __ros_str_len) (cl:read-byte istream))
+      (cl:setf (cl:slot-value msg 'department) (cl:make-string __ros_str_len))
+      (cl:dotimes (__ros_str_idx __ros_str_len msg)
+        (cl:setf (cl:char (cl:slot-value msg 'department) __ros_str_idx) (cl:code-char (cl:read-byte istream)))))
     (cl:let ((__ros_str_len 0))
       (cl:setf (cl:ldb (cl:byte 8 0) __ros_str_len) (cl:read-byte istream))
       (cl:setf (cl:ldb (cl:byte 8 8) __ros_str_len) (cl:read-byte istream))
@@ -103,18 +127,19 @@
   "robot_ai/AIGenericCommandRequest")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<AIGenericCommand-request>)))
   "Returns md5sum for a message object of type '<AIGenericCommand-request>"
-  "486981db1cfa05f3d7fa6076f176b704")
+  "0bbc3ecedf61307352ea72431f6a44e8")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'AIGenericCommand-request)))
   "Returns md5sum for a message object of type 'AIGenericCommand-request"
-  "486981db1cfa05f3d7fa6076f176b704")
+  "0bbc3ecedf61307352ea72431f6a44e8")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<AIGenericCommand-request>)))
   "Returns full string definition for message of type '<AIGenericCommand-request>"
-  (cl:format cl:nil "string destination~%string command~%string params~%~%~%"))
+  (cl:format cl:nil "string department~%string destination~%string command~%string params~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql 'AIGenericCommand-request)))
   "Returns full string definition for message of type 'AIGenericCommand-request"
-  (cl:format cl:nil "string destination~%string command~%string params~%~%~%"))
+  (cl:format cl:nil "string department~%string destination~%string command~%string params~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:serialization-length ((msg <AIGenericCommand-request>))
   (cl:+ 0
+     4 (cl:length (cl:slot-value msg 'department))
      4 (cl:length (cl:slot-value msg 'destination))
      4 (cl:length (cl:slot-value msg 'command))
      4 (cl:length (cl:slot-value msg 'params))
@@ -122,6 +147,7 @@
 (cl:defmethod roslisp-msg-protocol:ros-message-to-list ((msg <AIGenericCommand-request>))
   "Converts a ROS message object to a list"
   (cl:list 'AIGenericCommand-request
+    (cl:cons ':department (department msg))
     (cl:cons ':destination (destination msg))
     (cl:cons ':command (command msg))
     (cl:cons ':params (params msg))
@@ -189,10 +215,10 @@
   "robot_ai/AIGenericCommandResponse")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<AIGenericCommand-response>)))
   "Returns md5sum for a message object of type '<AIGenericCommand-response>"
-  "486981db1cfa05f3d7fa6076f176b704")
+  "0bbc3ecedf61307352ea72431f6a44e8")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'AIGenericCommand-response)))
   "Returns md5sum for a message object of type 'AIGenericCommand-response"
-  "486981db1cfa05f3d7fa6076f176b704")
+  "0bbc3ecedf61307352ea72431f6a44e8")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<AIGenericCommand-response>)))
   "Returns full string definition for message of type '<AIGenericCommand-response>"
   (cl:format cl:nil "bool success~%string reason~%~%~%~%"))

@@ -105,7 +105,7 @@ class Task(object):
 	def getStatusEmoji(self):
 		return self.Status[1]
 	def prettyprint(self, indentlevel):
-		rospy.logdebug("\033[0m" + "  ║ " * (indentlevel - 1) + "  ╠═" + self.__repr__())
+		rospy.loginfo("\033[0m" + "  ║ " * (indentlevel - 1) + "  ╠═" + self.__repr__())
 	def __repr__(self):
 		return "<Task with No Name>"
 
@@ -144,7 +144,7 @@ class Strategy(Task):
 		return self.TASKS.getStatus()
 
 	def PrettyPrint(self):
-		rospy.logdebug('[STRATEGY] ' + self.__repr__())
+		rospy.loginfo('[STRATEGY] ' + self.__repr__())
 		self.TASKS.prettyprint(1)
 		self.TASKS_ONFINISH.prettyprint(1)
 	def __repr__(self):
@@ -257,12 +257,9 @@ class ActionList(Task):
 		previous_task = self.TASKS[0]
 		for task in self.TASKS[1:]:
 			if task.getStatus() == TaskStatus.NEEDSPREVIOUS:
-				print "needs previous! previous task is " + previous_task.getStatus()[0] + ", this task is " + str(task.getStatus())
 				if previous_task.getStatus() == TaskStatus.SUCCESS:
-					print "setting needprevious task as free!"
 					task.setStatus(TaskStatus.FREE, refresh_parent = False)
 				if previous_task.getStatus() in [TaskStatus.BLOCKED, TaskStatus.ERROR]:
-					print "setting needprevious task as BLOCKED!"
 					task.setStatus(TaskStatus.BLOCKED)
 			previous_task = task
 
@@ -419,8 +416,9 @@ class Order(Task):
 
 class Message():
 	def __init__(self, xml):
-		self.DestinationNode = xml.attrib["dest"]
-		self.Command = xml.find("command").text
+		self.Department  = xml.attrib["department"]
+		self.Destination = xml.find("dest").text if len(xml.findall("dest")) > 0 else ""
+		self.Command     = xml.find("command").text
 		
 		# Save which parameters are needed for the message
 		self.NeededParamsIDs = []
@@ -431,11 +429,17 @@ class Message():
 		self.Parameters = {}
 		for param in xml.find("params"):
 			pass
+		self.check_valid()
+
+	def check_valid(self): #checks if all parameters are valid
+		if self.Department not in ["robot_ai", "robot_mapmanager", "robot_localization", "robot_perception", "robot_movement"]:
+			raise KeyError, "ERROR '{}' department doesn't exist ! (may need to update the check list in the ai_classes.py file)".format(self.Department)
+
 
 	def send(self, communicator):
 		params = None #TODO
 		self.startTime = time.time()
-		response = communicator.SendGenericCommand(self.DestinationNode, self.Command, "params")
+		response = communicator.SendGenericCommand(self.Department, self.Destination, self.Command, "params")
 		self.TimeTaken = time.time() - self.startTime
 		return response, self.TimeTaken
 
@@ -459,4 +463,5 @@ class Console():
 		self.Text += Colors.RESET
 
 	def getText(self):
+		self.endstyle()
 		return self.Text

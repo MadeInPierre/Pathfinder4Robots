@@ -9,7 +9,7 @@ from geometry_msgs.msg import Pose2D
 
 class AINode():
 	def __init__(self):
-		self.NODE = rospy.init_node('ai_node', log_level = rospy.DEBUG)
+		self.NODE = rospy.init_node('ai_node', log_level = rospy.INFO)
 		self.communication = AICommunication()
 
 		self.AI = RobotAI("Strategy 1", self.communication)
@@ -22,9 +22,10 @@ class AINode():
 			if self.AI.Strategy.canContinue():
 				self.AI.Strategy.getNext().execute(self.communication)
 			else:
+				self.AI.Strategy.PrettyPrint()
 				rospy.loginfo("[AI] In-Game actions finished!")
 				break
-			self.AI.Strategy.PrettyPrint()
+			# self.AI.Strategy.PrettyPrint()
 
 
 		'''

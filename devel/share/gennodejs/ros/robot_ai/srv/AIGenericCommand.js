@@ -21,11 +21,18 @@ class AIGenericCommandRequest {
   constructor(initObj={}) {
     if (initObj === null) {
       // initObj === null is a special case for deserialization where we don't initialize fields
+      this.department = null;
       this.destination = null;
       this.command = null;
       this.params = null;
     }
     else {
+      if (initObj.hasOwnProperty('department')) {
+        this.department = initObj.department
+      }
+      else {
+        this.department = '';
+      }
       if (initObj.hasOwnProperty('destination')) {
         this.destination = initObj.destination
       }
@@ -49,6 +56,8 @@ class AIGenericCommandRequest {
 
   static serialize(obj, buffer, bufferOffset) {
     // Serializes a message object of type AIGenericCommandRequest
+    // Serialize message field [department]
+    bufferOffset = _serializer.string(obj.department, buffer, bufferOffset);
     // Serialize message field [destination]
     bufferOffset = _serializer.string(obj.destination, buffer, bufferOffset);
     // Serialize message field [command]
@@ -62,6 +71,8 @@ class AIGenericCommandRequest {
     //deserializes a message object of type AIGenericCommandRequest
     let len;
     let data = new AIGenericCommandRequest(null);
+    // Deserialize message field [department]
+    data.department = _deserializer.string(buffer, bufferOffset);
     // Deserialize message field [destination]
     data.destination = _deserializer.string(buffer, bufferOffset);
     // Deserialize message field [command]
@@ -73,10 +84,11 @@ class AIGenericCommandRequest {
 
   static getMessageSize(object) {
     let length = 0;
+    length += object.department.length;
     length += object.destination.length;
     length += object.command.length;
     length += object.params.length;
-    return length + 12;
+    return length + 16;
   }
 
   static datatype() {
@@ -86,12 +98,13 @@ class AIGenericCommandRequest {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return 'd5f53219b59bf686a1d1901f79af6610';
+    return '121cf84ef2958e8916f9792ec575e134';
   }
 
   static messageDefinition() {
     // Returns full string definition for message
     return `
+    string department
     string destination
     string command
     string params
@@ -105,6 +118,13 @@ class AIGenericCommandRequest {
       msg = {};
     }
     const resolved = new AIGenericCommandRequest(null);
+    if (msg.department !== undefined) {
+      resolved.department = msg.department;
+    }
+    else {
+      resolved.department = ''
+    }
+
     if (msg.destination !== undefined) {
       resolved.destination = msg.destination;
     }
@@ -226,6 +246,6 @@ class AIGenericCommandResponse {
 module.exports = {
   Request: AIGenericCommandRequest,
   Response: AIGenericCommandResponse,
-  md5sum() { return '486981db1cfa05f3d7fa6076f176b704'; },
+  md5sum() { return '0bbc3ecedf61307352ea72431f6a44e8'; },
   datatype() { return 'robot_ai/AIGenericCommand'; }
 };

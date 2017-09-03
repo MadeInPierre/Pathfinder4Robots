@@ -1,5 +1,7 @@
 (cl:in-package robot_ai-srv)
-(cl:export '(DESTINATION-VAL
+(cl:export '(DEPARTMENT-VAL
+          DEPARTMENT
+          DESTINATION-VAL
           DESTINATION
           COMMAND-VAL
           COMMAND
