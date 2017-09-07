@@ -104,8 +104,18 @@
 	<order ref="timer_start">
 		<params></params>
 		<message department="robot_ai">
+			<dest>robot_ai_timer</dest>
 			<command>timer_start</command>
 			<params></params>
+		</message>
+	</order>
+
+	<order ref="timer_set_duration">
+		<params></params>
+		<message department="robot_ai">
+			<dest>robot_ai_timer</dest>
+			<command>timer_set_duration</command>
+			<params>90</params> <!-- TODO make real param -->
 		</message>
 	</order>
 

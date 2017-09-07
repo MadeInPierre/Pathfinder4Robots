@@ -4,6 +4,7 @@ import rospy, time
 Wrapper and communication for the Timer node (located in robot_ai/src/timer_node.py)
 '''
 class AITimer():
+	#TODO create a wrapper for the ai_timer_node service.
 	def __init__(self, duration_sec = 0):
 		#self.NODE = rospy.init_node("robot_ai_timer", log_level = rospy.DEBUG)
 		#self.SUB = rospy.Subscriber("game_timer", queue_size = 10)

@@ -1,0 +1,2 @@
+float32 elapsed_time
+float32 time_left

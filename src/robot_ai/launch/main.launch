@@ -1,6 +1,6 @@
 <launch>
 	<!-- DEPARTMENT Movement -->
-	<group ns="dep_movement">
+	<group ns="department_movement">
 		<node name= "main" 			pkg="robot_movement" 	type="movement_node.py" 			/>
 		<node name= "wheels"	 	pkg="robot_movement" 	type="robot_movement_wheels" 	/>
 		<node name= "actuators" 	pkg="robot_movement" 	type="robot_movement_actuators"	/>
@@ -8,7 +8,7 @@
 	</group>
 
 	<!-- DEPARTMENT Perception -->
-	<group ns="dep_perception">
+	<group ns="department_perception">
 		<node name= "main" 			pkg="robot_perception" 	type="robot_perception" 		/>
 		<node name= "lidar"	 		pkg="robot_perception" 	type="robot_perception_lidar" 	/>
 		<node name= "camera" 		pkg="robot_perception" 	type="robot_perception_camera" 	/>
@@ -16,19 +16,19 @@
 	</group>
 
 	<!-- DEPARTMENT MapManager -->
-	<group ns="dep_mapmanager">
+	<group ns="department_mapmanager">
 		<node name= "mapmanager" 	pkg="robot_mapmanager" 	type="movement_node.py" 		/>
 		<node name= "pathfinder" 	pkg="robot_mapmanager" 	type="robot_perception_skin" 	/>
 	</group>
 
 	<!-- DEPARTMENT Localization -->
-	<group ns="dep_localization">
+	<group ns="department_localization">
 		<node name= "main" 			pkg="robot_localization" type="robot_localization_main" />
 	</group>
 
 	<!-- DEPARTMENT AI -->
-	<group ns="dep_ai">
+	<group ns="department_ai">
+		<node name= "timer" 		pkg="robot_ai" 			type="ai_timer_node.py"			output="screen"/>
 		<node name= "main" 			pkg="robot_ai" 			type="ai_node.py" 				output="screen"/>
-		<node name= "timer" 		pkg="robot_ai" 			type="ai_timer_node.py"			/>
 	</group>
 </launch>

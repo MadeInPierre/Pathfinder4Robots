@@ -11,7 +11,7 @@ class AIServices():
 
 		self.AI = AI
 	
-	def on_generic_command(req):
+	def on_generic_command(self, req):
 		rospy.loginfo("NEW GENERIC COMMAND\nDepartment: {}\nDestination : {}\nCommand : {}\nParams:{}".format(
 						req.department, req.destination, req.command, req.params))
 
@@ -23,7 +23,8 @@ class AIServices():
 			if req.destination == "robot_ai":
 				pass #TODO main handler here
 			elif req.destination == "robot_ai_timer":
-				pass
+				rospy.loginfo("sending to timer")
+				success, reason = self.sendServiceToModule(req)
 		else:
 			raise KeyError, "ERROR Destination not valid !"
 		'''
@@ -39,8 +40,13 @@ class AIServices():
 		return AIGenericCommandResponse(success, reason)
 
 
-	def sendServiceToModule(self):
-		pass
+	def sendServiceToModule(self, srv):
+		rospy.wait_for_service(srv.destination)
+		service = rospy.ServiceProxy(srv.destination, AIGenericCommand)
+		rospy.logwarn("sending service from ai to " + str(srv.destination))
+		response = service(srv.department, srv.destination, srv.command, srv.params)
+
+		return response.response_code, response.reason
 
 
 	def service_start_timer(self, params):

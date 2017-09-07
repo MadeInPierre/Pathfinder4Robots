@@ -13,10 +13,12 @@ class AINode():
 		self.NODE = rospy.init_node('ai_node', log_level = rospy.INFO)
 		self.communication = AICommunication()
 
-		self.AI = RobotAI("Strategy 1", self.communication)
-		#self.services = AIServices(self.AI)
+		self.wait_for_departments()
 
-		self.AI.Strategy.PrettyPrint()
+		self.AI = RobotAI("Strategy 1", self.communication)
+		self.services = AIServices(self.AI)
+
+		#self.AI.Strategy.PrettyPrint()
 		while True:
 			if self.AI.Strategy.canContinue():
 				self.AI.Strategy.getNext().execute(self.communication)
@@ -25,6 +27,9 @@ class AINode():
 				rospy.loginfo("[AI] In-Game actions finished!")
 				break
 			# self.AI.Strategy.PrettyPrint()
+
+	def wait_for_departments(self):
+		pass #TODO wait for all services to be ready.
 
 if __name__ == "__main__":
 	node = AINode()

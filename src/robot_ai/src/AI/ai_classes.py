@@ -434,6 +434,7 @@ class Message():
 		for param in xml.find("params"):
 			pass
 		self.check_valid()
+		self.Parameters = xml.find("params").text #TODO do full params handling, this is just pasting the params tag 
 
 	def check_valid(self): #checks if all parameters are valid
 		#TODO forget that ? hardcoded
@@ -444,9 +445,12 @@ class Message():
 	def send(self, communicator):
 		params = None #TODO
 		self.startTime = time.time()
-		response = communicator.SendGenericCommand(self.Department, self.Destination, self.Command, "params")
+		response = communicator.SendGenericCommand(self.Department, self.Destination, self.Command, self.Parameters)
 		self.TimeTaken = time.time() - self.startTime
 		return response, self.TimeTaken
+
+
+
 
 
 

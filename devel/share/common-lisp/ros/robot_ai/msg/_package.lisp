@@ -3,5 +3,7 @@
   (:export
    "<AICOMMAND>"
    "AICOMMAND"
+   "<AI_TIMER>"
+   "AI_TIMER"
   ))
 
