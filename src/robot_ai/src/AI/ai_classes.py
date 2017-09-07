@@ -135,9 +135,10 @@ class Strategy(Task):
 		self.TASKS = ActionList(xml.find("actions"), actions, orders)
 		self.TASKS_ONFINISH = ActionList(xml.find("actions_onfinish"), actions, orders)
 
-	def canContinue(self, timer):
+	def canContinue(self):
+		'''TODO
 		if timer.is_finished():
-			return False
+			return False'''
 		return self.getStatus() in [TaskStatus.FREE, TaskStatus.PENDING, TaskStatus.WAITINGFORRESPONSE]
 	def getNext(self): # Returns the next free task (ActionList, Action or Order).
 		return self.TASKS.getNext()
@@ -435,6 +436,7 @@ class Message():
 		self.check_valid()
 
 	def check_valid(self): #checks if all parameters are valid
+		#TODO forget that ? hardcoded
 		if self.Department not in ["robot_ai", "robot_mapmanager", "robot_localization", "robot_perception", "robot_movement"]:
 			raise KeyError, "ERROR '{}' department doesn't exist ! (may need to update the check list in the ai_classes.py file)".format(self.Department)
 

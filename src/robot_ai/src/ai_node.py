@@ -14,7 +14,7 @@ class AINode():
 		self.communication = AICommunication()
 
 		self.AI = RobotAI("Strategy 1", self.communication)
-		self.services = AIServices(self.AI)
+		#self.services = AIServices(self.AI)
 
 		self.AI.Strategy.PrettyPrint()
 		while True:

@@ -12,23 +12,35 @@ class AIServices():
 		self.AI = AI
 	
 	def on_generic_command(req):
-		print "---\nDepartment: {}\nDestination : {}\nCommand : {}\nParams:{}".format(req.department, req.destination, req.command, req.params)
+		rospy.loginfo("NEW GENERIC COMMAND\nDepartment: {}\nDestination : {}\nCommand : {}\nParams:{}".format(
+						req.department, req.destination, req.command, req.params))
 
 		if req.department != self.DepartmentName:
-			rospy.logerr("ERROR service received goes to department '{}', this is '{}'.".format(req.department, self.DepartmentName))
+			rospy.logerr("ERROR service received goes to department '{}', this is '{}'!".format(req.department, self.DepartmentName))
 			return None
 
+		if req.destination:
+			if req.destination == "robot_ai":
+				pass #TODO main handler here
+			elif req.destination == "robot_ai_timer":
+				pass
+		else:
+			raise KeyError, "ERROR Destination not valid !"
+		'''
 		if req.command == "timer_start":
 			success, reason = self.service_start_timer(req.params)
 		if req.command == "ai_delay":
 			success, reason = self.service_delay(req.params)
 		else:
 			success, reason = 200 if bool(input("Send success or not ? ")) else 404, "command_not_recognized"
-
+		'''
 
 		rospy.logdebug("[AIServices] Sending response for command '{}'".format(req.command))
 		return AIGenericCommandResponse(success, reason)
 
+
+	def sendServiceToModule(self):
+		pass
 
 
 	def service_start_timer(self, params):
