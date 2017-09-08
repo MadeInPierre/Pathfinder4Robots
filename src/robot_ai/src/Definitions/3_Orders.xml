@@ -78,7 +78,7 @@
 			<param id="position"/>
 		</params>
 		<message department="movement">
-			<dest>main</dest> <!-- TODO wheels -->
+			<dest>wheels</dest> <!-- TODO wheels -->
 			<command>goto</command>
 			<params>
 				<param id="position"/>

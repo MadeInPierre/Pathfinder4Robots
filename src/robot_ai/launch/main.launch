@@ -2,7 +2,7 @@
 	<!-- DEPARTMENT Movement -->
 	<group ns="movement">
 		<node name= "main" 			pkg="robot_movement" 				type="movement_node.py" 		output="screen"/>
-		<node name= "wheels"	 	pkg="robot_movement_wheels"			type="robot_movement_wheels"	/> <!--TODO-->
+		<node name= "wheels"	 	pkg="robot_movement_wheels"			type="wheels_node.py"			output="screen"/> <!--TODO-->
 		<node name= "actuators" 	pkg="robot_movement_actuators"		type="actuators_node.py"		output="screen"/>
 		<node name= "robotarm" 		pkg="robot_movement_robotarm"		type="robot_movement_robotarm" 	/> <!--TODO-->
 	</group>
@@ -10,14 +10,14 @@
 	<!-- DEPARTMENT Perception -->
 	<group ns="perception">
 		<node name= "main" 			pkg="robot_perception" 				type="robot_perception" 		/> <!--TODO-->
-		<node name= "lidar"	 		pkg="robot_perception" 				type="robot_perception_lidar" 	/> <!--TODO-->
+		<node name= "lidar"	 		pkg="robot_perception_lidar"		type="lidar_node.py" 			output="screen"/>
 		<node name= "camera" 		pkg="robot_perception" 				type="robot_perception_camera" 	/> <!--TODO-->
 		<node name= "skin" 			pkg="robot_perception" 				type="robot_perception_skin" 	/> <!--TODO-->
 	</group>
 
 	<!-- DEPARTMENT MapManager -->
-	<group ns="mapmanager">
-		<node name= "mapmanager" 	pkg="robot_mapmanager" 				type="mapmanager_nodeX.py" 		/> <!--TODO-->
+	<group ns="map">
+		<node name= "mapmanager" 	pkg="robot_mapmanager" 				type="mapmanager_node.py" 		/> <!--TODO-->
 		<node name= "pathfinder" 	pkg="robot_mapping_pathfinder"	 	type="pathfinder_nodeX.py" 		/> <!--TODO-->
 	</group>
 
