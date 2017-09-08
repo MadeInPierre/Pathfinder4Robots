@@ -1,7 +1,7 @@
 <launch>
 	<!-- DEPARTMENT Movement -->
 	<group ns="movement">
-		<node name= "main" 			pkg="robot_movement" 	type="movement_node.py" 		output="screen" launch-prefix="gnome-terminal --command "/>
+		<node name= "main" 			pkg="robot_movement" 	type="movement_node.py" 		output="screen"/>
 		<node name= "wheels"	 	pkg="robot_movement" 	type="robot_movement_wheels" 	/>
 		<node name= "actuators" 	pkg="robot_movement" 	type="robot_movement_actuators"	/>
 		<node name= "robotarm" 		pkg="robot_movement" 	type="robot_movement_robotarm" 	/>

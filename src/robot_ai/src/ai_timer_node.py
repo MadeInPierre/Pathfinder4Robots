@@ -9,9 +9,10 @@ TIME UNIT IN SECONDS
 '''
 class TimerNode():
 	def __init__(self):
-		self.DepartmentName = "robot_ai_timer"
-		self.NODE = rospy.init_node(self.DepartmentName, log_level = rospy.INFO)
-		self.SERV = rospy.Service(  self.DepartmentName, AIGenericCommand, self.on_srv_request)
+		self.DepartmentName = "ai"
+		self.PackageName = "timer"
+		self.NODE = rospy.init_node(self.PackageName, log_level = rospy.INFO)
+		self.SERV = rospy.Service(  self.PackageName, AIGenericCommand, self.on_srv_request)
 		self.PUBL = rospy.Publisher("/timer", ai_timer, queue_size = 10)
 
 		self.Duration = None

@@ -2,8 +2,8 @@
 	<!-- Actuators -->
 	<order ref="wait_for_jack" duration="1">
 		<params></params>
-		<message department="robot_movement">
-			<dest>robot_movement_actuators</dest>
+		<message department="movement">
+			<dest>main</dest>
 			<command>reply_when_jack</command>
 			<params></params>
 		</message>
@@ -11,8 +11,8 @@
 
 	<order ref="funny_action" duration="1">
 		<params></params>
-		<message department="robot_movement">
-			<dest>robot_movement_actuators</dest>
+		<message department="movement">
+			<dest>actuators</dest>
 			<command>funny_action</command>
 			<params></params>
 		</message>
@@ -22,8 +22,8 @@
 		<params>
 			<param id="actuator_id"/>
 		</params>
-		<message department="robot_movement">
-			<dest>robot_movement_actuators</dest>
+		<message department="movement">
+			<dest>actuators</dest>
 			<command>actuator_startup_sequence</command>
 			<params>
 				<param id="actuator_id"/>
@@ -35,8 +35,8 @@
 		<params>
 			<param id="actuator_id"/>
 		</params>
-		<message department="robot_movement">
-			<dest>robot_movement_actuators</dest>
+		<message department="movement">
+			<dest>actuators</dest>
 			<command>actuator_toggle</command>
 			<params>
 				<param id="actuator_id" type="positionxy"/>
@@ -48,8 +48,8 @@
 		<params>
 			<param id="actuator_id"/>
 		</params>
-		<message department="robot_movement">
-			<dest>robot_movement_actuators</dest>
+		<message department="movement">
+			<dest>actuators</dest>
 			<command>actuator_close</command>
 			<params>
 				<param id="actuator_id"/>
@@ -61,8 +61,8 @@
 		<params>
 			<param id="actuator_id"/>
 		</params>
-		<message department="robot_movement">
-			<dest>robot_movement_actuators</dest>
+		<message department="movement">
+			<dest>actuators</dest>
 			<command>actuator_open</command>
 			<params>
 				<param id="actuator_id"/>
@@ -77,8 +77,8 @@
 		<params>
 			<param id="position"/>
 		</params>
-		<message department="robot_movement">
-			<dest>robot_movement_wheels</dest>
+		<message department="movement">
+			<dest>main</dest> <!-- TODO wheels -->
 			<command>goto</command>
 			<params>
 				<param id="position"/>
@@ -93,7 +93,8 @@
 		<params>
 			<param id="time_sec"/>
 		</params>
-		<message department="robot_ai">
+		<message department="ai">
+			<dest>main</dest>
 			<command>ai_delay</command>
 			<params>
 				2<!--TODO param-->
@@ -104,8 +105,8 @@
 
 	<order ref="timer_start">
 		<params></params>
-		<message department="robot_ai">
-			<dest>robot_ai_timer</dest>
+		<message department="ai">
+			<dest>timer</dest>
 			<command>timer_start</command>
 			<params></params>
 		</message>
@@ -113,8 +114,8 @@
 
 	<order ref="timer_set_duration">
 		<params></params>
-		<message department="robot_ai">
-			<dest>robot_ai_timer</dest>
+		<message department="ai">
+			<dest>timer</dest>
 			<command>timer_set_duration</command>
 			<params>90</params> <!-- TODO make real param -->
 		</message>

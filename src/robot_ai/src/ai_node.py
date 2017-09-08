@@ -10,7 +10,7 @@ from geometry_msgs.msg import Pose2D
 
 class AINode():
 	def __init__(self):
-		self.NODE = rospy.init_node('ai_node', log_level = rospy.INFO)
+		self.NODE = rospy.init_node('main', log_level = rospy.INFO)
 		self.communication = AICommunication()
 
 		self.wait_for_departments()

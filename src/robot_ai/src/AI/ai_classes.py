@@ -421,7 +421,7 @@ class Order(Task):
 class Message():
 	def __init__(self, xml):
 		self.Department  = xml.attrib["department"]
-		self.Destination = xml.find("dest").text if len(xml.findall("dest")) > 0 else self.Department
+		self.Destination = xml.find("dest").text if len(xml.findall("dest")) > 0 else "main"
 		self.Command     = xml.find("command").text
 		
 		# Save which parameters are needed for the message
@@ -433,12 +433,12 @@ class Message():
 		self.Parameters = {}
 		for param in xml.find("params"):
 			pass
-		self.check_valid()
+		#self.check_valid() TODO reput
 		self.Parameters = xml.find("params").text #TODO do full params handling, this is just pasting the params tag 
 
 	def check_valid(self): #checks if all parameters are valid
 		#TODO forget that ? hardcoded
-		if self.Department not in ["robot_ai", "robot_mapmanager", "robot_localization", "robot_perception", "robot_movement"]:
+		if self.Department not in ["ai", "mapmanager", "localization", "perception", "movement"]:
 			raise KeyError, "ERROR '{}' department doesn't exist ! (may need to update the check list in the ai_classes.py file)".format(self.Department)
 
 
