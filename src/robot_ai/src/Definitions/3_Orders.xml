@@ -96,7 +96,8 @@
 		<message department="robot_ai">
 			<command>ai_delay</command>
 			<params>
-				<param id="time_sec"/>
+				2<!--TODO param-->
+				<!--<param id="time_sec"/>-->
 			</params>
 		</message>
 	</order>

@@ -3,4 +3,6 @@
           ELAPSED_TIME
           TIME_LEFT-VAL
           TIME_LEFT
+          IS_FINISHED-VAL
+          IS_FINISHED
 ))

@@ -400,11 +400,11 @@ class Order(Task):
 		# After response
 		if response.response_code == 200:
 			self.setStatus(TaskStatus.SUCCESS)
-			rospy.loginfo("order '{}' succeeded!".format(self.Name))
+			rospy.logdebug("[AI] Order '{}' succeeded!".format(self.Name))
 			#GameProperties.REWARD_POINTS += self.getReward() #TODO
 		else:
 			self.setStatus(TaskStatus.ERROR)
-			rospy.logerr("order '{}' execution failed, code : {}, reason : '{}'".format(self.Name, response.response_code, response.reason))
+			rospy.logerr("[AI] Order '{}' execution failed, code : {}, reason : '{}'".format(self.Name, response.response_code, response.reason))
 
 	def __repr__(self):
 		c = Console()
@@ -421,7 +421,7 @@ class Order(Task):
 class Message():
 	def __init__(self, xml):
 		self.Department  = xml.attrib["department"]
-		self.Destination = xml.find("dest").text if len(xml.findall("dest")) > 0 else ""
+		self.Destination = xml.find("dest").text if len(xml.findall("dest")) > 0 else self.Department
 		self.Command     = xml.find("command").text
 		
 		# Save which parameters are needed for the message

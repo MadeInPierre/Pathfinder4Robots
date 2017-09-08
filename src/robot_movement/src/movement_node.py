@@ -2,26 +2,23 @@
 import rospy
 from robot_ai.srv import AIGenericCommand, AIGenericCommandResponse
 
-def callback(msg):
-    rospy.loginfo("Command '{}' with params: {}".format(msg.command, msg.params))
+def listener():
+	rospy.init_node('robot_movement_node', log_level = rospy.DEBUG)
+	rospy.Service('robot_movement', AIGenericCommand, on_generic_command)
+	print "hi"
+	rospy.spin()
 
 def on_generic_command(req):
-	print "\n---\nDepartment: {}\nDestination : {}\nCommand : {}\nParams:{}".format(req.department, req.destination, req.command, req.params)
+	print "seeervice"
+	rospy.logwarn("NEW SERVICE REQUEST : \nDepartment: {}\nDestination : {}\nCommand : {}\nParams:{}".format(
+		req.department, req.destination, req.command, req.params))
 
-	success = 200 if bool(input("Send success or not ? ")) else 404
+	res_code = 200 if bool(input("Send success or not ? ")) else 404
 	reason = "<reason>"
 	
 	print "Sending response."
-	return AIGenericCommandResponse(success, reason)
+	return AIGenericCommandResponse(res_code, reason)
 
-def listener():
-    rospy.init_node('robot_movement_node', anonymous = True, log_level = rospy.DEBUG)
-    #rospy.Subscriber("ai_commands", AICommand, callback)
-
-    rospy.Service('robot_movement', AIGenericCommand, on_generic_command)
-
-    # spin() simply keeps python from exiting until this node is stopped
-    rospy.spin()
 
 if __name__ == '__main__':
-    l = listener()
+	l = listener()

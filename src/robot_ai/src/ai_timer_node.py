@@ -10,7 +10,7 @@ TIME UNIT IN SECONDS
 class TimerNode():
 	def __init__(self):
 		self.DepartmentName = "robot_ai_timer"
-		self.NODE = rospy.init_node(self.DepartmentName, log_level=rospy.INFO)
+		self.NODE = rospy.init_node(self.DepartmentName, log_level = rospy.INFO)
 		self.SERV = rospy.Service(  self.DepartmentName, AIGenericCommand, self.on_srv_request)
 		self.PUBL = rospy.Publisher("/timer", ai_timer, queue_size = 10)
 
@@ -24,7 +24,6 @@ class TimerNode():
 		if req.command == "timer_start":
 			self.start()
 		elif req.command == "timer_set_duration":
-			rospy.loginfo("set suration")
 			self.Duration = int(req.params)
 		else:
 			rospy.logerr("robot_ai_timer got non-recognized command '{}'.".format(req.command))
@@ -32,12 +31,13 @@ class TimerNode():
 		return AIGenericCommandResponse(res_code, reason)
 
 	def run(self):
-		rate = rospy.Rate(5) # 5hz
+		rate = rospy.Rate(10) # 10hz
 		while not rospy.is_shutdown():
 			if self.Started:
 				msg = ai_timer()
 				msg.elapsed_time = self.elapsed_time()
 				msg.time_left = -1 if not self.Duration else self.time_left()
+				msg.is_finished = self.is_finished()
 				self.PUBL.publish(msg)
 				rate.sleep()
 

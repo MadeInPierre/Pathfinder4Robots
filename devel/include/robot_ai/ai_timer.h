@@ -25,11 +25,13 @@ struct ai_timer_
 
   ai_timer_()
     : elapsed_time(0.0)
-    , time_left(0.0)  {
+    , time_left(0.0)
+    , is_finished(false)  {
     }
   ai_timer_(const ContainerAllocator& _alloc)
     : elapsed_time(0.0)
-    , time_left(0.0)  {
+    , time_left(0.0)
+    , is_finished(false)  {
   (void)_alloc;
     }
 
@@ -40,6 +42,9 @@ struct ai_timer_
 
    typedef float _time_left_type;
   _time_left_type time_left;
+
+   typedef uint8_t _is_finished_type;
+  _is_finished_type is_finished;
 
 
 
@@ -118,12 +123,12 @@ struct MD5Sum< ::robot_ai::ai_timer_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "cb181220fc60bdfda16dca75f4b14070";
+    return "c4cb09c8090b9afd36452fbb8fd74941";
   }
 
   static const char* value(const ::robot_ai::ai_timer_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0xcb181220fc60bdfdULL;
-  static const uint64_t static_value2 = 0xa16dca75f4b14070ULL;
+  static const uint64_t static_value1 = 0xc4cb09c8090b9afdULL;
+  static const uint64_t static_value2 = 0x36452fbb8fd74941ULL;
 };
 
 template<class ContainerAllocator>
@@ -144,6 +149,7 @@ struct Definition< ::robot_ai::ai_timer_<ContainerAllocator> >
   {
     return "float32 elapsed_time\n\
 float32 time_left\n\
+bool is_finished\n\
 ";
   }
 
@@ -164,6 +170,7 @@ namespace serialization
     {
       stream.next(m.elapsed_time);
       stream.next(m.time_left);
+      stream.next(m.is_finished);
     }
 
     ROS_DECLARE_ALLINONE_SERIALIZER
@@ -186,6 +193,8 @@ struct Printer< ::robot_ai::ai_timer_<ContainerAllocator> >
     Printer<float>::stream(s, indent + "  ", v.elapsed_time);
     s << indent << "time_left: ";
     Printer<float>::stream(s, indent + "  ", v.time_left);
+    s << indent << "is_finished: ";
+    Printer<uint8_t>::stream(s, indent + "  ", v.is_finished);
   }
 };
 
