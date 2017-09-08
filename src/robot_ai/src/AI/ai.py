@@ -12,6 +12,7 @@ class RobotAI():
 
 		orders = self.loadOrders()
 		self.Strategy = self.loadStrategy(strategyname, self.loadActions(orders), orders)
+		self.Timer = GameTimer()
 
 	def loadOrders(self):
 		self.XML_ORDERS = ET.parse(self.xml_dirpath + "3_Orders.xml").getroot()

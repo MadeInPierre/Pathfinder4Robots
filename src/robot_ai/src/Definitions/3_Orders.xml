@@ -96,10 +96,7 @@
 		<message department="ai">
 			<dest>main</dest>
 			<command>ai_delay</command>
-			<params>
-				2<!--TODO param-->
-				<!--<param id="time_sec"/>-->
-			</params>
+			<params>0.75</params>
 		</message>
 	</order>
 

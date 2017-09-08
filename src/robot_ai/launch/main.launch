@@ -1,34 +1,34 @@
 <launch>
 	<!-- DEPARTMENT Movement -->
 	<group ns="movement">
-		<node name= "main" 			pkg="robot_movement" 	type="movement_node.py" 		output="screen"/>
-		<node name= "wheels"	 	pkg="robot_movement" 	type="robot_movement_wheels" 	/>
-		<node name= "actuators" 	pkg="robot_movement" 	type="robot_movement_actuators"	/>
-		<node name= "robotarm" 		pkg="robot_movement" 	type="robot_movement_robotarm" 	/>
+		<node name= "main" 			pkg="robot_movement" 				type="movement_node.py" 		output="screen"/>
+		<node name= "wheels"	 	pkg="robot_movement_wheels"			type="robot_movement_wheels"	/> <!--TODO-->
+		<node name= "actuators" 	pkg="robot_movement_actuators"		type="actuators_node.py"		output="screen"/>
+		<node name= "robotarm" 		pkg="robot_movement_robotarm"		type="robot_movement_robotarm" 	/> <!--TODO-->
 	</group>
 
 	<!-- DEPARTMENT Perception -->
 	<group ns="perception">
-		<node name= "main" 			pkg="robot_perception" 	type="robot_perception" 		/>
-		<node name= "lidar"	 		pkg="robot_perception" 	type="robot_perception_lidar" 	/>
-		<node name= "camera" 		pkg="robot_perception" 	type="robot_perception_camera" 	/>
-		<node name= "skin" 			pkg="robot_perception" 	type="robot_perception_skin" 	/>
+		<node name= "main" 			pkg="robot_perception" 				type="robot_perception" 		/> <!--TODO-->
+		<node name= "lidar"	 		pkg="robot_perception" 				type="robot_perception_lidar" 	/> <!--TODO-->
+		<node name= "camera" 		pkg="robot_perception" 				type="robot_perception_camera" 	/> <!--TODO-->
+		<node name= "skin" 			pkg="robot_perception" 				type="robot_perception_skin" 	/> <!--TODO-->
 	</group>
 
 	<!-- DEPARTMENT MapManager -->
 	<group ns="mapmanager">
-		<node name= "mapmanager" 	pkg="robot_mapmanager" 	type="movement_node.py" 		/>
-		<node name= "pathfinder" 	pkg="robot_mapmanager" 	type="robot_perception_skin" 	/>
+		<node name= "mapmanager" 	pkg="robot_mapmanager" 				type="mapmanager_nodeX.py" 		/> <!--TODO-->
+		<node name= "pathfinder" 	pkg="robot_mapping_pathfinder"	 	type="pathfinder_nodeX.py" 		/> <!--TODO-->
 	</group>
 
 	<!-- DEPARTMENT Localization -->
 	<group ns="localization">
-		<node name= "main" 			pkg="robot_localization" type="robot_localization_main" />
+		<node name= "main" 			pkg="robot_localization" 			type="robot_localization_main" /> <!--TODO-->
 	</group>
 
 	<!-- DEPARTMENT AI -->
 	<group ns="ai">
-		<node name= "timer" 		pkg="robot_ai" 			type="ai_timer_node.py"			output="screen"/>
-		<node name= "main" 			pkg="robot_ai" 			type="ai_node.py" 				output="screen"/>
+		<node name= "timer" 		pkg="robot_ai" 						type="ai_timer_node.py"			output="screen"/>
+		<node name= "main" 			pkg="robot_ai" 						type="ai_node.py" 				output="screen"/>
 	</group>
 </launch>

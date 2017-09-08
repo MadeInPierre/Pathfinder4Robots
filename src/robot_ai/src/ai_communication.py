@@ -9,7 +9,7 @@ class AICommunication():
 	def SendGenericCommand(self, msg_department, msg_dest, msg_command, msg_params):
 		# Send a simple command service, with string command and params. Expecting a bool and string for response
 		dest = "/{}/{}".format(msg_department, msg_dest)
-		rospy.loginfo("sending service to service '{}'".format(dest))
+		rospy.logdebug("[AI] Sending service request to service '{}'...".format(dest))
 
 		rospy.wait_for_service(dest)
 		service = rospy.ServiceProxy(dest, robot_ai.srv.AIGenericCommand)

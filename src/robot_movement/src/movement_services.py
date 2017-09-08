@@ -1,8 +1,8 @@
 #!/usr/bin/python
-import rospy, time
+import rospy
 from robot_ai.srv import AIGenericCommand, AIGenericCommandResponse
 
-class AIServices():
+class MovementServices():
 	def __init__(self, department, package):
 		self.DepartmentName, self.PackageName = department, package
 		rospy.Service(self.PackageName, AIGenericCommand, self.on_generic_command)
@@ -18,20 +18,13 @@ class AIServices():
 #=            Service executions            =
 #==========================================*/
 	def executeService(self, req):
-		if req.command == "ai_delay":
-			res_code, reason = self.service_delay(req.params)
+		if True: #TODO
+			res_code, reason = self.tool_manual_response()
 		else:
 			res_code, reason = 404, "command not recognized"
 		return res_code, reason
 
-
-	def service_delay(self, params):
-		rospy.loginfo("[AI] Sleeping for {:.2f} seconds...".format(float(params)))
-		time.sleep(float(params))
-		return 200, ""
-
 #/*=====  End of Service executions  ======*/
-
 
 	def tool_manual_response(self):
 		return 200 if bool(input("Send success or not ? ")) else 600, "Response code manually set."
@@ -46,4 +39,4 @@ class AIServices():
 
 
 if __name__ == '__main__':
-	AIServices()
+	l = Movement()
