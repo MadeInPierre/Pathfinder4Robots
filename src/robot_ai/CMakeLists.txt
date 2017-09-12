@@ -52,7 +52,6 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
    FILES
    AICommand.msg
-   ai_timer.msg
 )
 
 ## Generate services in the 'srv' folder

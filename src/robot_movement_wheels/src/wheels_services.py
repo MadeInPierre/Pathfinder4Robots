@@ -2,7 +2,7 @@
 import rospy
 from robot_ai.srv import AIGenericCommand, AIGenericCommandResponse
 
-class MovementServices():
+class WheelsServices():
 	def __init__(self, department, package):
 		self.DepartmentName, self.PackageName = department, package
 		rospy.Service(self.PackageName, AIGenericCommand, self.on_generic_command)
@@ -25,6 +25,7 @@ class MovementServices():
 		return res_code, reason
 
 #/*=====  End of Service executions  ======*/
+
 
 	def tool_manual_response(self):
 		return 200 if bool(input("[" + self.__repr__() + "] Send success or not ? ")) else 600, "Response code manually set."

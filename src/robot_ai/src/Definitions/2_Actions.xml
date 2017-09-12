@@ -63,6 +63,7 @@
 			<orderref ref = "wheels_goto">
 				<param id="position"/>
 			</orderref>
+			<nextneedsprevious/>
 			<actionref ref="takein_module"/>
 		</actions>
 	</action>
@@ -78,6 +79,7 @@
 			<orderref ref = "wheels_goto">
 				<param id="position"/>
 			</orderref>
+			<nextneedsprevious/>
 			<actionref ref="takeout_module"/>
 		</actions>
 	</action>

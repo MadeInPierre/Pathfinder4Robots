@@ -2,7 +2,7 @@
 import rospy, time
 
 from robot_ai.srv import AIGenericCommand, AIGenericCommandResponse
-from robot_ai.msg import ai_timer
+from robot_ai_timer.msg import ai_timer
 
 '''
 TIME UNIT IN SECONDS

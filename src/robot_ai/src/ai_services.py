@@ -34,7 +34,7 @@ class AIServices():
 
 
 	def tool_manual_response(self):
-		return 200 if bool(input("Send success or not ? ")) else 600, "Response code manually set."
+		return 200 if bool(input("[" + self.__repr__() + "] Send success or not ? ")) else 600, "Response code manually set."
 	def validate_request(self, req):
 		if not req.department  == self.DepartmentName: 	return False
 		if not req.destination == self.PackageName: 	return False

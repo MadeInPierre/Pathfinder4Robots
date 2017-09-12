@@ -5,6 +5,6 @@
   :depends-on (:roslisp-msg-protocol :roslisp-utils :geometry_msgs-msg
 )
   :components ((:file "_package")
-    (:file "MappingPathfinderGetPathService" :depends-on ("_package_MappingPathfinderGetPathService"))
-    (:file "_package_MappingPathfinderGetPathService" :depends-on ("_package"))
+    (:file "GetPathWaypoints" :depends-on ("_package_GetPathWaypoints"))
+    (:file "_package_GetPathWaypoints" :depends-on ("_package"))
   ))

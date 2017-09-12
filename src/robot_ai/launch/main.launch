@@ -28,7 +28,7 @@
 
 	<!-- DEPARTMENT AI -->
 	<group ns="ai">
-		<node name= "timer" 		pkg="robot_ai" 						type="ai_timer_node.py"			output="screen"/>
+		<node name= "timer" 		pkg="robot_ai_timer"				type="ai_timer_node.py"			output="screen"/>
 		<node name= "main" 			pkg="robot_ai" 						type="ai_node.py" 				output="screen"/>
 	</group>
 </launch>

@@ -18,6 +18,9 @@ class AINode():
 		self.AI = RobotAI("strategy_ftw", self.communication) #TODO get strategy name from command line param
 		self.services = AIServices(self.DepartmentName, self.PackageName)
 
+		self.runAI()
+
+	def runAI(self):
 		#Debug: show task tree when starting the system
 		rospy.loginfo("[AI] Launching robot with strategy :")
 		self.AI.Strategy.PrettyPrint()
@@ -30,6 +33,7 @@ class AINode():
 				self.AI.Strategy.PrettyPrint()
 				rospy.loginfo("[AI] In-Game actions finished!")
 				break
+		
 
 	def wait_for_departments(self):
 		pass # TODO wait for all services to be ready.

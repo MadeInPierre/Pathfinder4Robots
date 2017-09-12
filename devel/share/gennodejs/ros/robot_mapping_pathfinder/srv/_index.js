@@ -1,8 +1,8 @@
 
 "use strict";
 
-let MappingPathfinderGetPathService = require('./MappingPathfinderGetPathService.js')
+let GetPathWaypoints = require('./GetPathWaypoints.js')
 
 module.exports = {
-  MappingPathfinderGetPathService: MappingPathfinderGetPathService,
+  GetPathWaypoints: GetPathWaypoints,
 };

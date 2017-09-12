@@ -379,7 +379,7 @@ class Order(Task):
 			self.Name = self.Ref
 
 		self.Duration = float(xml.attrib["duration"]) if "duration" in xml.attrib else 0.0 # Manually estimated time to execute this action
-		self.Reward   = int(xml.attrib["reward"]) if "reward" in xml.attrib else 0
+		#self.Reward   = int(xml.attrib["reward"]) if "reward" in xml.attrib else 0 #TODO delete line :)
 		#self.Ratio = self.Reward / self.Duration # TODO Implement ?
 		
 		self.Message = Message(xml.find("message"))
@@ -404,7 +404,7 @@ class Order(Task):
 			#GameProperties.REWARD_POINTS += self.getReward() #TODO
 		else:
 			self.setStatus(TaskStatus.ERROR)
-			rospy.logerr("[AI] Order '{}' execution failed, code : {}, reason : '{}'".format(self.Name, response.response_code, response.reason))
+			rospy.logerr("[AI] Order '{}' execution failed (code : {}, reason : '{}')".format(self.Name, response.response_code, response.reason))
 
 	def __repr__(self):
 		c = Console()
