@@ -12,4 +12,7 @@ In order to launch the entire system, run `roslaunch robot_ai main.launch`.
 The work is currently under development and is only at its **very early stage**.
 - AI 80% done. Located in `src/robot_ai/src`, launch it by running `rosrun robot_ai ai_node.py`.
 - Basic Map Mapaner done. Currently is capable of loading a JSON Describing a map, and rendering a map debug image as well as a collision map for the pathdinder node.
-- Pathfinder package.
+- Pathfinder package
+
+Project structure :
+![Structure](readme/uml_project_structure.png)
