@@ -14,7 +14,7 @@ class MapManager_node():
 		self.pathfinder = Pathfinder()
 
 		#self.publisher = pub = rospy.Publisher("pathfinder", String, queue_size = 10)
-		self.NODE = rospy.init_node('mapping_pathfinder', log_level= rospy.DEBUG)
+		self.NODE = rospy.init_node('pathfinder', log_level= rospy.DEBUG)
 
 		# GetPath Service creation
 		getpath_service = rospy.Service('MappingPathfinderGetPathService', MappingPathfinderGetPathService, self.handlesrv_GetPath)
