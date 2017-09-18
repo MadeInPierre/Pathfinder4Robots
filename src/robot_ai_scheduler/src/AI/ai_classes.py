@@ -15,7 +15,7 @@ TESTS TOBEDONE
 	- Fastest ExecutionOrder
 
 WARNINGS
-	- Paused tasks re-activation not implemented 
+	- Paused tasks re-activation not implemented
 '''
 
 # utf-8 boxes link : http://jrgraphix.net/r/Unicode/2500-257F
@@ -91,7 +91,7 @@ class Task(object):
 
 	def getReward(self):
 		return self.Reward
-	
+
 	def setParent(self, parent):
 		self.Parent = parent
 	def setStatus(self, new_status, refresh_parent = True):
@@ -229,10 +229,10 @@ class ActionList(Task):
 		elif self.executionOrder == ExecutionOrder.RANDOM:
 			free_tasks = [task for task in self.TASKS if task.getStatus() == TaskStatus.FREE]
 			return free_tasks[randint(0, len(free_tasks) - 1)]
-		
+
 		elif self.executionOrder == ExecutionOrder.SIMULTANEOUS:
 			return [task for task in self.TASKS if task.getStatus() in [TaskStatus.FREE, TaskStatus.PENDING]] #TODO#1
-		
+
 		elif self.executionOrder == ExecutionOrder.FASTEST:
 			record, result = 10000000, None
 			for task in self.TASKS:
@@ -240,7 +240,7 @@ class ActionList(Task):
 					record = task.getDuration()
 					result = task
 			return result
-		
+
 		elif self.executionOrder == ExecutionOrder.MOSTREWARD:
 			record, result = -1, None
 			for task in [task for task in self.TASKS if task.getStatus() == TaskStatus.FREE]:
@@ -304,7 +304,7 @@ class ActionList(Task):
 
 	def find_executable_childs(self):
 		pass
-		
+
 	def prettyprint(self, indentlevel, hide = False):
 		if not hide:
 			super(ActionList, self).prettyprint(indentlevel)
@@ -360,12 +360,13 @@ class Action(Task):
 		c = Console();c.setstyle(Colors.BOLD);c.setstyle(Colors.BLUE)
 		c.addtext("[{} Action]".format(self.getStatusEmoji()))
 		c.endstyle();c.setstyle(Colors.BLUE);c.addtext(" {0} ".format(self.Name));c.endstyle();c.setstyle(Colors.GRAY)
-		
+
 		c.addtext("[{} {}{}{}]".format(ExecutionMode.toEmoji(self.TASKS.executionMode),
 										ExecutionOrder.toEmoji(self.TASKS.executionOrder),
 										", {}⚡".format(self.getReward()) if self.getReward() else "",
 										", ~{}⌛".format(int(self.TASKS.getDuration())) if self.TASKS.getDuration() else ""))
 		return c.getText()
+
 
 
 
@@ -381,7 +382,7 @@ class Order(Task):
 		self.Duration = float(xml.attrib["duration"]) if "duration" in xml.attrib else 0.0 # Manually estimated time to execute this action
 		#self.Reward   = int(xml.attrib["reward"]) if "reward" in xml.attrib else 0 #TODO delete line :)
 		#self.Ratio = self.Reward / self.Duration # TODO Implement ?
-		
+
 		self.Message = Message(xml.find("message"))
 		self.TimeTaken = None
 
@@ -393,7 +394,7 @@ class Order(Task):
 			raise ValueError, "ERROR missing or too many parameters for message."'''
 		self.setStatus(TaskStatus.WAITINGFORRESPONSE)
 		rospy.loginfo("Executing task : {}...".format(self.__repr__()))
-		
+
 
 		response, self.TimeTaken = self.Message.send(communicator)
 
@@ -409,8 +410,8 @@ class Order(Task):
 	def __repr__(self):
 		c = Console()
 		c.setstyle(Colors.BOLD)
-		c.addtext("[{}{} Order] ".format(self.getStatusEmoji(), 
-										" , {0:.1f}⌛".format(self.TimeTaken) if self.getStatus() in [TaskStatus.SUCCESS, 
+		c.addtext("[{}{} Order] ".format(self.getStatusEmoji(),
+										" , {0:.1f}⌛".format(self.TimeTaken) if self.getStatus() in [TaskStatus.SUCCESS,
 										TaskStatus.ERROR, TaskStatus.PAUSED, TaskStatus.CRITICAL] else ""))
 		c.endstyle()
 		c.addtext("{}{}".format(self.Name, " [{}⚡]".format(self.Reward) if self.Reward else ""))
@@ -423,7 +424,7 @@ class Message():
 		self.Department  = xml.attrib["department"]
 		self.Destination = xml.find("dest").text if len(xml.findall("dest")) > 0 else "main"
 		self.Command     = xml.find("command").text
-		
+
 		# Save which parameters are needed for the message
 		self.NeededParamsIDs = []
 		for param in xml.find("params").findall("param"):
@@ -434,7 +435,7 @@ class Message():
 		for param in xml.find("params"):
 			pass
 		#self.check_valid() TODO reput
-		self.Parameters = xml.find("params").text #TODO do full params handling, this is just pasting the params tag 
+		self.Parameters = xml.find("params").text #TODO do full params handling, this is just pasting the params tag
 
 	def check_valid(self): #checks if all parameters are valid
 		#TODO forget that ? hardcoded
