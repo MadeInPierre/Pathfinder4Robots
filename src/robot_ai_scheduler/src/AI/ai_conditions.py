@@ -1,4 +1,4 @@
-class ConditionCreator():
+class ConditionManager():
 	def __init__(self):
 		pass
 
@@ -11,6 +11,13 @@ class ConditionCreator():
 			pass
 		else:
 			raise ValueError, "ERROR condition '{}' type not recognised.".format(xml.tag)
+
+	def checkConditions():
+		for condition in self.Conditions:
+			if condition.checkCondition():
+				return 200, ""
+			else:
+				return 500, "ERROR Condition '{}' not executable.".format()
 
 
 
