@@ -78,9 +78,29 @@
 				"current": {}
 			}
 		},
-		"Enemy": {
+		"BigEnemy": {
 			"position": {
 				"x": 2400,
+				"y": 1200,
+				"a": 3.1415,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 200,
+				"viz_color": [200, 0, 200]
+			},
+			"chest": {
+
+			},
+			"trajectory": {
+				"history": {},
+				"current": {}
+			}
+		},
+		"SmallEnemy": {
+			"position": {
+				"x": 1800,
 				"y": 1200,
 				"a": 3.1415,
 				"type": "dynamic"
