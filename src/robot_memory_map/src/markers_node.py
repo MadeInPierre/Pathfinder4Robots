@@ -21,7 +21,7 @@ class MarkersPublisher():
         tableSTLMarker.ns = "table"
         tableSTLMarker.id=0
 
-        tableSTLMarker.mesh_resource = mapdict["terrain"]["stl_path"] #TODO adapt when Definitions will be done
+        tableSTLMarker.mesh_resource = mapdict["terrain"]["mesh_path"] #TODO adapt when Definitions will be done
         tableSTLMarker.action = Marker.ADD
         tableSTLMarker.scale.x = 0.001
         tableSTLMarker.scale.y = 0.001
@@ -46,7 +46,7 @@ class MarkersPublisher():
             o = mapdict["objects"][o]
             if o.Type == "object":
                 marker = Marker()
-                marker.header.frame_id = "/map"
+                marker.header.frame_id = o.Position.frame_id
                 marker.type = o.Visual.Type
                 marker.ns = o.Visual.NS
                 marker.id = o.Visual.ID

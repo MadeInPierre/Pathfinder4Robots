@@ -8,8 +8,8 @@ class Map():
         self.NODE = rospy.init_node('map', log_level=rospy.DEBUG)
         MapDict = MapLoader().load("Definitions/map_2018.yml")
         markers = MarkersPublisher(MapDict)
-        
-        r = rospy.Rate(1)
+
+        r = rospy.Rate(30)
         while not rospy.is_shutdown():
             markers.publishObjects(MapDict)
             r.sleep()

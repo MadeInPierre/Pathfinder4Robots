@@ -67,6 +67,7 @@ LOW LEVEL DEFINITION CLASSES
 '''
 class Position():
 	def __init__(self, initdict):
+		self.frame_id = initdict["frame_id"]
 		self.x = float(initdict["x"])
 		self.y = float(initdict["y"])
 
