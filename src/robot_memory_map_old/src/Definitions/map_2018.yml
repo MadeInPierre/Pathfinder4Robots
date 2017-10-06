@@ -1,0 +1,174 @@
+terrain:
+    map_size:
+        width: 3.0
+        height: 2.0
+    walls:
+        sth: 0 #TODO create main map polygons.
+        model_path: "path/to/3D/file.stl"
+    #TODO keep zones ?
+    waypoints:
+        construction_site_1:
+            position:
+                x: 0.18
+                y: 0.19
+                a: 0.00304
+                type: fixed #TODO useless ? can be different ?
+    entities:
+        ROBOT:
+            position:
+                x: 0.1
+                y: 0.6
+                a: 0.002
+                type: dynamic
+            shape:
+                type: polygon
+                points:
+                    - [ 29, -140]
+                    - [ 85, -84 ]
+                    - [ 85,  140]
+                    - [-85,  140]
+                    - [-85, -84 ]
+                    - [-29, -140]
+            visual: #TODO integrate in shape ?
+                color: [255, 50, 50]
+            chest: null
+            trajectory:
+                history: null
+                currentpath: null
+        buddy:
+            position:
+                x: 1.243
+                y: 0.42
+                a: 3.1415
+                type: dynamic
+            shape:
+                type: polygon
+                points:
+                    - [ 29, -140] # TODO complete
+            visual: #TODO integrate in shape ?
+                color: [255, 50, 50]
+            chest: null
+            trajectory:
+                history: null
+                currentpath: null
+        GE:
+            position:
+                x: 0.33
+                y: 0.42
+                a: 3.1415
+                type: dynamic
+            shape:
+                type: circle
+                radius: 0.02
+            visual: #TODO integrate in shape ?
+                color: [255, 50, 50]
+            chest: null
+            trajectory:
+                history: null
+                currentpath: null
+        PE:
+            position:
+                x: 243
+                y: 42
+                a: 3.1415
+                type: dynamic
+            shape:
+                type: polygon
+                points:
+                    - [ 29, -140] # TODO complete
+            visual: #TODO integrate in shape ?
+                color: [255, 50, 50]
+            chest: null
+            trajectory:
+                history: null
+                currentpath: null
+
+    objects:
+        cubes:
+            type: group
+            objects:
+                cube_1:
+                    type: object
+                    position:
+                        x: 850
+                        y: 480
+                        a: 0
+                        type: pickable #TODO usable value ?
+                    shape:
+                        type: rect
+                        width: 0.06
+                        height: 0.06
+                        color: [20, 255, 20]
+                    properties:
+                        ground_obstacle: true # is the object to be avoided in the pathfinder
+                    userdata:
+                        color: green
+
+                cube_2:
+                    type: object
+                    position:
+                        x: 790
+                        y: 540
+                        a: 0
+                        type: pickable #TODO usable value ?
+                    shape:
+                        type: rect
+                        width: 0.06
+                        height: 0.06
+                        color: [20, 20, 255]
+                    properties:
+                        ground_obstacle: true # is the object to be avoided in the pathfinder
+                    userdata:
+                        color: blue
+
+                cube_3:
+                    type: object
+                    position:
+                        x: 850
+                        y: 540
+                        a: 0
+                        type: pickable #TODO usable value ?
+                    shape:
+                        type: rect
+                        width: 0.06
+                        height: 0.06
+                        color: [255, 255, 20]
+                    properties:
+                        ground_obstacle: true # is the object to be avoided in the pathfinder
+                    userdata:
+                        color: yellow
+
+                cube_4:
+                    type: object
+                    position:
+                        x: 910
+                        y: 540
+                        a: 0
+                        type: pickable #TODO usable value ?
+                    shape:
+                        type: rect
+                        width: 0.06
+                        height: 0.06
+                        color: [20, 20, 20]
+                    properties:
+                        ground_obstacle: true # is the object to be avoided in the pathfinder
+                    userdata:
+                        color: black
+
+                cube_5:
+                    type: object
+                    position:
+                        x: 850
+                        y: 600
+                        a: 0
+                        type: pickable #TODO usable value ?
+                    shape:
+                        type: rect
+                        width: 0.06
+                        height: 0.06
+                        color: [255, 140, 20]
+                    properties:
+                        ground_obstacle: true # is the object to be avoided in the pathfinder
+                    userdata:
+                        color: orange
+                

@@ -1,0 +1,606 @@
+{
+	"terrain": {
+		"map_size": {
+			"width": 3000,
+			"height": 2000
+		},
+		"walls": {
+			"img_path": "map.bmp",
+			"img": null,
+			"viz_img": null,
+			"pathfinder_img": null
+		},
+		"zones": {
+			"side_modules_blue": {
+				"position": {
+					"x": 0,
+					"y": 700,
+					"type": "fixed"
+				},
+				"shape": {
+					"type": "rect",
+					"width": 80,
+					"height": 450
+				},
+				"properties": {
+					"walkable": false
+				}
+			},
+			"side_modules_yellow": {
+				"position": {
+					"x": 2920,
+					"y": 700,
+					"type": "fixed"
+				},
+				"shape": {
+					"type": "rect",
+					"width": 80,
+					"height": 450
+				},
+				"properties": {
+					"walkable": false
+				}
+			}
+		},
+		"waypoints": {
+			"fire": {
+				"position": {
+					"x": 180,
+					"y": 180,
+					"type": "fixed"
+				}
+			}
+		}
+	},
+	"entities": {
+		"ROBOT": {
+			"position": {
+				"x": 2725,
+				"y": 900,
+				"a": 0,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "polygon",
+				"points": [ [ 29, -140],
+							[ 85, -84 ],
+							[ 85,  140],
+							[-85,  140],
+							[-85, -84 ],
+							[-29, -140]],
+				"viz_color": [255, 50, 50]
+			},
+			"chest": {
+
+			},
+			"trajectory": {
+				"history": {},
+				"current": {}
+			}
+		},
+		"buddy": {},
+		"GE": {
+			"position": {
+				"x": 2400,
+				"y": 1200,
+				"a": 3.1415,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 200,
+				"viz_color": [200, 0, 200]
+			},
+			"chest": {
+
+			},
+			"trajectory": {
+				"history": {},
+				"current": {}
+			}
+		},
+		"PE": {
+			"position": {
+				"x": 1800,
+				"y": 1200,
+				"a": 3.1415,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 200,
+				"viz_color": [200, 0, 200]
+			},
+			"chest": {
+
+			},
+			"trajectory": {
+				"history": {},
+				"current": {}
+			}
+		}
+	},
+	"objects": {
+		"module_0": {
+			"type": "object",
+			"position": {
+				"x": 950,
+				"y": 200,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 31,
+				"viz_color": "blue"
+			},
+			"userdata": {
+				"color": "blue"
+			}
+		},
+		"module_1": {
+			"type": "object",
+			"position": {
+				"x": 200,
+				"y": 600,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 31,
+				"viz_color": "blue"
+			},
+			"userdata": {
+				"color": "blue"
+			}
+		},
+		"module_2": {
+			"type": "object",
+			"position": {
+				"x": 1000,
+				"y": 600,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 31,
+				"viz_color": "gray"
+			},
+			"userdata": {
+				"color": "mixed"
+			}
+		},
+		"module_3": {
+			"type": "object",
+			"position": {
+				"x": 500,
+				"y": 1100,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 31,
+				"viz_color": "gray"
+			},
+			"userdata": {
+				"color": "mixed"
+			}
+		},
+		"module_4": {
+			"type": "object",
+			"position": {
+				"x": 900,
+				"y": 1400,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 31,
+				"viz_color": "gray"
+			},
+			"userdata": {
+				"color": "mixed"
+			}
+		},
+		"module_5": {
+			"type": "object",
+			"position": {
+				"x": 800,
+				"y": 1850,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 31,
+				"viz_color": "blue"
+			},
+			"userdata": {
+				"color": "blue"
+			}
+		},
+
+
+
+
+
+
+
+
+
+		"module_6": {
+			"type": "object",
+			"position": {
+				"x": 2050,
+				"y": 200,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 31,
+				"viz_color": "yellow"
+			},
+			"userdata": {
+				"color": "yellow"
+			}
+		},
+		"module_7": {
+			"type": "object",
+			"position": {
+				"x": 2800,
+				"y": 600,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 31,
+				"viz_color": "yellow"
+			},
+			"userdata": {
+				"color": "yellow"
+			}
+		},
+		"module_8": {
+			"type": "object",
+			"position": {
+				"x": 2000,
+				"y": 600,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 31,
+				"viz_color": "gray"
+			},
+			"userdata": {
+				"color": "mixed"
+			}
+		},
+		"module_9": {
+			"type": "object",
+			"position": {
+				"x": 2500,
+				"y": 1100,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 31,
+				"viz_color": "gray"
+			},
+			"userdata": {
+				"color": "mixed"
+			}
+		},
+		"module_10": {
+			"type": "object",
+			"position": {
+				"x": 2050,
+				"y": 1400,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 31,
+				"viz_color": "gray"
+			},
+			"userdata": {
+				"color": "mixed"
+			}
+		},
+		"module_11": {
+			"type": "object",
+			"position": {
+				"x": 2200,
+				"y": 1850,
+				"type": "dynamic"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 31,
+				"viz_color": "yellow"
+			},
+			"userdata": {
+				"color": "yellow"
+			}
+		},
+
+
+
+
+
+
+
+
+		"tower_1": {
+			"type": "container",
+			"position": {
+				"x": 1150,
+				"y": 40,
+				"type": "fixed"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 35,
+				"viz_color": "blue"
+			},
+			"chest": {
+				"module_1": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "blue"
+					}
+				},
+				"module_2": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "blue"
+					}
+				},
+				"module_3": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "blue"
+					}
+				},
+				"module_4": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "blue"
+					}
+				}
+			},
+			"userdata": {}
+		},
+		"tower_2": {
+			"type": "container",
+			"position": {
+				"x": 40,
+				"y": 1350,
+				"type": "fixed"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 35,
+				"viz_color": "gray"
+			},
+			"chest": {
+				"module_1": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "mixed"
+					}
+				},
+				"module_2": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "mixed"
+					}
+				},
+				"module_3": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "mixed"
+					}
+				},
+				"module_4": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "mixed"
+					}
+				}
+			},
+			"userdata": {}
+		},
+		"tower_3": {
+			"type": "container",
+			"position": {
+				"x": 1850,
+				"y": 40,
+				"type": "fixed"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 35,
+				"viz_color": "yellow"
+			},
+			"chest": {
+				"module_1": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "yellow"
+					}
+				},
+				"module_2": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "yellow"
+					}
+				},
+				"module_3": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "yellow"
+					}
+				},
+				"module_4": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "yellow"
+					}
+				}
+			},
+			"userdata": {}
+		},
+		"tower_4": {
+			"type": "container",
+			"position": {
+				"x": 2960,
+				"y": 1350,
+				"type": "fixed"
+			},
+			"shape": {
+				"type": "circle",
+				"radius": 35,
+				"viz_color": "gray"
+			},
+			"chest": {
+				"module_1": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "mixed"
+					}
+				},
+				"module_2": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "mixed"
+					}
+				},
+				"module_3": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "mixed"
+					}
+				},
+				"module_4": {
+					"type": "object",
+					"position": {
+						"type": "dynamic"
+					},
+					"shape": {
+						"type": "circle",
+						"radius": 31
+					},
+					"userdata": {
+						"color": "mixed"
+					}
+				}
+			},
+			"userdata": {}
+		}
+	}
+}
