@@ -3,15 +3,16 @@ import rospy, math
 from visualization_msgs.msg import Marker
 
 class MarkersPublisher():
-    def __init__(self, mapdict):
+    def __init__(self):
         self.MARKERS_TOPIC = "visualization_markers"
         self.MarkersPUBL = rospy.Publisher(self.MARKERS_TOPIC, Marker, queue_size = 10)
         while not self.MarkersPUBL.get_num_connections():
             rospy.sleep(0.05) # wait for RViz to connect
 
-        self.publishTable(mapdict)
-        self.markerShapes = {
-            "cube": Marker.CUBE
+        self.markerShapes = { #TODO Remove
+            "cube": Marker.CUBE,
+            "sphere": Marker.SPHERE,
+            "mesh": Marker.MESH_RESOURCE
         }
 
     def publishTable(self, mapdict):

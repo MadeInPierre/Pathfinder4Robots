@@ -10,7 +10,7 @@ class AINode():
 	def __init__(self):
 		self.DepartmentName, self.PackageName = "ai", "scheduler"
 
-		self.NODE = rospy.init_node('main', log_level = rospy.INFO)
+		self.NODE = rospy.init_node('main', log_level = rospy.DEBUG)
 		self.communication = AICommunication()
 
 		self.wait_for_departments()

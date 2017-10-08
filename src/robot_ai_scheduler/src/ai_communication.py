@@ -11,14 +11,13 @@ class AICommunication():
 		dest = "/{}/{}".format(msg_department, msg_dest)
 		rospy.logdebug("[AI] Sending service request to service '{}'...".format(dest))
 
+		rospy.logdebug("[AI]     Waiting for service to be available...")
 		rospy.wait_for_service(dest)
+
+		rospy.logdebug("[AI]     Sending request.")
 		service = rospy.ServiceProxy(dest, robot_ai.srv.AIGenericCommand)
+		rospy.logdebug("[AI]     Got response!")
+
 		return service(msg_department, msg_dest, msg_command, msg_params)
 
-	def ServiceRequest(self):
-		# Send a service (waiting for a response)
-		pass
-
-
-
-# THREADING THIS : https://stackoverflow.com/questions/6800984/python-how-to-pass-and-run-a-callback-method-in-python
+# THREADING THIS : https://stackoverflow.com/questions/6800984/python-how-to-pass-and-run-a-callback-method-in-python ==> FORGET : USE ACTIONS

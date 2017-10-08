@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -49,8 +50,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 # add_message_files(
 #   FILES
-#   Message1.msg
-#   Message2.msg
+#   message.msg
 # )
 
 ## Generate services in the 'srv' folder
@@ -103,6 +103,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
+    CATKIN_DEPENDS message_runtime
 #  INCLUDE_DIRS include
 #  LIBRARIES robot_memory_map
 #  CATKIN_DEPENDS roscpp rospy std_msgs

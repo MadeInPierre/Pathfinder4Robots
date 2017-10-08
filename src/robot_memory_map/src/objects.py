@@ -151,7 +151,8 @@ class Visual():
 		self.NS = initdict["ns"]
 		self.ID = initdict["id"]
 		markerType = {
-			"cube": Marker.CUBE
+			"cube": Marker.CUBE,
+            "sphere": Marker.SPHERE
 			#TODO To Complete
 		}
 		self.Type           = markerType[initdict["type"]]
