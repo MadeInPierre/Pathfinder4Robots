@@ -1,4 +1,4 @@
-#Description
+#Description : AIScheduler
 
 This package takes care of choosing what actions to take based on an `actions` definition list.
 The definition files are located under `src/Definitions`.

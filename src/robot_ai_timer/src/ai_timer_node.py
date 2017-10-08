@@ -9,23 +9,22 @@ TIME UNIT IN SECONDS
 '''
 class TimerNode():
 	def __init__(self):
-		self.DepartmentName = "ai"
-		self.PackageName = "timer"
+		self.DepartmentName, self.PackageName = "ai", "timer"
 		self.NODE = rospy.init_node(self.PackageName, log_level = rospy.INFO)
 		self.SERV = rospy.Service(  self.PackageName, AIGenericCommand, self.on_srv_request)
 		self.PUBL = rospy.Publisher("/game_timer", ai_timer, queue_size = 10)
 
-		self.Duration = None
-		self.Started = False
+		self.Duration = None # Holds the match duration.
+		self.Started = False # Set to true when Timer is triggered.
 
-		self.run()
+		self.run() # Publishes the current time, time left and whether the match is over.
 
 	def on_srv_request(self, req):
 		res_code, reason = 200, ""
-		if req.command == "timer_start":
+        if req.command == "timer_set_duration":
+            self.Duration = int(req.params)
+		elif req.command == "timer_start":
 			self.start()
-		elif req.command == "timer_set_duration":
-			self.Duration = int(req.params)
 		else:
 			rospy.logerr("robot_ai_timer got non-recognized command '{}'.".format(req.command))
 			res_code, reason = 404, "command not recognized"
@@ -55,4 +54,4 @@ class TimerNode():
 
 
 if __name__ == "__main__":
-	timer = TimerNode()
+	TimerNode()
