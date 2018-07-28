@@ -1,4 +1,6 @@
-# Work in Progress
+**Update:** This project has been taken over and is being continued by the UTCoupe Robotics team. Please see what the system looks like now at http://github.com/utcoupe/coupe18
+
+# ~~~Work in Progress~
 
 This is a General Purpose, Task-based full Robotics system based on ROS.
 
